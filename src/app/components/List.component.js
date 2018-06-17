@@ -16,6 +16,9 @@ import AppTheme from '../../colortheme';
 import actions from '../../actions';
 import '../../translationRegistration';
 
+import UserCell from './UserCell.component';
+import UserDetails from './UserDetails.component';
+
 const styles = {
   activeColor:  "#00C853",
   disabledColor: "#E53935",
@@ -140,13 +143,30 @@ export default React.createClass({
       });
     },
 
-    handleUserChange(r,c) {
+    handleUserSelect(r,c) {
       this.setState({selectedUser:this.state.users[r]});
     },
 
-    handleUserEdit(event,value) {
-      console.log(event.target,value);
+    handleUserEdit(user) {
+      if (user===undefined) {
+        return false;
+      }
+      // @TODO redux this user and send to edit page
+      console.log('edit user',user.displayName);
     },
+
+    // Toggle the disable flag on a user
+    handleUserDisable(user) {
+      if (user===undefined) {
+        return false;
+      }
+      //update the UI
+      user.userCredentials.disabled = !user.userCredentials.disabled;
+      // @TODO redux this user and toggle disable flag
+      // @TODO send disable command to API
+      console.log('disable user toggle',user.displayName);
+    },
+
 
     //DISPLAY THE INFO
     render() {
@@ -156,7 +176,7 @@ export default React.createClass({
         const user = this.state.selectedUser;
 
         return (
-          <div className="wrapper" key={this.state.loaderName}>
+          <div className="wrapper">
             <h2 className="title">{d2.i18n.getTranslation('list')}</h2>
             <h3 className="subTitle">{d2.i18n.getTranslation('app')}</h3>
 
@@ -164,44 +184,40 @@ export default React.createClass({
                   <CircularProgress size={4} />
                 </div> : null }
 
-
-
                 <Paper className="card filters">
                   <h3>Filters</h3>
                   <p>Select your filter type to limit your search</p>
                   <p>Start typing your filter value</p>
-
-
                 </Paper>
 
                 <Paper className="card listing">
 
-                <Tabs
-                  value={this.state.tab}
-                  onChange={this.handleChangeTab}
-                  inkBarStyle={{height: 4, bottom: 2}}
-                  inkBarContainerStyle={{background:'red'}}
-                >
-                  <Tab label="All Users" value="all">
-                    <div>
-                    </div>
-                  </Tab>
-                  <Tab label="Active Users" value="active">
-                    <div>
-                    </div>
-                  </Tab>
-                  <Tab label="Disabled Users" value="disabled">
-                    <div>
-                    </div>
-                  </Tab>
-                </Tabs>
+                  <Tabs
+                    value={this.state.tab}
+                    onChange={this.handleChangeTab}
+                    inkBarStyle={{height: 4, bottom: 2}}
+                    inkBarContainerStyle={{background:'red'}}
+                  >
+                    <Tab label="All Users" value="all">
+                      <div>
+                      </div>
+                    </Tab>
+                    <Tab label="Active Users" value="active">
+                      <div>
+                      </div>
+                    </Tab>
+                    <Tab label="Disabled Users" value="disabled">
+                      <div>
+                      </div>
+                    </Tab>
+                  </Tabs>
 
-                <h2>{this.state.userCount} Users found</h2>
+                  <h2>{this.state.userCount} Users found</h2>
 
                   <Table
                     selectable={true}
                     multiSelectable={false}
-                    onCellClick={this.handleUserChange}
+                    onCellClick={this.handleUserSelect}
                   >
                     <TableBody
                       displayRowCheckbox={false}
@@ -212,29 +228,11 @@ export default React.createClass({
                       {data.map( (user, index) => (
                         <TableRow key={index} className="listingRow">
                           <TableRowColumn>
-
-                            <h4>{user.surname}, {user.firstName}</h4>
-
-                            <FloatingActionButton
-                              mini={true}
-                              style={{float:'right'}}
-                              backgroundColor={(user.userCredentials.disabled===true)?styles.disabledColor:styles.activeColor}
-                            >
-                              <FontIcon className="material-icons">{(user.userCredentials.disabled===true)?'cancel':'check_box'}</FontIcon>
-                            </FloatingActionButton>
-                            <FloatingActionButton key={index} mini={true} style={{float:'right'}} onClick={this.handleUserEdit}>
-                              <FontIcon className="material-icons">edit</FontIcon>
-                            </FloatingActionButton>
-
-                            <p>
-                              <FontIcon className="material-icons" style={styles.icon}>email</FontIcon> {user.email}
-                            </p>
-                            <p>
-                              <FontIcon className="material-icons" style={styles.icon}>person</FontIcon> {user.userCredentials.username}
-                            </p>
-
-
-
+                            <UserCell
+                              user={user}
+                              onClickEdit={this.handleUserEdit}
+                              onClickDisable={this.handleUserDisable}
+                            />
                           </TableRowColumn>
                           <TableRowColumn
                             style={{
@@ -262,46 +260,11 @@ export default React.createClass({
 
                 {(user===false)?null:
                 <Paper className="card details">
-                    <h3>{user.displayName}</h3>
-                    <p>
-                      <FontIcon className="material-icons" style={styles.icon}>work</FontIcon>
-                      <strong>User Type:</strong> ????????PARTNER?AGENCY?
-                      </p>
-                    <p>
-                      <FontIcon className="material-icons" style={styles.icon}>supervisor_account</FontIcon>
-                      <strong>Organization:</strong> {user.employer}
-                    </p>
-                    <p>
-                      <FontIcon className="material-icons" style={styles.icon}>map</FontIcon>
-                      <strong>Country:</strong> ?????OU_LEVEL_3????/GLOBAL
-                    </p>
-                    <p>
-                      <FontIcon className="material-icons" style={styles.icon}>access_time</FontIcon>
-                      <strong>Last Login:</strong> {user.userCredentials.lastLogin}
-                      </p>
-
-                    <h4>Data streams</h4>
-                      Access	Data entry
-                      MER
-                      MER Country Team
-                      Expenditure
-                      SIMS
-                      MOH
-                      Actions
-                       Read Data
-                       Submit data
-
-                   <FloatingActionButton
-                     mini={true}
-                     style={{float:'right'}}
-                     backgroundColor={(user.userCredentials.disabled===true)?styles.disabledColor:styles.activeColor}
-                   >
-                     <FontIcon className="material-icons">{(user.userCredentials.disabled===true)?'cancel':'check_box'}</FontIcon>
-                   </FloatingActionButton>
-                   <FloatingActionButton mini={true} style={{float:'right'}}>
-                     <FontIcon className="material-icons">edit</FontIcon>
-                   </FloatingActionButton>
-
+                    <UserDetails
+                      user={user}
+                      onClickEdit={this.handleUserEdit}
+                      onClickDisable={this.handleUserDisable}
+                    />
                 </Paper>
               }
 
