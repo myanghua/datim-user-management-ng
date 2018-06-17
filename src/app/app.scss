@@ -1,0 +1,127 @@
+@import '../../node_modules/d2-ui/lib/css/HeaderBar.css';
+
+$primary1Color: #4786a6;
+$primary2Color: #29B6F6;
+$primary3Color: #039BE5;
+$accent1Color: #9575CD;
+$accent2Color: #F5F5F5;
+$accent3Color: #9E9E9E;
+$textColor: #212121;
+$alternateTextColor: #ffffff;
+
+html {
+  background-color: #f3f3f3;
+  font-family: Roboto, Arial, sans-serif;
+}
+
+p {
+  line-height: .5;
+}
+
+.app-wrapper {
+  margin-top: 5rem;
+}
+
+.content-area {
+  margin-left: 30;
+}
+
+/* APP SPECIFIC STYLES */
+$main-color: $primary1Color;
+
+.snackbar {
+  left: 2rem;
+  right: initial;
+}
+
+.menuwrapper {
+  max-width: 1280px;
+  margin: auto;
+  z-index: 5000;
+  position: relative;
+}
+
+.menu {
+  float: right;
+}
+
+.wrapper {
+  position: relative;
+  max-width: 1280px;
+  margin: auto;
+}
+
+.progressWrapper {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: rgba(100,100,100,.5);
+  left: 0;
+  top: 0;
+  text-align: center;
+  padding-top: 10em;
+  z-index: 5000;
+}
+
+.title {
+  margin-bottom: 0;
+  width: 30em;
+}
+.subTitle {
+  color: #717171;
+  font-weight: lighter;
+  margin-top: 0;
+  width: 30em;
+}
+
+.subdued {
+  color: $accent3Color;
+}
+
+.card {
+  padding: 1.5em;
+  margin: .5em;
+  float: left;
+}
+
+.card.filters {
+  width: 96%;
+}
+
+.card.listing {
+  width: 65%;
+  padding: 0;
+}
+
+.card.listing h2{
+  padding-left:1em;
+}
+
+.card.details {
+  width: 30%;
+}
+
+.card.details p{
+  line-height: 1em;
+}
+
+.listingRow {
+}
+
+.listingRow h4 {
+  margin-bottom: 0;
+}
+
+.listingRow p {
+  margin: 5px 0 5px 10px
+}
+
+.rotate90 {
+  transform-origin: right;
+  transform: rotate(-90deg);
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+}
+
+p .material-icons {
+  vertical-align: middle;
+}
