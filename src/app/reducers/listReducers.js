@@ -1,12 +1,12 @@
 // @flow
-import * as actions from '../constants/ActionTypes';
+import * as actions from "../constants/ActionTypes";
 
 const initialState = {
-  userCount:0,
-  users:[],
-  selectedUser:false,
-  filters:[],
-  tab: 'all'
+  users: [],
+  pager: {},
+  selectedUser: false,
+  filters: [],
+  tab: "all",
 };
 
 export const listReducers = (state = initialState, action) => {
@@ -14,27 +14,27 @@ export const listReducers = (state = initialState, action) => {
     case actions.SET_USERS:
       return {
         ...state,
-        users: action.data
+        users: action.data,
       };
     case actions.SET_USER:
       return {
         ...state,
-        selectedUser: action.data
+        selectedUser: action.data,
       };
-    case actions.SET_USERCOUNT:
+    case actions.SET_PAGER:
       return {
         ...state,
-        userCount: action.data
+        pager: action.data,
       };
     case actions.SET_FILTERS:
       return {
         ...state,
-        filters: action.data
+        filters: action.data,
       };
     case actions.SET_TAB:
       return {
         ...state,
-        tab: action.data
+        tab: action.data,
       };
     default: {
       return state;
