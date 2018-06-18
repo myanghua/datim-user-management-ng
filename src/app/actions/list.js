@@ -1,6 +1,5 @@
 import * as actions from "../constants/ActionTypes";
 import * as d2Actions from "../../actions";
-import filterCategories from "../components/filterCategories";
 
 export function getUserListing(d2, filters = [], page) {
   return (dispatch, getState) => {

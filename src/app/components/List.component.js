@@ -21,7 +21,7 @@ import "../../translationRegistration";
 
 import UserCell from "./UserCell.component";
 import UserDetails from "./UserDetails.component";
-import Filter from "./Filter.component";
+import FilterManager from "./filter/FilterManager.component";
 import Pager from "./Pager.component";
 
 const styles = {
@@ -103,10 +103,10 @@ class List extends Component<Props> {
   };
 
   handlePageChange = newPage => {
+    this.props.setCurrentPage(newPage);
     const { filters } = this.props.list;
     const filterStrings = Object.values(filters).map(filter => filter.str);
 
-    this.props.setCurrentPage(newPage);
     this.props.getUserListing(this.props.d2, filterStrings, newPage);
   };
 
@@ -130,38 +130,13 @@ class List extends Component<Props> {
     const { nextPage: nextPageUrl = "", prevPage: prevPageUrl = "" } = pager;
     const nextPage = getPageNumber(nextPageUrl);
     const prevPage = getPageNumber(prevPageUrl);
-    const filterList = filters.length
-      ? filters
-      : {
-          name_0: {
-            category: "name",
-            str: "",
-          },
-        };
-
-    const filterComponents = Object.entries(filterList).map((filter, i) => {
-      const filterId = `_${i}`;
-      return (
-        <Filter
-          key={filterId}
-          id={filterId}
-          filter={filter[1]}
-          onChange={this.handleFilterChange}
-        />
-      );
-    });
 
     return (
       <div className="wrapper">
         <h2 className="title">{d2.i18n.getTranslation("list")}</h2>
         <h3 className="subTitle">{d2.i18n.getTranslation("app")}</h3>
 
-        <Paper className="card filters">
-          <h3>Filters</h3>
-          <p>Select your filter type to limit your search</p>
-          <p>Start typing your filter value</p>
-        </Paper>
-        {filterComponents}
+        <FilterManager filters={filters} onChange={this.handleFilterChange} />
 
         <Paper className="card listing">
           <Tabs

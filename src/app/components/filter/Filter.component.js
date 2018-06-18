@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import throttle from "lodash.throttle";
 import filterCategories from "./filterCategories";
-import { setFilter } from "../actions/list";
+import { setFilter } from "../../actions/list";
 
 import "./Filter.component.css";
 
