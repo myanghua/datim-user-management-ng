@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 import { getInstance } from 'd2/lib/d2';
 
@@ -6,14 +7,11 @@ import Paper from 'material-ui/lib/paper';
 import TextField from 'material-ui/lib/text-field';
 import FontIcon from 'material-ui/lib/font-icon';
 import RaisedButton from 'material-ui/lib/raised-button';
-import FloatingActionButton from 'material-ui/lib/floating-action-button';
-import Snackbar from 'material-ui/lib/snackbar';
 import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/lib/table';
-import CircularProgress from 'material-ui/lib/circular-progress';
 import {Tabs, Tab} from 'material-ui/lib/tabs';
 
 import AppTheme from '../../colortheme';
-import actions from '../../actions';
+import actions from '../../actions';  //Snackbar
 import '../../translationRegistration';
 
 import UserCell from './UserCell.component';
@@ -28,79 +26,36 @@ const styles = {
   }
 }
 
+/**
+ * Main user listing screen
+ */
+class List extends Component<Props> {
+    props: Props;
 
-// TODO: Rewrite as ES6 class
-/* eslint-disable react/prefer-es6-class */
-export default React.createClass({
     propTypes: {
-        d2: React.PropTypes.object,
-    },
+        d2: PropTypes.object.isRequired,
+        getUserListing: PropTypes.func.isRequired,
+        setSelectedUser: PropTypes.func.isRequired,
+        setFilters: PropTypes.func.isRequired,
+        setTab: PropTypes.func.isRequired
+    }
 
-    contextTypes: {
-        d2: React.PropTypes.object,
-    },
+    constructor(props) {
+      super(props)
+      // get initial listing for the user
+      const { getUserListing } = this.props;
+      getUserListing(this.props.d2,{},0);
+      // bind functions in this class so they can run
+      this.handleUserSelect = this.handleUserSelect.bind(this);
+      this.handleChangeTab = this.handleChangeTab.bind(this);
+      this.handleUserEdit = this.handleUserEdit.bind(this);
+      this.handleUserDisable = this.handleUserDisable.bind(this);
+    }
 
-    //onload functions
-    componentDidMount() {
-      const d2 = this.props.d2;
-
-      // //get user groups as a cache
-      // d2.models.userGroups.list({ paging: false, fields: 'id,name' })
-      //   .then(groups => {
-      //     let g = {};
-      //     for (let group of groups){
-      //       g[group[1].name]={id:group[1].id,name:group[1].name};
-      //     }
-      //     this.setState({groups:g});
-      //   })
-      //   .catch(err => {
-      //     this.setState({
-      //       warnings: ["No user groups defined"].concat(this.state.warnings),
-      //       groups:{}
-      //     });
-      //     actions.showSnackbarMessage("No user groups defined");
-      //     console.log(err);
-      //   });
-      //
-      // //get user roles as a cache
-      // d2.models.userRoles.list({ paging: false, fields: 'id,name' })
-      //   .then(roles => {
-      //     let g = {};
-      //     for (let role of roles){
-      //       g[role[1].name]={id:role[1].id,name:role[1].name};
-      //     }
-      //     this.setState({roles:g});
-      //   })
-      //   .catch(err => {
-      //     this.setState({
-      //       warnings: ["No user roles defined"].concat(this.state.warnings),
-      //       roles:{}
-      //     });
-      //     actions.showSnackbarMessage("No user roles defined");
-      //     console.log(err);
-      // });
-
-      this.getUserListing({},0);
-
-    },
-
-    getInitialState() {
-        return {
-          processing: false,
-          roles:[],
-          groups:[],
-          ous:[],
-          types:[],
-          userCount:0,
-          users:[],
-          selectedUser:false,
-          filters:[],
-          tab: 'all'
-         };
-    },
-
+    // Clicked on Tab interface for all/active/disabled users
     handleChangeTab(value) {
-      let filters = this.state.filters;
+      const { getUserListing, setFilters, setTab } = this.props;
+      let filters = this.props.list.filters;
       switch (value) {
         case 'all':
           delete(filters.status);
@@ -112,48 +67,24 @@ export default React.createClass({
           filters.status='userCredentials.disabled:eq:true';
           break;
       }
+      setTab(value);
+      setFilters(filters);
+      getUserListing(this.props.d2,filters,0);
+    }
 
-      this.setState({
-        tab: value,
-        filters: filters,
-      });
-
-      this.getUserListing(filters,0);
-
-    },
-
-    getUserListing(filters,page) {
-
-      this.setState({processing:true});
-      const d2 = this.props.d2;
-      let params = {
-        paging: true,
-        fields: 'id,surname,firstName,email,employer,displayName,userCredentials[username,disabled,lastLogin]',
-        page: page
-      };
-      if (Object.values(filters).length>0){
-        params.filter = Object.values(filters).join(',');
-      }
-      d2.models.users.list(params).then(u=>{
-        this.setState({
-          users:u.toArray(),
-          userCount:u.pager.total,
-          processing: false,
-        });
-      });
-    },
-
+    // What to do when the click on a table row
     handleUserSelect(r,c) {
-      this.setState({selectedUser:this.state.users[r]});
-    },
+      this.props.setSelectedUser(this.props.list.users[r]);
+    }
 
+    // Send user to editing interface
     handleUserEdit(user) {
       if (user===undefined) {
         return false;
       }
       // @TODO redux this user and send to edit page
       console.log('edit user',user.displayName);
-    },
+    }
 
     // Toggle the disable flag on a user
     handleUserDisable(user) {
@@ -165,24 +96,18 @@ export default React.createClass({
       // @TODO redux this user and toggle disable flag
       // @TODO send disable command to API
       console.log('disable user toggle',user.displayName);
-    },
+    }
 
-
-    //DISPLAY THE INFO
+    // DISPLAY THE INFO
     render() {
-        const d2 = this.props.d2;
+        const { d2 } = this.props;
 
-        const data = this.state.users;
-        const user = this.state.selectedUser;
+        let { users, selectedUser, filters, userCount, tab } = this.props.list;
 
         return (
           <div className="wrapper">
             <h2 className="title">{d2.i18n.getTranslation('list')}</h2>
             <h3 className="subTitle">{d2.i18n.getTranslation('app')}</h3>
-
-                { (this.state.processing) ? <div className="progressWrapper">
-                  <CircularProgress size={4} />
-                </div> : null }
 
                 <Paper className="card filters">
                   <h3>Filters</h3>
@@ -193,26 +118,21 @@ export default React.createClass({
                 <Paper className="card listing">
 
                   <Tabs
-                    value={this.state.tab}
+                    value={tab}
                     onChange={this.handleChangeTab}
                     inkBarStyle={{height: 4, bottom: 2}}
                     inkBarContainerStyle={{background:'red'}}
                   >
-                    <Tab label="All Users" value="all">
-                      <div>
-                      </div>
-                    </Tab>
+                    <Tab label="All Users" value="all" />
                     <Tab label="Active Users" value="active">
-                      <div>
-                      </div>
+                      <div></div>
                     </Tab>
                     <Tab label="Disabled Users" value="disabled">
-                      <div>
-                      </div>
+                      <div></div>
                     </Tab>
                   </Tabs>
 
-                  <h2>{this.state.userCount} Users found</h2>
+                  <h2>{userCount} Users found</h2>
 
                   <Table
                     selectable={true}
@@ -225,7 +145,7 @@ export default React.createClass({
                       showRowHover={true}
                       stripedRows={true}
                     >
-                      {data.map( (user, index) => (
+                      {users.map( (user, index) => (
                         <TableRow key={index} className="listingRow">
                           <TableRowColumn>
                             <UserCell
@@ -258,10 +178,10 @@ export default React.createClass({
 
                 </Paper>
 
-                {(user===false)?null:
+                {(!selectedUser)?null:
                 <Paper className="card details">
                     <UserDetails
-                      user={user}
+                      user={selectedUser}
                       onClickEdit={this.handleUserEdit}
                       onClickDisable={this.handleUserDisable}
                     />
@@ -270,7 +190,8 @@ export default React.createClass({
 
           </div>
         );
-    },
+    }
 
+}
 
-});
+export default List;

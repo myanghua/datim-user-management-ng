@@ -1,7 +1,6 @@
 import React from 'react';
 
 import FontIcon from 'material-ui/lib/font-icon';
-import FloatingActionButton from 'material-ui/lib/floating-action-button';
 
 import AppTheme from '../../colortheme';
 import actions from '../../actions';
@@ -60,23 +59,6 @@ class UserDetails extends React.Component {
           Actions
            Read Data
            Submit data
-
-         <FloatingActionButton
-           mini={true}
-           style={{float:'right'}}
-           backgroundColor={(user.userCredentials.disabled===true)?styles.disabledColor:styles.activeColor}
-           onClick={this.handleClickDisable}
-         >
-           <FontIcon className="material-icons">{(user.userCredentials.disabled===true)?'cancel':'check_box'}</FontIcon>
-         </FloatingActionButton>
-
-         <FloatingActionButton
-           mini={true}
-           style={{float:'right'}}
-           onClick={this.handleClickEdit}
-         >
-           <FontIcon className="material-icons">edit</FontIcon>
-         </FloatingActionButton>
 
       </div>
     );

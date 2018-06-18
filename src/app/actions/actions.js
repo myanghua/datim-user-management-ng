@@ -5,3 +5,15 @@ export function closeSnackbar() {
     type: actions.CLOSE_SNACKBAR
   }
 }
+
+export function closeProgressSpinner() {
+  return {
+    type: actions.HIDE_PROCESSING
+  }
+}
+
+export function openProgressSpinner() {
+  return {
+    type: actions.SHOW_PROCESSING
+  }
+}
