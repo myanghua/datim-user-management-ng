@@ -16,12 +16,10 @@ class MainMenu extends Component<Props> {
     propTypes: {
       d2: PropTypes.object.isRequired,
       setPage: PropTypes.func.isRequired,
-      onMenuClick: PropTypes.func.isRequired,
     }
 
     constructor(props) {
       super(props)
-      console.log(props);
       // bind functions in this class so they can run
       this.handleListAction = this.handleListAction.bind(this);
       this.handleInviteAction = this.handleInviteAction.bind(this);
@@ -30,12 +28,10 @@ class MainMenu extends Component<Props> {
     // Show the list page
     handleListAction() {
       this.props.setPage('list');
-      this.props.onMenuClick('list');
     }
     // Show the Invite page
     handleInviteAction() {
       this.props.setPage('invite');
-      this.props.onMenuClick('invite');
     }
 
     // DISPLAY THE BUTTONS

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import log from 'loglevel';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import HeaderBarComponent from 'd2-ui/lib/app-header/HeaderBar';
 import headerBarStore$ from 'd2-ui/lib/app-header/headerBar.store';
@@ -14,6 +15,8 @@ import FontIcon from 'material-ui/lib/font-icon';
 import AppTheme from '../colortheme';
 import actions from '../actions';
 import '../translationRegistration';
+
+import * as coreActions from './actions/core';
 
 const HeaderBar = withStateFrom(headerBarStore$, HeaderBarComponent);
 
@@ -40,7 +43,9 @@ class App extends Component<Props> {
     constructor(props) {
       super(props);
       this.state = {snackbar:'',mainMenu:{page:'list'}};
-      this.handleMenuAction = this.handleMenuAction.bind(this);
+      // this.handleMenuAction = this.handleMenuAction.bind(this);
+      //bootstrap some items
+      props.getCountries(this.props.d2);
     }
 
     getChildContext() {
@@ -79,11 +84,11 @@ class App extends Component<Props> {
         this.setState({ snackbar: message });
     }
 
-    setSection(key) {
-        this.setState({ section: key });
-    }
+    // setSection(key) {
+    //     this.setState({ section: key });
+    // }
 
-    renderSection(key, apps) {
+    renderSection(key) {
         const d2 = this.props.d2;
           switch (key) {
             case "invite":
@@ -97,12 +102,6 @@ class App extends Component<Props> {
         }
     }
 
-    // What to do when they click on a menu button
-    // @TODO:: get state higher up so we can send to edit page as well
-    handleMenuAction(menu) {
-      this.setSection(menu);
-    }
-
     render() {
       const d2 = this.props.d2;
       return (
@@ -110,7 +109,7 @@ class App extends Component<Props> {
             <HeaderBar/>
             <Processing />
             <div className="menuwrapper">
-              <MainMenu d2={d2} onMenuClick={this.handleMenuAction}/>
+              <MainMenu d2={d2}/>
             </div>
             <Snackbar className="snackbar"
                 message={this.state.snackbar || ''}
@@ -119,11 +118,18 @@ class App extends Component<Props> {
                 open={!!this.state.snackbar}
             />
             <div className="content-area">
-                {this.renderSection(this.state.section)}
+                {this.renderSection(this.props.mainMenu.page)}
             </div>
           </div>
       );
     }
 }
 
-export default App;
+const mapStateToProps = state => {
+  return state;
+};
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators(coreActions, dispatch);
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
