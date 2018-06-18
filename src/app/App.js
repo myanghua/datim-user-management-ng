@@ -21,7 +21,8 @@ let injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
 
 import List from './containers/ListPage.js';
-// import Invite from './components/Invite.component.js';
+import MainMenu from './containers/MainMenu.js';
+import Invite from './components/Invite.component.js';
 import Processing from './components/Processing.component.js';
 
 class App extends Component<Props> {
@@ -38,7 +39,8 @@ class App extends Component<Props> {
 
     constructor(props) {
       super(props);
-      this.state = {snackbar:''};
+      this.state = {snackbar:'',mainMenu:{page:'list'}};
+      this.handleMenuAction = this.handleMenuAction.bind(this);
     }
 
     getChildContext() {
@@ -81,49 +83,34 @@ class App extends Component<Props> {
         this.setState({ section: key });
     }
 
-    renderSection(key, apps, showUpload) {
+    renderSection(key, apps) {
         const d2 = this.props.d2;
           switch (key) {
             case "invite":
-              // return (<Invite d2={d2}/>);
+              return (<Invite d2={d2}/>);
           // case "edit":
           //     return (<Edit d2={d2}/>);
 
-            //The landing page
+            // The landing page
             default:
               return (<List d2={d2}/>);
         }
     }
 
-    handleListAction() {
-    }
-
-    handleInviteAction() {
-      console.log('invite')
-      this.setSection('invite');
+    // What to do when they click on a menu button
+    // @TODO:: get state higher up so we can send to edit page as well
+    handleMenuAction(menu) {
+      this.setSection(menu);
     }
 
     render() {
       const d2 = this.props.d2;
-
       return (
           <div className="app-wrapper">
             <HeaderBar/>
             <Processing />
             <div className="menuwrapper">
-              <div className="menu">
-                <RaisedButton
-                   primary={true}
-                    onClick={this.handleListAction}
-                    label={d2.i18n.getTranslation('list')}
-                    icon={<FontIcon className="material-icons">people-outline</FontIcon>} />
-                <RaisedButton
-                  primary={true}
-                  style={{marginLeft:"1em"}}
-                  onClick={this.handlInviteAction}
-                  label={d2.i18n.getTranslation('invite')}
-                  icon={<FontIcon className="material-icons">person-add</FontIcon>} />
-              </div>
+              <MainMenu d2={d2} onMenuClick={this.handleMenuAction}/>
             </div>
             <Snackbar className="snackbar"
                 message={this.state.snackbar || ''}

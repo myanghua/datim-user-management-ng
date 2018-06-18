@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { getInstance } from 'd2/lib/d2';
-
 import Paper from 'material-ui/lib/paper';
 import TextField from 'material-ui/lib/text-field';
 import FontIcon from 'material-ui/lib/font-icon';

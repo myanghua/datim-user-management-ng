@@ -2,6 +2,7 @@ export const CLOSE_SNACKBAR = "CLOSE_SNACKBAR";
 
 export const SHOW_PROCESSING = 'SHOW_PROCESSING';
 export const HIDE_PROCESSING = 'HIDE_PROCESSING';
+export const SET_PAGE = "SET_PAGE";
 
 // core models
 export const SET_ROLES = "SET_ROLES";

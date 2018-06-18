@@ -5,7 +5,6 @@ import CircularProgress from 'material-ui/lib/circular-progress';
 
 class Processing extends React.Component {
   render() {
-    console.log(this.props.processing);
     return (
       <div>
         { (this.props.processing.processing) ? <div className="progressWrapper">
