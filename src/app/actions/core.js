@@ -22,6 +22,22 @@ export function getCountries(d2) {
   }
 };
 
+export function getLocales(d2) {
+  return (dispatch, getState) => {
+    d2.Api.getApi().get('/locales/ui').then(res=>{
+      dispatch({ type: actions.SHOW_PROCESSING, status: true });
+      dispatch({ type: actions.SET_LOCALES, data: res });
+      dispatch({ type: actions.HIDE_PROCESSING, status: false });
+    })
+    .catch(e=>{
+      // @TODO:: snackbar alert
+      //d2Actions.showSnackbarMessage("Error fetching data");
+      console.error(e);
+    });
+  }
+}
+
+
 // Parse the main object config file
 export function parseConfiguration() {
   return (dispatch, getState) => {
@@ -41,6 +57,6 @@ export function parseConfiguration() {
     // @TODO:: roles, groups, locales
 
     dispatch({ type: actions.HIDE_PROCESSING, status: false });
-    
+
   }
 };

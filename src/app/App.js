@@ -24,10 +24,10 @@ const HeaderBar = withStateFrom(headerBarStore$, HeaderBarComponent);
 let injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
 
-import List from './containers/ListPage.js';
 import MainMenu from './containers/MainMenu.js';
-import Invite from './components/Invite.component.js';
 import Processing from './components/Processing.component.js';
+import Invite from './containers/InvitePage.js';
+import List from './containers/ListPage.js';
 
 class App extends Component<Props> {
     props: Props;
@@ -48,6 +48,7 @@ class App extends Component<Props> {
       //bootstrap some items
       props.getCountries(this.props.d2);
       props.parseConfiguration();
+      props.getLocales(this.props.d2);
     }
 
     getChildContext() {
