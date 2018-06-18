@@ -43,7 +43,7 @@
     "babel-preset-react": "^6.0.0",
     "babel-preset-stage-0": "^6.5.0",
     "css-loader": "^0.23.1",
-    "d2": "^28.3.1",
+    "d2": "^29.1.5",
     "d2-manifest": "^1.0.0",
     "d2-ui": "~25.0",
     "enzyme": "^3.3.0",
