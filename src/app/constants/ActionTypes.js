@@ -20,4 +20,6 @@ export const SET_USERS = "SET_USERS";
 export const SET_USER = "SET_USER";
 export const SET_PAGER = "SET_PAGER";
 export const SET_FILTERS = "SET_FILTERS";
+export const SET_FILTER = "SET_FILTER";
 export const SET_TAB = "SET_TAB";
+export const SET_CURRENT_PAGE = "SET_CURRENT_PAGE";

@@ -1,7 +1,8 @@
 import * as actions from "../constants/ActionTypes";
 import * as d2Actions from "../../actions";
+import filterCategories from "../components/filterCategories";
 
-export function getUserListing(d2, filters, page) {
+export function getUserListing(d2, filters = [], page) {
   return (dispatch, getState) => {
     dispatch({ type: actions.SHOW_PROCESSING, status: true });
 
@@ -11,8 +12,8 @@ export function getUserListing(d2, filters, page) {
         "id,surname,firstName,email,employer,displayName,userCredentials[username,disabled,lastLogin]",
       page: page,
     };
-    if (Object.values(filters).length > 0) {
-      params.filter = Object.values(filters).join(",");
+    if (filters.length > 0) {
+      params.filter = filters.join(",");
     }
     d2.models.users
       .list(params)
@@ -39,6 +40,18 @@ export function setSelectedUser(user) {
 export function setFilters(filters) {
   return dispatch => {
     dispatch({ type: actions.SET_FILTERS, data: filters });
+  };
+}
+
+export function setFilter(data) {
+  return dispatch => {
+    dispatch({ type: actions.SET_FILTER, data });
+  };
+}
+
+export function setCurrentPage(page) {
+  return dispatch => {
+    dispatch({ type: actions.SET_CURRENT_PAGE, data: page });
   };
 }
 
