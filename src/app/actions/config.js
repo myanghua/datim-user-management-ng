@@ -1,4 +1,4 @@
-{
+const configuration = {
   "Agency": {
     "actions": [
       {
@@ -65,7 +65,7 @@
           "View Data": {
             "groupName": "Data PRIME access",
             "groupUID": "c6hGi8GEZot",
-            "locked": 0, 
+            "locked": 0,
             "preSelected": 0,
             "selectWhenUA": 1
           },
@@ -488,3 +488,5 @@
     }
   }
 }
+
+export default configuration;

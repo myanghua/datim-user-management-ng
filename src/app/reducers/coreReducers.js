@@ -7,7 +7,9 @@ const initialState = {
   groups: [],
   countries: [],
   userTypes: [],
-  locales: []
+  locales: [],
+  streams: [],
+  config: {},
 };
 
 export const coreReducers = (state = initialState, action) => {
@@ -16,6 +18,16 @@ export const coreReducers = (state = initialState, action) => {
       return {
         ...state,
         d2: action.d2
+      };
+    case actions.SET_CONFIG:
+      return {
+        ...state,
+        config: action.data
+      };
+    case actions.SET_STREAMS:
+      return {
+        ...state,
+        streams: action.data
       };
     case actions.SET_ROLES:
       return {

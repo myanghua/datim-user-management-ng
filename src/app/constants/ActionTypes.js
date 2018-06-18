@@ -5,10 +5,12 @@ export const HIDE_PROCESSING = 'HIDE_PROCESSING';
 export const SET_PAGE = "SET_PAGE";
 
 // core models
+export const SET_CONFIG = "SET_CONFIG";
+export const SET_STREAMS = "SET_STREAMS";
 export const SET_ROLES = "SET_ROLES";
 export const SET_GROUPS = "SET_GROUPS";
 export const SET_COUNTRIES = "SET_COUNTRIES";
-export const SET_USERTYPES = "SET_USERTYPESc";
+export const SET_USERTYPES = "SET_USERTYPES";
 export const SET_LOCALES = "SET_LOCALES";
 
 // listing

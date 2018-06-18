@@ -16,6 +16,7 @@ import AppTheme from '../colortheme';
 import actions from '../actions';
 import '../translationRegistration';
 
+import * as otherActions from './actions/actions';
 import * as coreActions from './actions/core';
 
 const HeaderBar = withStateFrom(headerBarStore$, HeaderBarComponent);
@@ -46,6 +47,7 @@ class App extends Component<Props> {
       // this.handleMenuAction = this.handleMenuAction.bind(this);
       //bootstrap some items
       props.getCountries(this.props.d2);
+      props.parseConfiguration();
     }
 
     getChildContext() {
