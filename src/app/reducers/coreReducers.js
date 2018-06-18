@@ -3,6 +3,7 @@ import * as actions from '../constants/ActionTypes';
 
 const initialState = {
   d2: {},
+  me: {},
   roles: [],
   groups: [],
   countries: [],
@@ -18,6 +19,11 @@ export const coreReducers = (state = initialState, action) => {
       return {
         ...state,
         d2: action.d2
+      };
+    case actions.SET_ME:
+      return {
+        ...state,
+        me: action.data
       };
     case actions.SET_CONFIG:
       return {

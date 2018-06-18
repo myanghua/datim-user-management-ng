@@ -1,6 +1,40 @@
 import * as actions from '../constants/ActionTypes';
 import config from './config.js';
 
+// save a copy of D2 in the store
+export function setD2(d2) {
+  return (dispatch) => {
+    dispatch({ type: actions.SET_D2, d2: d2 });
+  }
+};
+
+// Current user and authorizations
+export function setMe() {
+  return (dispatch, getState) => {
+    const { core } = getState();
+    core.d2.Api.getApi().get('/me?fields=:all,userCredentials[:owner,!userGroupAccesses,userRoles[id,name,displayName]],!userGroupAccesses,userGroups[id,name,displayName],organisationUnits[id,name]')
+      .then(me=>{
+        core.d2.Api.getApi().get('/me/authorization').then( auth =>{
+          me.authorizations = auth;
+          dispatch({ type: actions.SET_ME, data: me });
+          console.log('ME',me);
+        })
+        .catch(e=>{
+          // @TODO:: snackbar alert
+          //d2Actions.showSnackbarMessage("Error fetching data");
+          console.error(e);
+        });
+
+      })
+      .catch(e=>{
+        // @TODO:: snackbar alert
+        //d2Actions.showSnackbarMessage("Error fetching data");
+        console.error(e);
+      });
+  }
+};
+
+
 export function getCountries(d2) {
   return (dispatch, getState) => {
     let params = {

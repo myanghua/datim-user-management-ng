@@ -5,6 +5,8 @@ export const HIDE_PROCESSING = "HIDE_PROCESSING";
 export const SET_PAGE = "SET_PAGE";
 
 // core models
+export const SET_D2 = "SET_D2";
+export const SET_ME = "SET_ME";
 export const SET_CONFIG = "SET_CONFIG";
 export const SET_STREAMS = "SET_STREAMS";
 export const SET_ROLES = "SET_ROLES";
