@@ -46,12 +46,12 @@ class App extends Component<Props> {
       this.state = {snackbar:'',mainMenu:{page:'list'}};
       // this.handleMenuAction = this.handleMenuAction.bind(this);
       //bootstrap some items
-      props.setD2(this.props.d2);
+      props.setD2(props.d2);
       props.setMe();
 
-      props.getCountries(this.props.d2);
+      props.getCountries(props.d2);
       props.parseConfiguration();
-      props.getLocales(this.props.d2);
+      props.getLocales(props.d2);
     }
 
     getChildContext() {
