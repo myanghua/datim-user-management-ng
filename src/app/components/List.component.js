@@ -49,6 +49,7 @@ class List extends Component<Props> {
   constructor(props) {
     super(props);
     // get initial listing for the user
+
     const { getUserListing } = this.props;
     getUserListing(this.props.d2, {}, 0);
     // bind functions in this class so they can run
@@ -56,8 +57,7 @@ class List extends Component<Props> {
     this.handleChangeTab = this.handleChangeTab.bind(this);
     this.handleUserEdit = this.handleUserEdit.bind(this);
     this.handleUserDisable = this.handleUserDisable.bind(this);
-    this.handleNextPage = this.handleNextPage.bind(this);
-    this.handlePreviousPage = this.handlePreviousPage.bind(this);
+    this.handlePageChange = this.handlePageChange.bind(this);
   }
 
   // Clicked on Tab interface for all/active/disabled users
@@ -94,14 +94,10 @@ class List extends Component<Props> {
     console.log("edit user", user.displayName);
   }
 
-  handleNextPage() {
-    const { nextPage } = this.props.list.pager;
-    console.log("nextPage", nextPage);
-  }
+  handlePageChange(newPage) {
+    const { filters } = this.props.list;
 
-  handlePreviousPage() {
-    const { prevPage } = this.props.list.pager;
-    console.log("prevPage", prevPage);
+    this.props.getUserListing(this.props.d2, filters, newPage);
   }
 
   // Toggle the disable flag on a user
@@ -120,9 +116,18 @@ class List extends Component<Props> {
   render() {
     const { d2 } = this.props;
 
-    console.log("props.list", this.props.list);
-
     let { users, selectedUser, filters, pager, tab } = this.props.list;
+
+    const { nextPage: nextPageUrl = "", prevPage: prevPageUrl = "" } = pager;
+
+    const getPageNumber = url => {
+      const equalsPos = url.lastIndexOf("=");
+      const idx = equalsPos !== -1 ? equalsPos + 1 : null;
+      return idx ? url.slice(idx) : 0;
+    };
+
+    const nextPage = getPageNumber(nextPageUrl);
+    const prevPage = getPageNumber(prevPageUrl);
 
     return (
       <div className="wrapper">
@@ -200,8 +205,9 @@ class List extends Component<Props> {
 
           <Pager
             pager={pager}
-            onNext={this.handleNextPage}
-            onPrevious={this.handlePreviousPage}
+            onPageChange={this.handlePageChange}
+            nextPage={nextPage}
+            prevPage={prevPage}
           />
         </Paper>
 

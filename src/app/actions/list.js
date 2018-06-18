@@ -3,8 +3,6 @@ import * as d2Actions from "../../actions";
 
 export function getUserListing(d2, filters, page) {
   return (dispatch, getState) => {
-    console.log("jj getUserListing");
-
     dispatch({ type: actions.SHOW_PROCESSING, status: true });
 
     let params = {

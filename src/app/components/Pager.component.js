@@ -1,23 +1,31 @@
-import React from "react";
+import React, { Component } from "react";
 
 //This is just a placeholder for now. Will be replaced with a real
 //pagination object when upgrading to material-ui 1.0
 
 const style = {
-  pager: {
-    container: {
-      float: "right",
-      margin: "10px",
-    },
-    page: {
-      display: "inline-block",
-      padding: "2px",
-    },
+  container: {
+    float: "right",
+    margin: "10px",
+  },
+  button: {
+    padding: "5px",
+  },
+  disabled: {
+    color: "light-grey",
+  },
+  enabled: {
+    color: "black",
+  },
+  status: {
+    display: "inline-block",
   },
 };
 
 const backArrow = "<";
 const forwardArrow = ">";
+const endArrow = ">>";
+const startArrow = "<<";
 
 const PAGE_SIZE = 50;
 
@@ -25,7 +33,7 @@ const getStartPos = page => {
   return (page - 1) * PAGE_SIZE + 1;
 };
 
-export const Pager = ({ pager, onNext, onPrevious }) => {
+export const Pager = ({ pager, onPageChange, nextPage, prevPage }) => {
   const { page, pageCount, total } = pager;
 
   if (!total) {
@@ -37,20 +45,47 @@ export const Pager = ({ pager, onNext, onPrevious }) => {
   const backArrowStyle = startPos === 1 ? style.disabled : style.enabled;
   const forwardArrowStyle = endPos === total ? style.disabled : style.enabled;
 
+  const backStyle = Object.assign({}, style.button, backArrowStyle);
+  const nextStyle = Object.assign({}, style.button, forwardArrowStyle);
+
+  const onNextPage = () => {
+    if (nextPage) {
+      onPageChange(nextPage);
+    }
+  };
+
+  const onPreviousPage = () => {
+    if (prevPage) {
+      onPageChange(prevPage);
+    }
+  };
+
+  const onLastPage = () => {
+    if (page < pageCount) {
+      onPageChange(pageCount);
+    }
+  };
+
+  const onFirstPage = () => {
+    if (page !== 0) {
+      onPageChange(0);
+    }
+  };
+
   return (
-    <div className="pager" style={style.pager.container}>
-      <div style={style.pager.page}>{status}</div>
-      <button
-        onClick={onPrevious}
-        style={Object.assign({}, style.pager.page, backArrowStyle)}
-      >
+    <div className="pager" style={style.container}>
+      <div style={style.status}>{status}</div>
+      <button onClick={onFirstPage} style={backStyle}>
+        {startArrow}
+      </button>
+      <button onClick={onPreviousPage} style={backStyle}>
         {backArrow}
       </button>
-      <button
-        onClick={onNext}
-        style={Object.assign({}, style.pager.page, forwardArrowStyle)}
-      >
+      <button onClick={onNextPage} style={nextStyle}>
         {forwardArrow}
+      </button>
+      <button onClick={onLastPage} style={nextStyle}>
+        {endArrow}
       </button>
     </div>
   );
