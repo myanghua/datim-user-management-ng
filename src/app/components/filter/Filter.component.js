@@ -1,16 +1,16 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import throttle from "lodash.throttle";
+import debounce from "lodash.debounce";
 import filterCategories from "./filterCategories";
 import { setFilter } from "../../actions/list";
 
 import "./Filter.component.css";
 
 const filterString = (category, value) => {
-  return `${category}:ilike:${value}`;
+  return value ? `${category}:ilike:${value}` : null;
 };
 
-const FilterItemDetail = ({ id, onChange }) => {
+const FilterDetail = ({ id, onChange }) => {
   const category = filterCategories[id] || {};
 
   if (!category.model) {
@@ -31,33 +31,36 @@ const FilterItemDetail = ({ id, onChange }) => {
 class Filter extends Component {
   state = {
     filterCategory: "",
+    filterDetail: "",
   };
   componentDidMount() {
     this.setState({ filterCategory: this.props.filter.category });
+    this.onFilterChanged = debounce(this.onFilterChanged, 500);
   }
 
   onChangeCategory = e => {
     this.setState({ filterCategory: e.target.value });
   };
 
-  onFilterChanged = e => {
-    if (e && e.target && e.target.value) {
-      const filterId = `${this.state.filterCategory}${this.props.id}`;
-      const objToAdd = {
-        [filterId]: {
-          category: this.state.filterCategory,
-          str: filterString(this.state.filterCategory, e.target.value),
-        },
-      };
+  onChangeFilterDetail = e => {
+    this.setState({ filterDetail: e.target.value });
+    this.onFilterChanged(e.target.value.trim());
+  };
 
-      this.props.addFilter(objToAdd);
-      this.props.onChange();
-    }
+  onFilterChanged = text => {
+    const filterId = `${this.state.filterCategory}${this.props.id}`;
+    const objToAdd = {
+      [filterId]: {
+        category: this.state.filterCategory,
+        str: filterString(this.state.filterCategory, text),
+      },
+    };
+
+    this.props.addFilter(objToAdd);
+    this.props.onChange();
   };
 
   render() {
-    const onChangeFilter = throttle(this.onFilterChanged, 200);
-
     const options = Object.keys(filterCategories).map(categoryId => {
       const selected = this.state.filterCategory === categoryId ? true : null;
 
@@ -73,8 +76,8 @@ class Filter extends Component {
         <select className="filter-category" name="filter-category" onChange={this.onChangeCategory}>
           {options}
         </select>
-        <FilterItemDetail
-          onChange={onChangeFilter}
+        <FilterDetail
+          onChange={this.onChangeFilterDetail}
           className="filter-item-detail"
           id={this.state.filterCategory}
         />
