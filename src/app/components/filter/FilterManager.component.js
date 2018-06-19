@@ -8,17 +8,26 @@ const defaultFilterField = {
   detail: "",
 };
 
+const generateId = () => {
+  const now = new Date();
+  return `id_${now.getTime()}`;
+};
+
 export class FilterManager extends Component {
   state = {
-    filterFields: [],
+    newFields: {},
   };
 
   componentDidMount() {
-    this.setState({ filterFields: Object.values(this.props.filters) });
+    const newField = Object.assign({}, defaultFilterField, { id: generateId() });
+    const newFields = { [newField.id]: newField };
+    this.setState({ newFields });
   }
 
   addFilterField = () => {
-    console.log("add filter field", this.state);
+    const newField = Object.assign({}, defaultFilterField, { id: generateId() });
+    const newFields = Object.assign({}, this.state.newFields, { [newField.id]: newField });
+    this.setState({ newFields });
   };
 
   clearFilterFields = () => {
@@ -27,11 +36,9 @@ export class FilterManager extends Component {
 
   render() {
     const { onChange } = this.props;
-    const filterList = this.state.filterFields.length
-      ? this.state.filterFields
-      : [defaultFilterField];
+    const filterList = Object.assign({}, this.state.newFields, this.props.filters);
 
-    const filterFields = filterList.map(f => {
+    const filterFields = Object.values(filterList).map(f => {
       return <Filter key={f.id} filter={f} onChange={onChange} />;
     });
 

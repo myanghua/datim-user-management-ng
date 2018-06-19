@@ -6,7 +6,7 @@ const initialState = {
   users: [],
   pager: {},
   selectedUser: false,
-  filters: [],
+  filters: {},
   tab: "all",
   currentPage: 0,
 };

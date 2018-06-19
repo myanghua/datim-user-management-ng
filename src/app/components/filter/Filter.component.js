@@ -6,11 +6,6 @@ import { setFilter } from "../../actions/list";
 
 import "./Filter.component.css";
 
-const generateId = () => {
-  const now = new Date();
-  return `id_${now.getTime()}`;
-};
-
 const FilterDetail = ({ id, onChange }) => {
   const category = filterCategories[id] || {};
 
@@ -39,7 +34,7 @@ class Filter extends Component {
   componentDidMount() {
     const { id, category, detail } = this.props.filter;
 
-    this.setState({ id: id || generateId(), category, detail });
+    this.setState({ id, category, detail });
     this.onFilterChanged = debounce(this.onFilterChanged, 500);
   }
 

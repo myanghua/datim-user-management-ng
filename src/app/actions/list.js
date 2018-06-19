@@ -16,7 +16,7 @@ export function getUserListing(d2, filters = [], page) {
       page: page,
     };
     if (filters.length > 0) {
-      params.filter = filters.map(filter => filterString(filter.category, filter.detail)).join(",");
+      params.filter = filters.map(filter => filterString(filter.category, filter.detail));
     }
 
     d2.models.users
