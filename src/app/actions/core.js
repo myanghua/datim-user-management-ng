@@ -15,7 +15,22 @@ export function setMe() {
     core.d2.Api.getApi().get('/me?fields=:all,userCredentials[:owner,!userGroupAccesses,userRoles[id,name,displayName]],!userGroupAccesses,userGroups[id,name,displayName],organisationUnits[id,name]')
       .then(me=>{
         core.d2.Api.getApi().get('/me/authorization').then( auth =>{
-          me.authorizations = auth;
+          me.authorities = auth;
+
+          // add some functions to me to make querying easier
+          me.hasRole = (role) => {
+            return ((me.userCredentials || {}).userRoles || []).some(function (userRole) { return userRole.name === role; });
+          }
+          me.hasAllAuthority = () => {
+            return (me.authorities || []).indexOf('ALL') >= 0;
+          };
+          me.isUserAdministrator = () => {
+            return (me.hasUserRole('User Administrator'));
+          };
+          me.isGlobalUser = () => {
+            return (me.organisationUnits && me.organisationUnits.length && me.organisationUnits[0].name === 'Global');
+          };
+
           dispatch({ type: actions.SET_ME, data: me });
           console.log('ME',me);
         })
@@ -33,7 +48,6 @@ export function setMe() {
       });
   }
 };
-
 
 export function getCountries(d2) {
   return (dispatch, getState) => {

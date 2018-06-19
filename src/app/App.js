@@ -44,11 +44,10 @@ class App extends Component<Props> {
     constructor(props) {
       super(props);
       this.state = {snackbar:'',mainMenu:{page:'list'}};
-      // this.handleMenuAction = this.handleMenuAction.bind(this);
+
       //bootstrap some items
       props.setD2(props.d2);
       props.setMe();
-
       props.getCountries(props.d2);
       props.parseConfiguration();
       props.getLocales(props.d2);
