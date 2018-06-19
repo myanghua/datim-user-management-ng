@@ -2,21 +2,37 @@ import React, { Component } from "react";
 import Paper from "material-ui/lib/paper";
 import Filter from "./Filter.component";
 
-export class FilterManager extends Component {
-  render() {
-    const { filters, onChange } = this.props;
-    const filterList = filters.length
-      ? filters
-      : {
-          name_0: {
-            category: "name",
-            str: "",
-          },
-        };
+const defaultFilterField = {
+  id: "name_0",
+  category: "name",
+  detail: "",
+};
 
-    const filterComponents = Object.entries(filterList).map((filter, i) => {
-      const filterId = `_${i}`;
-      return <Filter key={filterId} id={filterId} filter={filter[1]} onChange={onChange} />;
+export class FilterManager extends Component {
+  state = {
+    filterFields: [],
+  };
+
+  componentDidMount() {
+    this.setState({ filterFields: Object.values(this.props.filters) });
+  }
+
+  addFilterField = () => {
+    console.log("add filter field", this.state);
+  };
+
+  clearFilterFields = () => {
+    console.log("clear filter fields");
+  };
+
+  render() {
+    const { onChange } = this.props;
+    const filterList = this.state.filterFields.length
+      ? this.state.filterFields
+      : [defaultFilterField];
+
+    const filterFields = filterList.map(f => {
+      return <Filter key={f.id} filter={f} onChange={onChange} />;
     });
 
     return (
@@ -26,7 +42,11 @@ export class FilterManager extends Component {
           <p>Select your filter type to limit your search</p>
           <p>Start typing your filter value</p>
         </Paper>
-        {filterComponents}
+        {filterFields}
+        <div>
+          <button onClick={this.addFilterField}>Add filter</button>
+          <button onClick={this.clearFilterFields}>Clear filters</button>
+        </div>
       </div>
     );
   }

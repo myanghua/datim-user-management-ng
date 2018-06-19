@@ -97,9 +97,7 @@ class List extends Component<Props> {
   handleFilterChange = () => {
     this.props.setCurrentPage(0);
     const { filters } = this.props.list;
-    const filterStrings = Object.values(filters).map(filter => filter.str);
-
-    this.props.getUserListing(this.props.d2, filterStrings, 0);
+    this.props.getUserListing(this.props.d2, Object.values(filters), 0);
   };
 
   handlePageChange = newPage => {

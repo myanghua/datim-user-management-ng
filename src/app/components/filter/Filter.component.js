@@ -6,10 +6,6 @@ import { setFilter } from "../../actions/list";
 
 import "./Filter.component.css";
 
-const filterString = (category, value) => {
-  return value ? `${category}:ilike:${value}` : null;
-};
-
 const FilterDetail = ({ id, onChange }) => {
   const category = filterCategories[id] || {};
 
@@ -30,39 +26,42 @@ const FilterDetail = ({ id, onChange }) => {
 
 class Filter extends Component {
   state = {
-    filterCategory: "",
-    filterDetail: "",
+    id: "name_0",
+    category: "name",
+    detail: "",
   };
+
   componentDidMount() {
-    this.setState({ filterCategory: this.props.filter.category });
+    const { id, category, detail } = this.props.filter;
+    this.setState({ id, category, detail });
     this.onFilterChanged = debounce(this.onFilterChanged, 500);
   }
 
   onChangeCategory = e => {
-    this.setState({ filterCategory: e.target.value });
+    this.setState({ category: e.target.value });
   };
 
   onChangeFilterDetail = e => {
-    this.setState({ filterDetail: e.target.value });
+    this.setState({ detail: e.target.value });
     this.onFilterChanged(e.target.value.trim());
   };
 
   onFilterChanged = text => {
-    const filterId = `${this.state.filterCategory}${this.props.id}`;
-    const objToAdd = {
-      [filterId]: {
-        category: this.state.filterCategory,
-        str: filterString(this.state.filterCategory, text),
+    const filter = {
+      [this.state.id]: {
+        id: this.state.id,
+        category: this.state.category,
+        detail: this.state.detail,
       },
     };
 
-    this.props.addFilter(objToAdd);
+    this.props.addFilter(filter);
     this.props.onChange();
   };
 
   render() {
     const options = Object.keys(filterCategories).map(categoryId => {
-      const selected = this.state.filterCategory === categoryId ? true : null;
+      const selected = this.state.category === categoryId ? true : null;
 
       return (
         <option key={categoryId} value={categoryId} selected={selected}>
@@ -79,7 +78,7 @@ class Filter extends Component {
         <FilterDetail
           onChange={this.onChangeFilterDetail}
           className="filter-item-detail"
-          id={this.state.filterCategory}
+          id={this.state.category}
         />
       </div>
     );

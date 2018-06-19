@@ -1,6 +1,10 @@
 import * as actions from "../constants/ActionTypes";
 import * as d2Actions from "../../actions";
 
+const filterString = (category, value) => {
+  return value ? `${category}:ilike:${value}` : null;
+};
+
 export function getUserListing(d2, filters = [], page) {
   return (dispatch, getState) => {
     dispatch({ type: actions.SHOW_PROCESSING, status: true });
@@ -12,8 +16,9 @@ export function getUserListing(d2, filters = [], page) {
       page: page,
     };
     if (filters.length > 0) {
-      params.filter = filters.join(",");
+      params.filter = filters.map(filter => filterString(filter.category, filter.detail)).join(",");
     }
+
     d2.models.users
       .list(params)
       .then(u => {
