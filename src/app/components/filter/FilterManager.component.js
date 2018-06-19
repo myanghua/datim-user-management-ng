@@ -3,7 +3,7 @@ import Paper from "material-ui/lib/paper";
 import Filter from "./Filter.component";
 
 const defaultFilterField = {
-  id: "name_0",
+  id: "",
   category: "name",
   detail: "",
 };
