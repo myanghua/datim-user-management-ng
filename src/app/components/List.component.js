@@ -134,8 +134,6 @@ class List extends Component<Props> {
         <h2 className="title">{d2.i18n.getTranslation("list")}</h2>
         <h3 className="subTitle">{d2.i18n.getTranslation("app")}</h3>
 
-        <FilterManager filters={filters} onChange={this.handleFilterChange} />
-
         <Paper className="card listing">
           <Tabs
             value={tab}
