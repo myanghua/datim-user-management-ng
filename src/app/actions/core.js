@@ -172,7 +172,7 @@ export function parseConfiguration() {
         streams.add(stream);
       }
     }
-    dispatch({ type: actions.SET_STREAMS, data: streams.values() });
+    dispatch({ type: actions.SET_STREAMS, data: [...streams] });
 
 
     // @TODO:: roles, groups, locales
