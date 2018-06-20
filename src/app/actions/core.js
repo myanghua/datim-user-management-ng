@@ -81,14 +81,24 @@ export function getCountries(d2) {
 
 export function getLocales(d2) {
   return (dispatch, getState) => {
-    d2.Api.getApi().get('/locales/ui').then(res=>{
-      dispatch({ type: actions.SET_LOCALES, data: res });
-    })
-    .catch(e=>{
-      // @TODO:: snackbar alert
-      //d2Actions.showSnackbarMessage("Error fetching data");
-      console.error(e);
-    });
+
+    const locales = localStorage.getItem('locales');
+
+    if (locales) {
+      dispatch({ type: actions.SET_LOCALES, data: JSON.parse(locales)});
+      console.log('LOCALES: pulling from cache');
+    }
+    else {
+      d2.Api.getApi().get('/locales/ui').then(res=>{
+        dispatch({ type: actions.SET_LOCALES, data: res });
+        localStorage.setItem('locales', JSON.stringify(res));
+      })
+      .catch(e=>{
+        // @TODO:: snackbar alert
+        //d2Actions.showSnackbarMessage("Error fetching data");
+        console.error(e);
+      });
+    }
   }
 }
 
