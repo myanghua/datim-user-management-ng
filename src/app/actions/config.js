@@ -1,5 +1,6 @@
 const configuration = {
   "Agency": {
+    "groupFilter": "^OU .+? Agency ",
     "actions": [
       {
         "hidden": 0,
@@ -99,6 +100,7 @@ const configuration = {
     }
   },
   "Global": {
+    "groupFilter": "^Global users",
     "actions": [
       {
         "hidden": 1,
@@ -174,6 +176,7 @@ const configuration = {
     }
   },
   "Inter-Agency": {
+    "groupFilter": "^OU .+? Country team$",
     "actions": [
       {
         "hidden": 0,
@@ -295,6 +298,7 @@ const configuration = {
     }
   },
   "MOH": {
+    "groupFilter": "^Data MOH access$",
     "actions": [
       {
         "hidden": 1,
@@ -322,6 +326,7 @@ const configuration = {
     }
   },
   "Partner": {
+    "groupFilter": "^OU .+? Partner ",
     "actions": [
       {
         "hidden": 0,
@@ -405,6 +410,8 @@ const configuration = {
     }
   },
   "Partner DoD": {
+    "groupFilter": " DoD ",
+    "isDoD": true,
     "actions": [
       {
         "hidden": 0,

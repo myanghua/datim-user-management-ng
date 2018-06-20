@@ -73,9 +73,7 @@ export function getCountries(d2) {
 export function getLocales(d2) {
   return (dispatch, getState) => {
     d2.Api.getApi().get('/locales/ui').then(res=>{
-      dispatch({ type: actions.SHOW_PROCESSING, status: true });
       dispatch({ type: actions.SET_LOCALES, data: res });
-      dispatch({ type: actions.HIDE_PROCESSING, status: false });
     })
     .catch(e=>{
       // @TODO:: snackbar alert
@@ -85,6 +83,62 @@ export function getLocales(d2) {
   }
 }
 
+export function getUserRoles(d2) {
+  return (dispatch, getState) => {
+    let params = {
+      paging: false,
+      fields: 'id,name,description',
+    };
+    d2.models.userRoles.list(params).then(res=>{
+
+      res.getByName = (name) => {
+        return res.filter((el) =>
+          (el.name.toLowerCase() === name.toLowerCase())
+        );
+      };
+      dispatch({ type: actions.SET_ROLES, data: res });
+    })
+    .catch(e=>{
+      // @TODO:: snackbar alert
+      //d2Actions.showSnackbarMessage("Error fetching data");
+      console.error(e);
+    });
+  }
+}
+
+export function getUseGroups(d2) {
+  return (dispatch, getState) => {
+    let params = {
+      paging: false,
+      fields: 'id,name,userGroupAccesses[id,displayName],managedByGroups',
+    };
+    d2.models.userGroups.list(params).then(res=>{
+      dispatch({ type: actions.SET_GROUPS, data: res });
+    })
+    .catch(e=>{
+      // @TODO:: snackbar alert
+      //d2Actions.showSnackbarMessage("Error fetching data");
+      console.error(e);
+    });
+  }
+}
+
+export function getUseTypes(d2) {
+  return (dispatch, getState) => {
+    let params = {
+      paging: false,
+      fields: 'id,name,userGroupAccesses[*],managedByGroups',
+    };
+    d2.models.userGroups.list(params).then(res=>{
+      dispatch({ type: actions.SET_USERTYPES, data: res });
+    })
+    .catch(e=>{
+      // @TODO:: snackbar alert
+      //d2Actions.showSnackbarMessage("Error fetching data");
+      console.error(e);
+    });
+  }
+}
 
 // Parse the main object config file
 export function parseConfiguration() {
