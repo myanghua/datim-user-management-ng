@@ -104,26 +104,61 @@ export function getLocales(d2) {
 
 export function getUserRoles(d2) {
   return (dispatch, getState) => {
-    let params = {
-      paging: false,
-      fields: 'id,name,description',
-    };
-    d2.models.userRoles.list(params).then(res=>{
-
-      res.getByName = (name) => {
-        return res.filter((el) =>
-          (el.name.toLowerCase() === name.toLowerCase())
-        );
+    const data = localStorage.getItem('userroles');
+    if (data) {
+      dispatch({ type: actions.SET_ROLES, data: JSON.parse(data)});
+      console.log('ROLES: pulling from cache');
+    }
+    else {
+      let params = {
+        paging: false,
+        fields: 'id,name,description',
       };
-      dispatch({ type: actions.SET_ROLES, data: res });
-    })
-    .catch(e=>{
-      // @TODO:: snackbar alert
-      //d2Actions.showSnackbarMessage("Error fetching data");
-      console.error(e);
-    });
+      d2.models.userRoles.list(params).then(res=>{
+        res.getByName = (name) => {
+          return res.filter((el) =>
+            (el.name.toLowerCase() === name.toLowerCase())
+          );
+        };
+        dispatch({ type: actions.SET_ROLES, data: res });
+        localStorage.setItem('userroles', JSON.stringify(res));
+      })
+      .catch(e=>{
+        // @TODO:: snackbar alert
+        //d2Actions.showSnackbarMessage("Error fetching data");
+        console.error(e);
+      });
+    }
   }
 }
+
+
+export function getFundingAgencyUID(d2) {
+  return (dispatch, getState) => {
+    const data = localStorage.getItem('fundingagency');
+    if (data) {
+      dispatch({ type: actions.SET_ROLES, data: data});
+      console.log('FUNDING AGENCY: pulling from cache');
+    }
+    else {
+      let params = {
+        paging: false,
+        fields: 'id',
+        filter: 'name:eq:Funding Agency'
+      };
+      d2.models.categoryOptionGroupSets.list(params).then(res=>{
+        dispatch({ type: actions.SET_FUNDINGAGENCY, data: res.toArray()[0].id });
+        localStorage.setItem('fundingagency', res.toArray()[0].id);
+      })
+      .catch(e=>{
+        // @TODO:: snackbar alert
+        //d2Actions.showSnackbarMessage("Error fetching data");
+        console.error(e);
+      });
+    }
+  }
+}
+
 
 export function getUseGroups(d2) {
   return (dispatch, getState) => {
