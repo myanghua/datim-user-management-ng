@@ -51,35 +51,54 @@ export function setMe() {
 
 export function getCountries(d2) {
   return (dispatch, getState) => {
-    let params = {
-      paging: true,
-      fields: 'id,name,level',
-      filter: 'level:eq:3'
-    };
-    d2.models.organisationUnits.list(params).then(ous=>{
-      dispatch({ type: actions.SHOW_PROCESSING, status: true });
-      dispatch({ type: actions.SET_COUNTRIES, data: ous.toArray() });
-      dispatch({ type: actions.HIDE_PROCESSING, status: false });
 
-    })
-    .catch(e=>{
-      // @TODO:: snackbar alert
-      //d2Actions.showSnackbarMessage("Error fetching data");
-      console.error(e);
-    });
+    const countries = localStorage.getItem('countries');
+
+    if (countries) {
+      dispatch({ type: actions.SET_COUNTRIES, data: JSON.parse(countries)});
+      console.log('COUNTRIES: pulling from cache');
+    }
+    else {
+      let params = {
+        paging: false,
+        fields: 'id,name,level',
+        filter: 'level:eq:3'
+      };
+      d2.models.organisationUnits.list(params).then(ous=>{
+        dispatch({ type: actions.SHOW_PROCESSING, status: true });
+        dispatch({ type: actions.SET_COUNTRIES, data: ous.toArray() });
+        localStorage.setItem('countries', JSON.stringify(ous.toArray()));
+        dispatch({ type: actions.HIDE_PROCESSING, status: false });
+      })
+      .catch(e=>{
+        // @TODO:: snackbar alert
+        //d2Actions.showSnackbarMessage("Error fetching data");
+        console.error(e);
+      });
+    }
   }
 };
 
 export function getLocales(d2) {
   return (dispatch, getState) => {
-    d2.Api.getApi().get('/locales/ui').then(res=>{
-      dispatch({ type: actions.SET_LOCALES, data: res });
-    })
-    .catch(e=>{
-      // @TODO:: snackbar alert
-      //d2Actions.showSnackbarMessage("Error fetching data");
-      console.error(e);
-    });
+
+    const locales = localStorage.getItem('locales');
+
+    if (locales) {
+      dispatch({ type: actions.SET_LOCALES, data: JSON.parse(locales)});
+      console.log('LOCALES: pulling from cache');
+    }
+    else {
+      d2.Api.getApi().get('/locales/ui').then(res=>{
+        dispatch({ type: actions.SET_LOCALES, data: res });
+        localStorage.setItem('locales', JSON.stringify(res));
+      })
+      .catch(e=>{
+        // @TODO:: snackbar alert
+        //d2Actions.showSnackbarMessage("Error fetching data");
+        console.error(e);
+      });
+    }
   }
 }
 
@@ -153,7 +172,7 @@ export function parseConfiguration() {
         streams.add(stream);
       }
     }
-    dispatch({ type: actions.SET_STREAMS, data: streams.values() });
+    dispatch({ type: actions.SET_STREAMS, data: [...streams] });
 
 
     // @TODO:: roles, groups, locales

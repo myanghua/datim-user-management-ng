@@ -33,8 +33,6 @@ export function getUserListing() {
       params.filter = filterStrings;
     }
 
-    console.log("params.filter", params.filter);
-
     d2.models.users
       .list(params)
       .then(u => {

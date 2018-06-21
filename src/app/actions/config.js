@@ -49,8 +49,7 @@ const configuration = {
       }
     ],
     "streams": {
-      "Expenditure": [
-        {
+      "Expenditure": {
           "View Data": {
             "groupName": "Data Expenditure access",
             "groupUID": "M9Uer9SioL7",
@@ -59,10 +58,8 @@ const configuration = {
             "selectWhenUA": 1
           },
           "sortOrder": 1
-        }
-      ],
-      "MER": [
-        {
+      },
+      "MER": {
           "View Data": {
             "groupName": "Data PRIME access",
             "groupUID": "c6hGi8GEZot",
@@ -71,10 +68,8 @@ const configuration = {
             "selectWhenUA": 1
           },
           "sortOrder": 0
-        }
-      ],
-      "MOH": [
-        {
+      },
+      "MOH": {
           "View Data": {
             "groupName": "Data MOH access",
             "groupUID": "OoiLAfMTyMx",
@@ -83,10 +78,8 @@ const configuration = {
             "selectWhenUA": 1
           },
           "sortOrder": 2
-        }
-      ],
-      "SIMS": [
-        {
+      },
+      "SIMS": {
           "View Data": {
             "groupName": "Data SIMS access",
             "groupUID": "iuD8wUFz95X",
@@ -95,8 +88,7 @@ const configuration = {
             "selectWhenUA": 1
           },
           "sortOrder": 3
-        }
-      ]
+      }
     }
   },
   "Global": {
@@ -113,8 +105,7 @@ const configuration = {
       }
     ],
     "streams": {
-      "Expenditure": [
-        {
+      "Expenditure": {
           "View Data": {
             "groupName": "Data Expenditure access",
             "groupUID": "M9Uer9SioL7",
@@ -123,10 +114,8 @@ const configuration = {
             "selectWhenUA": 0
           },
           "sortOrder": 1
-        }
-      ],
-      "MER": [
-        {
+      },
+      "MER": {
           "View Data": {
             "groupName": "Data PRIME access",
             "groupUID": "c6hGi8GEZot",
@@ -135,10 +124,8 @@ const configuration = {
             "selectWhenUA": 0
           },
           "sortOrder": 0
-        }
-      ],
-      "MOH": [
-        {
+      },
+      "MOH": {
           "View Data": {
             "groupName": "Data MOH access",
             "groupUID": "OoiLAfMTyMx",
@@ -147,10 +134,8 @@ const configuration = {
             "selectWhenUA": 0
           },
           "sortOrder": 2
-        }
-      ],
-      "SIMS": [
-        {
+      },
+      "SIMS": {
           "View Data": {
             "groupName": "Data SIMS access",
             "groupUID": "iuD8wUFz95X",
@@ -159,10 +144,8 @@ const configuration = {
             "selectWhenUA": 0
           },
           "sortOrder": 3
-        }
-      ],
-      "SaS": [
-        {
+      },
+      "SaS": {
           "View Data": {
             "groupName": "Data SaS access",
             "groupUID": "CwFniyubXbx",
@@ -171,8 +154,7 @@ const configuration = {
             "selectWhenUA": 0
           },
           "sortOrder": 4
-        }
-      ]
+      }
     }
   },
   "Inter-Agency": {
@@ -234,8 +216,7 @@ const configuration = {
       }
     ],
     "streams": {
-      "Expenditure": [
-        {
+      "Expenditure": {
           "View Data": {
             "groupName": "Data Expenditure access",
             "groupUID": "M9Uer9SioL7",
@@ -244,10 +225,8 @@ const configuration = {
             "selectWhenUA": 1
           },
           "sortOrder": 1
-        }
-      ],
-      "MER Country Team": [
-        {
+      },
+      "MER Country Team": {
           "Enter Data": {
             "groupName": "Data PRIME Country Team entry",
             "groupUID": "zY2t7de7Jzz",
@@ -269,10 +248,8 @@ const configuration = {
             "selectWhenUA": 0
           },
           "sortOrder": 0
-        }
-      ],
-      "MOH": [
-        {
+      },
+      "MOH": {
           "View Data": {
             "groupName": "Data MOH access",
             "groupUID": "OoiLAfMTyMx",
@@ -281,10 +258,8 @@ const configuration = {
             "selectWhenUA": 1
           },
           "sortOrder": 2
-        }
-      ],
-      "SIMS": [
-        {
+      },
+      "SIMS": {
           "View Data": {
             "groupName": "Data SIMS access",
             "groupUID": "iuD8wUFz95X",
@@ -293,8 +268,7 @@ const configuration = {
             "selectWhenUA": 1
           },
           "sortOrder": 3
-        }
-      ]
+      }
     }
   },
   "MOH": {
@@ -311,8 +285,7 @@ const configuration = {
       }
     ],
     "streams": {
-      "MOH": [
-        {
+      "MOH": {
           "View Data": {
             "groupName": "Data MOH access",
             "groupUID": "OoiLAfMTyMx",
@@ -321,8 +294,7 @@ const configuration = {
             "selectWhenUA": 1
           },
           "sortOrder": 1
-        }
-      ]
+      }
     }
   },
   "Partner": {
@@ -357,8 +329,7 @@ const configuration = {
       }
     ],
     "streams": {
-      "Expenditure": [
-        {
+      "Expenditure": {
           "Enter Data": {
             "groupName": "Data Expenditure entry",
             "groupUID": "XgctRYBpSiR",
@@ -380,10 +351,8 @@ const configuration = {
             "selectWhenUA": 0
           },
           "sortOrder": 1
-        }
-      ],
-      "MER": [
-        {
+      },
+      "MER": {
           "Enter Data": {
             "groupName": "Data PRIME entry",
             "groupUID": "hCofOhr3q1Q",
@@ -405,8 +374,7 @@ const configuration = {
             "selectWhenUA": 0
           },
           "sortOrder": 0
-        }
-      ]
+      }
     }
   },
   "Partner DoD": {
@@ -442,8 +410,7 @@ const configuration = {
       }
     ],
     "streams": {
-      "Expenditure": [
-        {
+      "Expenditure": {
           "Enter Data": {
             "groupName": "Data Expenditure entry",
             "groupUID": "XgctRYBpSiR",
@@ -465,10 +432,8 @@ const configuration = {
             "selectWhenUA": 0
           },
           "sortOrder": 1
-        }
-      ],
-      "MER DoD": [
-        {
+      },
+      "MER DoD": {
           "Enter Data": {
             "groupName": "Data PRIME DoD entry",
             "groupUID": "rP0VPKQcC8y",
@@ -490,8 +455,7 @@ const configuration = {
             "selectWhenUA": 0
           },
           "sortOrder": 0
-        }
-      ]
+      }
     }
   }
 }
