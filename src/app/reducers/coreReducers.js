@@ -9,6 +9,7 @@ const initialState = {
   countries: [],
   userTypes: [],
   locales: [],
+  fundingagency: null,
   streams: [],
   config: {},
 };
@@ -59,6 +60,11 @@ export const coreReducers = (state = initialState, action) => {
       return {
         ...state,
         locales: action.data
+      };
+    case actions.SET_FUNDINGAGENCY:
+      return {
+        ...state,
+        fundingagency: action.data
       };
     default: {
       return state;
