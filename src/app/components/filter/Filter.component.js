@@ -85,7 +85,7 @@ class Filter extends Component {
           className="filter-item-detail"
           id={this.state.category}
         />
-        <button onClick={this.onRemoveFilter}>Remove filter</button>
+        {this.props.onRemove ? <button onClick={this.onRemoveFilter}>Remove filter</button> : null}
       </div>
     );
   }

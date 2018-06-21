@@ -42,18 +42,17 @@ export class FilterManager extends Component {
   };
 
   onRemove = id => {
-    console.log("removeFilterFields", this.state);
     const { [id]: value, ...remainingNewFields } = this.state.newFields;
     this.setState({ newFields: remainingNewFields });
   };
 
   render() {
-    console.log("render with state, props", this.state.newFields, this.props.filters);
+    const filterList = Object.values(Object.assign({}, this.state.newFields, this.props.filters));
 
-    const filterList = Object.assign({}, this.state.newFields, this.props.filters);
-
-    const filterFields = Object.values(filterList).map(f => {
-      return <Filter key={f.id} filter={f} onRemove={this.onRemove} />;
+    const filterFields = filterList.map(f => {
+      return (
+        <Filter key={f.id} filter={f} onRemove={filterList.length > 1 ? this.onRemove : null} />
+      );
     });
 
     return (
