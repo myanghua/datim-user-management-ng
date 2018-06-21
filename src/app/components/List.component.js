@@ -94,9 +94,15 @@ class List extends Component<Props> {
     console.log("edit user", user.displayName);
   };
 
+  componentDidUpdate() {
+    console.log("List CDU", this.props.list.filters);
+  }
+
   handleFilterChange = () => {
     this.props.setCurrentPage(0);
     const { filters } = this.props.list;
+    console.log("handleFilterChange", this.props.list.filters);
+
     this.props.getUserListing(this.props.d2, Object.values(filters), 0);
   };
 

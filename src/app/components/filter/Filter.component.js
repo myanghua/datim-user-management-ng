@@ -47,7 +47,7 @@ class Filter extends Component {
     this.onFilterChanged(e.target.value.trim());
   };
 
-  onFilterChanged = text => {
+  onFilterChanged = () => {
     const filter = {
       [this.state.id]: {
         id: this.state.id,

@@ -53,6 +53,12 @@ export function setFilter(data) {
   };
 }
 
+export function removeFilters() {
+  return dispatch => {
+    dispatch({ type: actions.REMOVE_FILTERS });
+  };
+}
+
 export function setCurrentPage(page) {
   return dispatch => {
     dispatch({ type: actions.SET_CURRENT_PAGE, data: page });
