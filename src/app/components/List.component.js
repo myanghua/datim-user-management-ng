@@ -46,10 +46,8 @@ class List extends Component<Props> {
   props: Props;
 
   propTypes: {
-    d2: PropTypes.object.isRequired,
     getUserListing: PropTypes.func.isRequired,
     setSelectedUser: PropTypes.func.isRequired,
-    setFilters: PropTypes.func.isRequired,
     setTab: PropTypes.func.isRequired,
   };
 
@@ -58,31 +56,31 @@ class List extends Component<Props> {
     // get initial listing for the user
     const { getUserListing } = this.props;
 
-    getUserListing(this.props.d2, [], this.props.list.currentPage);
+    getUserListing();
   }
 
   handleChangeTab = value => {
-    const { getUserListing, setFilters, setTab } = this.props;
-    let filters = this.props.list.filters;
-    switch (value) {
-      case "all":
-        delete filters.status;
-        break;
-      case "active":
-        filters.status = "userCredentials.disabled:eq:false";
-        break;
-      case "disabled":
-        filters.status = "userCredentials.disabled:eq:true";
-        break;
-    }
-    setTab(value);
-    setFilters(filters);
-    getUserListing(this.props.d2, filters, 0);
+    // const { getUserListing, setFilters, setTab } = this.props;
+    // let filters = this.props.list.filters;
+    // switch (value) {
+    //   case "all":
+    //     delete filters.status;
+    //     break;
+    //   case "active":
+    //     filters.status = "userCredentials.disabled:eq:false";
+    //     break;
+    //   case "disabled":
+    //     filters.status = "userCredentials.disabled:eq:true";
+    //     break;
+    // }
+    // setTab(value);
+    // setFilters(filters);
+    // getUserListing(this.props.d2, filters, 0);
   };
 
   // What to do when the click on a table row
   handleUserSelect = (r, c) => {
-    this.props.setSelectedUser(this.props.list.users[r]);
+    this.props.setSelectedUser(this.props.users[r]);
   };
 
   // Send user to editing interface
@@ -92,26 +90,6 @@ class List extends Component<Props> {
     }
     // @TODO redux this user and send to edit page
     console.log("edit user", user.displayName);
-  };
-
-  componentDidUpdate() {
-    console.log("List CDU", this.props.list.filters);
-  }
-
-  handleFilterChange = () => {
-    this.props.setCurrentPage(0);
-    const { filters } = this.props.list;
-    console.log("handleFilterChange", this.props.list.filters);
-
-    this.props.getUserListing(this.props.d2, Object.values(filters), 0);
-  };
-
-  handlePageChange = newPage => {
-    this.props.setCurrentPage(newPage);
-    const { filters } = this.props.list;
-    const filterStrings = Object.values(filters).map(filter => filter.str);
-
-    this.props.getUserListing(this.props.d2, filterStrings, newPage);
   };
 
   // Toggle the disable flag on a user
@@ -129,7 +107,7 @@ class List extends Component<Props> {
   // DISPLAY THE INFO
   render() {
     const { d2 } = this.props;
-    let { users, selectedUser, filters, pager, tab } = this.props.list;
+    let { users, selectedUser, pager, tab } = this.props;
 
     const { nextPage: nextPageUrl = "", prevPage: prevPageUrl = "" } = pager;
     const nextPage = getPageNumber(nextPageUrl);
@@ -140,7 +118,7 @@ class List extends Component<Props> {
         <h2 className="title">{d2.i18n.getTranslation("list")}</h2>
         <h3 className="subTitle">{d2.i18n.getTranslation("app")}</h3>
 
-        <FilterManager filters={filters} onChange={this.handleFilterChange} />
+        <FilterManager />
 
         <Paper className="card listing">
           <Tabs

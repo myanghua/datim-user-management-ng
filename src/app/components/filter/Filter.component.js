@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import debounce from "lodash.debounce";
 import filterCategories from "./filterCategories";
-import { setFilter } from "../../actions/list";
+import { setFilter, removeFilter } from "../../actions/list";
 
 import "./Filter.component.css";
 
@@ -56,8 +56,12 @@ class Filter extends Component {
       },
     };
 
-    this.props.addFilter(filter);
-    this.props.onChange();
+    this.props.setFilter(filter);
+  };
+
+  onRemoveFilter = () => {
+    this.props.onRemove(this.state.id);
+    this.props.removeFilter(this.state.id);
   };
 
   render() {
@@ -81,6 +85,7 @@ class Filter extends Component {
           className="filter-item-detail"
           id={this.state.category}
         />
+        <button onClick={this.onRemoveFilter}>Remove filter</button>
       </div>
     );
   }
@@ -88,5 +93,8 @@ class Filter extends Component {
 
 export default connect(
   null,
-  { addFilter: setFilter }
+  {
+    setFilter,
+    removeFilter,
+  }
 )(Filter);

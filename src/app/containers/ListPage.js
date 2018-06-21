@@ -5,10 +5,15 @@ import List from "../components/List.component";
 import * as listActions from "../actions/list";
 
 const mapStateToProps = state => {
-  const { d2, list } = state;
+  const { list } = state;
 
-  // return { d2, list };
-  return state;
+  return {
+    users: list.users,
+    pager: list.pager,
+    selectedUser: list.selectedUser,
+    tab: list.tab,
+    currentPage: list.currentPage,
+  };
 };
 
 const mapDispatchToProps = dispatch => {

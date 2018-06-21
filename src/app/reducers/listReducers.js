@@ -47,11 +47,17 @@ export const listReducers = (state = initialState, action) => {
         filters: newFilters,
       };
     case actions.REMOVE_FILTERS:
-      console.log("REMOVE_FILTERS", initialState.filters);
-
       return {
         ...state,
         filters: initialState.filters,
+      };
+
+    case actions.REMOVE_FILTER:
+      const { [action.data]: value, ...remainingFilters } = state.filters;
+
+      return {
+        ...state,
+        filters: remainingFilters,
       };
 
     case actions.SET_TAB:
