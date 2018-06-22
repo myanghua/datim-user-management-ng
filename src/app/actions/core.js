@@ -132,13 +132,12 @@ export function getUserRoles(d2) {
   }
 }
 
-
 export function getFundingAgencyUID(d2) {
   return (dispatch, getState) => {
     const data = localStorage.getItem('fundingagency');
-    if (data) {
-      dispatch({ type: actions.SET_ROLES, data: data});
-      console.log('FUNDING AGENCY: pulling from cache');
+    if (data && data !== null) {
+      dispatch({ type: actions.SET_FUNDINGAGENCY, data: data});
+      getAgencies(d2,data,dispatch);
     }
     else {
       let params = {
@@ -149,7 +148,9 @@ export function getFundingAgencyUID(d2) {
       d2.models.categoryOptionGroupSets.list(params).then(res=>{
         dispatch({ type: actions.SET_FUNDINGAGENCY, data: res.toArray()[0].id });
         localStorage.setItem('fundingagency', res.toArray()[0].id);
+        getAgencies(d2, res.toArray()[0].id, dispatch);
       })
+      .then()
       .catch(e=>{
         // @TODO:: snackbar alert
         //d2Actions.showSnackbarMessage("Error fetching data");
@@ -158,6 +159,75 @@ export function getFundingAgencyUID(d2) {
     }
   }
 }
+
+export function getAgencies(d2,fundingAgencyUID,dispatch) {
+  let params = {
+    paging: false,
+    fields: 'categoryOptionGroups[id,name,code]',
+  };
+  d2.models.categoryOptionGroupSets.get(fundingAgencyUID,params).then(res=>{
+    if (res.hasOwnProperty('categoryOptionGroups')) {
+      const agencies = res.categoryOptionGroups.toArray().sort((a,b)=>{
+        return a.name > b.name;
+      });
+      dispatch({ type: actions.SET_AGENCIES, data: agencies });
+    }
+  })
+  .catch(e=>{
+    // @TODO:: snackbar alert
+    //d2Actions.showSnackbarMessage("Error fetching data");
+    console.error(e);
+  });
+}
+
+export function getImplementingPartnerUID(d2) {
+  return (dispatch, getState) => {
+    const data = localStorage.getItem('implementingpartner');
+    if (data && data !== null) {
+      dispatch({ type: actions.SET_IMPLEMENTINGPARTNER, data: data});
+      getPartners(d2,data,dispatch);
+    }
+    else {
+      let params = {
+        paging: false,
+        fields: 'id',
+        filter: 'name:eq:Implementing Partner'
+      };
+      d2.models.categoryOptionGroupSets.list(params).then(res=>{
+        dispatch({ type: actions.SET_IMPLEMENTINGPARTNER, data: res.toArray()[0].id });
+        localStorage.setItem('implementingpartner', res.toArray()[0].id);
+        getPartners(d2, res.toArray()[0].id, dispatch);
+      })
+      .then()
+      .catch(e=>{
+        // @TODO:: snackbar alert
+        //d2Actions.showSnackbarMessage("Error fetching data");
+        console.error(e);
+      });
+    }
+  }
+}
+
+export function getPartners(d2,ipUID,dispatch) {
+  let params = {
+    paging: false,
+    fields: 'categoryOptionGroups[id,name,code]',
+  };
+  d2.models.categoryOptionGroupSets.get(ipUID,params).then(res=>{
+    if (res.hasOwnProperty('categoryOptionGroups')) {
+      const partners = res.categoryOptionGroups.toArray().sort((a,b)=>{
+        return a.name > b.name;
+      });
+      dispatch({ type: actions.SET_PARTNERS, data: partners });
+    }
+  })
+  .catch(e=>{
+    // @TODO:: snackbar alert
+    //d2Actions.showSnackbarMessage("Error fetching data");
+    console.error(e);
+  });
+}
+
 
 
 export function getUseGroups(d2) {

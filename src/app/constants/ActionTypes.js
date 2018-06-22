@@ -14,6 +14,10 @@ export const SET_GROUPS = "SET_GROUPS";
 export const SET_COUNTRIES = "SET_COUNTRIES";
 export const SET_USERTYPES = "SET_USERTYPES";
 export const SET_LOCALES = "SET_LOCALES";
+export const SET_FUNDINGAGENCY = "SET_FUNDINGAGENCY";
+export const SET_AGENCIES = "SET_AGENCIES";
+export const SET_IMPLEMENTINGPARTNER = "SET_IMPLEMENTINGPARTNER";
+export const SET_PARTNERS = "SET_PARTNERS";
 
 // listing
 export const SET_USERS = "SET_USERS";

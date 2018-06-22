@@ -10,6 +10,9 @@ const initialState = {
   userTypes: [],
   locales: [],
   fundingagency: null,
+  agencies: [],
+  implementingpartner: null,
+  partners: [],
   streams: [],
   config: {},
 };
@@ -66,7 +69,21 @@ export const coreReducers = (state = initialState, action) => {
         ...state,
         fundingagency: action.data
       };
-    default: {
+    case actions.SET_AGENCIES:
+      return {
+        ...state,
+        agencies: action.data
+      };
+    case actions.SET_IMPLEMENTINGPARTNER:
+      return {
+        ...state,
+        implementingpartner: action.data
+      };
+    case actions.SET_PARTNERS:
+      return {
+        ...state,
+        partners: action.data
+      };    default: {
       return state;
     }
   }
