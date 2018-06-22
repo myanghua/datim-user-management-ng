@@ -132,31 +132,34 @@ export function getUserRoles(d2) {
   }
 }
 
+//
 export function getFundingAgencyUID(d2) {
   return (dispatch, getState) => {
-    const data = localStorage.getItem('fundingagency');
-    if (data && data !== null) {
-      dispatch({ type: actions.SET_FUNDINGAGENCY, data: data});
-      getAgencies(d2,data,dispatch);
-    }
-    else {
-      let params = {
-        paging: false,
-        fields: 'id',
-        filter: 'name:eq:Funding Agency'
-      };
-      d2.models.categoryOptionGroupSets.list(params).then(res=>{
-        dispatch({ type: actions.SET_FUNDINGAGENCY, data: res.toArray()[0].id });
-        localStorage.setItem('fundingagency', res.toArray()[0].id);
-        getAgencies(d2, res.toArray()[0].id, dispatch);
-      })
-      .then()
-      .catch(e=>{
-        // @TODO:: snackbar alert
-        //d2Actions.showSnackbarMessage("Error fetching data");
-        console.error(e);
-      });
-    }
+    dispatch({ type: actions.SET_FUNDINGAGENCY, data: 'bw8KHXzxd9i'});
+    getAgencies(d2,'bw8KHXzxd9i',dispatch);
+    // const data = localStorage.getItem('fundingagency');
+    // if (data && data !== null) {
+    //   dispatch({ type: actions.SET_FUNDINGAGENCY, data: data});
+    //   getAgencies(d2,data,dispatch);
+    // }
+    // else {
+    //   let params = {
+    //     paging: false,
+    //     fields: 'id',
+    //     filter: 'name:eq:Funding Agency'
+    //   };
+    //   d2.models.categoryOptionGroupSets.list(params).then(res=>{
+    //     dispatch({ type: actions.SET_FUNDINGAGENCY, data: res.toArray()[0].id });
+    //     localStorage.setItem('fundingagency', res.toArray()[0].id);
+    //     getAgencies(d2, res.toArray()[0].id, dispatch);
+    //   })
+    //   .then()
+    //   .catch(e=>{
+    //     // @TODO:: snackbar alert
+    //     //d2Actions.showSnackbarMessage("Error fetching data");
+    //     console.error(e);
+    //   });
+    // }
   }
 }
 
@@ -180,31 +183,34 @@ export function getAgencies(d2,fundingAgencyUID,dispatch) {
   });
 }
 
+//
 export function getImplementingPartnerUID(d2) {
   return (dispatch, getState) => {
-    const data = localStorage.getItem('implementingpartner');
-    if (data && data !== null) {
-      dispatch({ type: actions.SET_IMPLEMENTINGPARTNER, data: data});
-      getPartners(d2,data,dispatch);
-    }
-    else {
-      let params = {
-        paging: false,
-        fields: 'id',
-        filter: 'name:eq:Implementing Partner'
-      };
-      d2.models.categoryOptionGroupSets.list(params).then(res=>{
-        dispatch({ type: actions.SET_IMPLEMENTINGPARTNER, data: res.toArray()[0].id });
-        localStorage.setItem('implementingpartner', res.toArray()[0].id);
-        getPartners(d2, res.toArray()[0].id, dispatch);
-      })
-      .then()
-      .catch(e=>{
-        // @TODO:: snackbar alert
-        //d2Actions.showSnackbarMessage("Error fetching data");
-        console.error(e);
-      });
-    }
+    dispatch({ type: actions.SET_IMPLEMENTINGPARTNER, data: 'BOyWrF33hiR'});
+    getPartners(d2,'BOyWrF33hiR',dispatch);
+    // const data = localStorage.getItem('implementingpartner');
+    // if (data && data !== null) {
+    //   dispatch({ type: actions.SET_IMPLEMENTINGPARTNER, data: data});
+    //   getPartners(d2,data,dispatch);
+    // }
+    // else {
+    //   let params = {
+    //     paging: false,
+    //     fields: 'id',
+    //     filter: 'name:eq:Implementing Partner'
+    //   };
+    //   d2.models.categoryOptionGroupSets.list(params).then(res=>{
+    //     dispatch({ type: actions.SET_IMPLEMENTINGPARTNER, data: res.toArray()[0].id });
+    //     localStorage.setItem('implementingpartner', res.toArray()[0].id);
+    //     getPartners(d2, res.toArray()[0].id, dispatch);
+    //   })
+    //   .then()
+    //   .catch(e=>{
+    //     // @TODO:: snackbar alert
+    //     //d2Actions.showSnackbarMessage("Error fetching data");
+    //     console.error(e);
+    //   });
+    // }
   }
 }
 
@@ -228,7 +234,54 @@ export function getPartners(d2,ipUID,dispatch) {
   });
 }
 
+//
+export function getDoDUID(d2) {
+  return (dispatch, getState) => {
+    dispatch({ type: actions.SET_DODUID, data: 'Jhe01WvVBw5'});
+    getDoDView(d2,'Jhe01WvVBw5',dispatch);
+    // const data = localStorage.getItem('dodsqlviewid');
+    // if (data && data !== null) {
+    //   dispatch({ type: actions.SET_DODUID, data: data});
+    //   getDoDView(d2,data,dispatch);
+    // }
+    // else {
+    //   d2.Api.getApi().get('/systemSettings/keyAPP_User_Management-dod_only_SqlView').then(res=>{
+    //     dispatch({ type: actions.SET_DODUID, data: res.toArray()[0].id });
+    //     localStorage.setItem('dodsqlviewid', res.toArray()[0].id);
+    //     getDoDView(d2, res.toArray()[0].id, dispatch);
+    //   })
+    //   .then()
+    //   .catch(e=>{
+    //     // @TODO:: snackbar alert
+    //     //d2Actions.showSnackbarMessage("Error fetching data");
+    //     console.error(e);
+    //   });
+    // }
+  }
+}
 
+export function getDoDView(d2,dodUID,dispatch) {
+  let params = {
+    paging: false,
+  };
+  d2.Api.getApi().get('/sqlViews/'+dodUID+'/data.json',params).then(res=>{
+    if (res.hasOwnProperty('rows')) {
+      let obj = {};
+      res.rows.forEach(r =>{
+      	if (!obj[r[0]]) {
+        	obj[r[0]] = {};
+        }
+        obj[r[0]][r[1]]=r[2];
+      });
+      dispatch({ type: actions.SET_DOD, data: obj });
+    }
+  })
+  .catch(e=>{
+    // @TODO:: snackbar alert
+    //d2Actions.showSnackbarMessage("Error fetching data");
+    console.error(e);
+  });
+}
 
 export function getUseGroups(d2) {
   return (dispatch, getState) => {

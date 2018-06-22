@@ -18,6 +18,8 @@ export const SET_FUNDINGAGENCY = "SET_FUNDINGAGENCY";
 export const SET_AGENCIES = "SET_AGENCIES";
 export const SET_IMPLEMENTINGPARTNER = "SET_IMPLEMENTINGPARTNER";
 export const SET_PARTNERS = "SET_PARTNERS";
+export const SET_DODUID = "SET_DODUID";
+export const SET_DOD = "SET_DOD";
 
 // listing
 export const SET_USERS = "SET_USERS";

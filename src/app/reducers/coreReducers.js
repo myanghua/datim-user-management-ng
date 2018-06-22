@@ -13,6 +13,8 @@ const initialState = {
   agencies: [],
   implementingpartner: null,
   partners: [],
+  dodid: null,
+  dod: [],
   streams: [],
   config: {},
 };
@@ -83,7 +85,18 @@ export const coreReducers = (state = initialState, action) => {
       return {
         ...state,
         partners: action.data
-      };    default: {
+      };
+    case actions.SET_DODUID:
+      return {
+        ...state,
+        dodid: action.data
+      };
+    case actions.SET_DOD:
+      return {
+        ...state,
+        dod: action.data
+      };
+    default: {
       return state;
     }
   }
