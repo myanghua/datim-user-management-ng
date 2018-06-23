@@ -44,14 +44,23 @@ class FilterDetail extends Component {
       );
     }
 
-    let options = [];
+    let optionComponents = [];
     if (category.model === "userTypes") {
-      options = core.userTypes;
+      optionComponents = core.userTypes.map((o, i) => (
+        <MenuItem key={i} value={o} primaryText={o} checked={o === this.state.value} />
+      ));
+    } else if (category.model === "orgunit") {
+      optionComponents = core.countries.map(country => {
+        return (
+          <MenuItem
+            key={country.id}
+            value={country.name}
+            primaryText={country.name}
+            checked={country.name === this.state.value}
+          />
+        );
+      });
     }
-
-    const optionComponents = options.map((o, i) => {
-      return <MenuItem key={i} value={o} primaryText={o} checked={o === this.state.value} />;
-    });
 
     return (
       <SelectField
