@@ -51,6 +51,9 @@ class App extends Component<Props> {
       props.getCountries(props.d2);
       props.parseConfiguration();
       props.getLocales(props.d2);
+      props.getFundingAgencyUID(props.d2);
+      props.getImplementingPartnerUID(props.d2);
+      props.getDoDUID(props.d2);
     }
 
     getChildContext() {
