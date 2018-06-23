@@ -1,8 +1,9 @@
 import * as actions from "../constants/ActionTypes";
-import * as d2Actions from "../../actions";
+import filterCategories from "../components/filter/filterCategories";
 
 const filterString = (category, value) => {
-  return value ? `${category}:ilike:${value}` : null;
+  const filterParam = filterCategories[category].param;
+  return value ? `${filterParam}${value}` : null;
 };
 
 export function getUserListing() {
