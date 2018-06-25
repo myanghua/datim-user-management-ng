@@ -1,5 +1,6 @@
 import * as actions from "../constants/ActionTypes";
 import filterCategories from "../components/filter/filterCategories";
+import { tabs } from "../components/filter/tabCategories";
 
 const filterString = (category, value) => {
   const filterParam = filterCategories[category].param;
@@ -11,6 +12,7 @@ export function getUserListing() {
     const state = getState();
     //TODO: create selector
     const filters = Object.values(state.list.filters);
+    const tab = state.list.tab;
     const page = state.list.currentPage;
     const d2 = state.core.d2;
 
@@ -26,9 +28,14 @@ export function getUserListing() {
       page: page,
     };
 
-    const filterStrings = filters
+    let filterStrings = filters
       .filter(f => f.detail.length > 0)
       .map(filter => filterString(filter.category, filter.detail));
+
+    const tabFilter = tabs[tab].param;
+    if (tabFilter.length) {
+      filterStrings.push(tabFilter);
+    }
 
     if (filterStrings.length > 0) {
       params.filter = filterStrings;
@@ -94,6 +101,16 @@ export const removeFilters = () => dispatch => {
   }
 };
 
+export const setTab = tab => dispatch => {
+  try {
+    dispatch({ type: actions.SET_TAB, data: tab });
+    dispatch(getUserListing());
+  } catch (err) {
+    console.log("Error removing setting tab: ", err);
+    return err;
+  }
+};
+
 export function setSelectedUser(user) {
   return dispatch => {
     dispatch({ type: actions.SET_USER, data: user });
@@ -109,11 +126,5 @@ export function setFilters(filters) {
 export function setCurrentPage(page) {
   return dispatch => {
     dispatch({ type: actions.SET_CURRENT_PAGE, data: page });
-  };
-}
-
-export function setTab(tab) {
-  return dispatch => {
-    dispatch({ type: actions.SET_TAB, data: tab });
   };
 }

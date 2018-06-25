@@ -23,6 +23,7 @@ import UserCell from "./UserCell.component";
 import UserDetails from "./UserDetails.component";
 import FilterManager from "./filter/FilterManager.component";
 import Pager from "./Pager.component";
+import { tabs } from "./filter/tabCategories";
 
 const styles = {
   activeColor: "#00C853",
@@ -60,22 +61,7 @@ class List extends Component<Props> {
   }
 
   handleChangeTab = value => {
-    // const { getUserListing, setFilters, setTab } = this.props;
-    // let filters = this.props.list.filters;
-    // switch (value) {
-    //   case "all":
-    //     delete filters.status;
-    //     break;
-    //   case "active":
-    //     filters.status = "userCredentials.disabled:eq:false";
-    //     break;
-    //   case "disabled":
-    //     filters.status = "userCredentials.disabled:eq:true";
-    //     break;
-    // }
-    // setTab(value);
-    // setFilters(filters);
-    // getUserListing(this.props.d2, filters, 0);
+    this.props.setTab(value);
   };
 
   // What to do when the click on a table row
@@ -113,6 +99,10 @@ class List extends Component<Props> {
     const nextPage = getPageNumber(nextPageUrl);
     const prevPage = getPageNumber(prevPageUrl);
 
+    const tabComponents = Object.values(tabs).map(t => {
+      return <Tab key={t.id} label={t.displayName} value={t.id} />;
+    });
+
     return (
       <div className="wrapper">
         <h2 className="title">{d2.i18n.getTranslation("list")}</h2>
@@ -127,13 +117,7 @@ class List extends Component<Props> {
             inkBarStyle={{ height: 4, bottom: 2 }}
             inkBarContainerStyle={{ background: "red" }}
           >
-            <Tab label="All Users" value="all" />
-            <Tab label="Active Users" value="active">
-              <div />
-            </Tab>
-            <Tab label="Disabled Users" value="disabled">
-              <div />
-            </Tab>
+            {tabComponents}
           </Tabs>
 
           <h2>{pager.total} Users found</h2>
