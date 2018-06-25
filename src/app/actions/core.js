@@ -316,25 +316,6 @@ export function getUserGroups(d2) {
   };
 }
 
-export function getUseTypes(d2) {
-  return (dispatch, getState) => {
-    let params = {
-      paging: false,
-      fields: "id,name,userGroupAccesses[*],managedByGroups",
-    };
-    d2.models.userGroups
-      .list(params)
-      .then(res => {
-        dispatch({ type: actions.SET_USERTYPES, data: res });
-      })
-      .catch(e => {
-        // @TODO:: snackbar alert
-        //d2Actions.showSnackbarMessage("Error fetching data");
-        console.error(e);
-      });
-  };
-}
-
 // Parse the main object config file
 export function parseConfiguration() {
   return (dispatch, getState) => {

@@ -1,4 +1,6 @@
-import React, { Component } from "react";
+import React from "react";
+import { connect } from "react-redux";
+import { setCurrentPage } from "../actions/list";
 
 //This is just a placeholder for now. Will be replaced with a real
 //pagination object when upgrading to material-ui 1.0
@@ -33,14 +35,17 @@ const getStartPos = page => {
   return (page - 1) * PAGE_SIZE + 1;
 };
 
-export const Pager = ({ pager, onPageChange, nextPage, prevPage }) => {
+export const Pager = ({ pager, setCurrentPage, nextPage, prevPage }) => {
   const { page, pageCount, total } = pager;
 
   if (!total) {
     return <div />;
   }
   const startPos = getStartPos(page);
-  const endPos = startPos + PAGE_SIZE - 1;
+  let endPos = startPos + PAGE_SIZE - 1;
+  if (endPos > total) {
+    endPos = total;
+  }
   const status = `${startPos} - ${endPos} of ${total}`;
   const backArrowStyle = startPos === 1 ? style.disabled : style.enabled;
   const forwardArrowStyle = endPos === total ? style.disabled : style.enabled;
@@ -50,25 +55,25 @@ export const Pager = ({ pager, onPageChange, nextPage, prevPage }) => {
 
   const onNextPage = () => {
     if (nextPage) {
-      onPageChange(nextPage);
+      setCurrentPage(nextPage);
     }
   };
 
   const onPreviousPage = () => {
     if (prevPage) {
-      onPageChange(prevPage);
+      setCurrentPage(prevPage);
     }
   };
 
   const onLastPage = () => {
     if (page < pageCount) {
-      onPageChange(pageCount);
+      setCurrentPage(pageCount);
     }
   };
 
   const onFirstPage = () => {
     if (page !== 0) {
-      onPageChange(0);
+      setCurrentPage(0);
     }
   };
 
@@ -91,4 +96,7 @@ export const Pager = ({ pager, onPageChange, nextPage, prevPage }) => {
   );
 };
 
-export default Pager;
+export default connect(
+  null,
+  { setCurrentPage }
+)(Pager);

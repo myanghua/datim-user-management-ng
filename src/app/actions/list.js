@@ -111,6 +111,16 @@ export const setTab = tab => dispatch => {
   }
 };
 
+export const setCurrentPage = data => dispatch => {
+  try {
+    dispatch({ type: actions.SET_CURRENT_PAGE, data });
+    dispatch(getUserListing());
+  } catch (err) {
+    console.log("Error setting page: ", err);
+    return err;
+  }
+};
+
 export function setSelectedUser(user) {
   return dispatch => {
     dispatch({ type: actions.SET_USER, data: user });
@@ -120,11 +130,5 @@ export function setSelectedUser(user) {
 export function setFilters(filters) {
   return dispatch => {
     dispatch({ type: actions.SET_FILTERS, data: filters });
-  };
-}
-
-export function setCurrentPage(page) {
-  return dispatch => {
-    dispatch({ type: actions.SET_CURRENT_PAGE, data: page });
   };
 }
