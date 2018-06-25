@@ -3,77 +3,12 @@ import { connect } from "react-redux";
 import debounce from "lodash.debounce";
 import SelectField from "material-ui/lib/select-field";
 import MenuItem from "material-ui/lib/menus/menu-item";
-import TextField from "material-ui/lib/text-field";
+import RaisedButton from "material-ui/lib/raised-button";
 import filterCategories from "./filterCategories";
+import FilterDetail from "./FilterDetail.component";
 import { setFilter, removeFilter } from "../../actions/list";
 
 import "./Filter.component.css";
-
-class FilterDetail extends Component {
-  state = {
-    value: "",
-  };
-
-  valueChanged = value => {
-    this.setState({ value });
-    this.props.onChange(value);
-  };
-
-  onChangeTextInput = e => {
-    this.valueChanged(e.target.value);
-  };
-
-  onChangeSelectInput = ({}, {}, value) => {
-    this.valueChanged(value);
-  };
-
-  render() {
-    const { id, core } = this.props;
-    const category = filterCategories[id] || {};
-
-    if (!category.model) {
-      return (
-        <TextField
-          id="category-value"
-          label="value"
-          placeholderText="Search text"
-          value={this.state.value}
-          onChange={this.onChangeTextInput}
-          margin="normal"
-        />
-      );
-    }
-
-    let optionComponents = [];
-    if (category.model === "userTypes") {
-      optionComponents = core.userTypes.map((o, i) => (
-        <MenuItem key={i} value={o} primaryText={o} checked={o === this.state.value} />
-      ));
-    } else if (category.model === "orgunit") {
-      optionComponents = core.countries.map(country => {
-        return (
-          <MenuItem
-            key={country.id}
-            value={country.name}
-            primaryText={country.name}
-            checked={country.name === this.state.value}
-          />
-        );
-      });
-    }
-
-    return (
-      <SelectField
-        hintText="Select a value"
-        value={this.state.value}
-        onChange={this.onChangeSelectInput}
-        placeholderText="Select a value"
-      >
-        {optionComponents}
-      </SelectField>
-    );
-  }
-}
 
 class Filter extends Component {
   state = {
@@ -141,23 +76,17 @@ class Filter extends Component {
           onChange={this.onChangeFilterDetail}
           className="filter-item-detail"
           id={this.state.category}
-          core={this.props.core}
         />
-        {this.props.onRemove ? <button onClick={this.onRemoveFilter}>Remove filter</button> : null}
+        {this.props.onRemove ? (
+          <RaisedButton onClick={this.onRemoveFilter} label="Remove Filter" />
+        ) : null}
       </div>
     );
   }
 }
 
-const mapStateToProps = state => {
-  const { core } = state;
-  return {
-    core,
-  };
-};
-
 export default connect(
-  mapStateToProps,
+  null,
   {
     setFilter,
     removeFilter,

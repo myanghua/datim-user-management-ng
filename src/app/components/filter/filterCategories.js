@@ -42,7 +42,7 @@ const filterCategories = {
     id: "usergroup",
     param: "userGroups.name:eq:",
     displayName: "User group",
-    model: "userrole",
+    model: "usergroup",
   },
 };
 
