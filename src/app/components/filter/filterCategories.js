@@ -9,7 +9,7 @@ const filterCategories = {
   },
   username: {
     id: "username",
-    param: "username:ilike:",
+    param: "userCredentials.username:ilike:",
     displayName: "Username",
     model: "",
   },
