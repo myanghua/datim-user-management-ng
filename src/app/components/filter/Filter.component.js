@@ -29,8 +29,9 @@ class Filter extends Component {
   };
 
   onChangeFilterDetail = value => {
-    this.setState({ detail: value });
-    this.onFilterChanged(value.trim());
+    const detail = value.trim();
+    this.setState({ detail });
+    this.onFilterChanged(detail);
   };
 
   onFilterChanged = () => {
@@ -47,7 +48,7 @@ class Filter extends Component {
 
   onRemoveFilter = () => {
     this.props.onRemove(this.state.id);
-    this.props.removeFilter(this.state.id);
+    this.props.removeFilter(this.state.id, !!this.state.detail);
   };
 
   render() {

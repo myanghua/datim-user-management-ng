@@ -72,10 +72,12 @@ export const setFilter = data => dispatch => {
   }
 };
 
-export const removeFilter = data => dispatch => {
+export const removeFilter = (data, refetch) => dispatch => {
   try {
     dispatch({ type: actions.REMOVE_FILTER, data });
-    dispatch(getUserListing());
+    if (refetch) {
+      dispatch(getUserListing());
+    }
   } catch (err) {
     console.log("Error removing filter: ", err);
     return err;
