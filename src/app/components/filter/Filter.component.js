@@ -9,7 +9,6 @@ import FilterDetail from "./FilterDetail.component";
 import { setFilter, removeFilter } from "../../actions/list";
 
 import "./Filter.component.css";
-
 class Filter extends Component {
   state = {
     id: "",
@@ -66,20 +65,26 @@ class Filter extends Component {
     return (
       <div className="filter-item">
         <SelectField
-          placeholderText="Select a filter type"
+          className="filter-category"
+          placeholderText="Select a filter category"
           hintText="Select a filter category"
           value={this.state.category}
           onChange={this.onChangeCategory}
+          style={{ marginRight: 40 }}
         >
           {options}
         </SelectField>
         <FilterDetail
+          className="filter-detail"
           onChange={this.onChangeFilterDetail}
-          className="filter-item-detail"
           id={this.state.category}
         />
         {this.props.onRemove ? (
-          <RaisedButton onClick={this.onRemoveFilter} label="Remove Filter" />
+          <RaisedButton
+            style={{ marginLeft: 30 }}
+            onClick={this.onRemoveFilter}
+            label="Remove Filter"
+          />
         ) : null}
       </div>
     );

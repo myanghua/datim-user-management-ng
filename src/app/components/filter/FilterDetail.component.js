@@ -36,8 +36,6 @@ class FilterDetail extends Component {
     if (!category.model) {
       return (
         <TextField
-          id="category-value"
-          className="category-value"
           label="value"
           placeholderText="Search text"
           value={this.state.value}
@@ -89,7 +87,6 @@ class FilterDetail extends Component {
 
     return (
       <SelectField
-        className="category-value"
         hintText="Select a value"
         value={this.state.value}
         maxHeight={300}
