@@ -45,8 +45,6 @@ class App extends Component<Props> {
     super(props);
     this.state = { snackbar: "", mainMenu: { page: "list" } };
 
-    console.log("props", props);
-
     //bootstrap some items
     props.setD2(props.d2);
     props.setMe();
@@ -57,6 +55,7 @@ class App extends Component<Props> {
     props.getImplementingPartnerUID(props.d2);
     props.getDoDUID(props.d2);
     props.getUserGroups(props.d2);
+    // props.getUserRoles(props.d2);
   }
 
   getChildContext() {

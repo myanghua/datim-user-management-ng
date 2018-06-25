@@ -306,8 +306,6 @@ export function getUserGroups(d2) {
     d2.models.userGroups
       .list(params)
       .then(res => {
-        console.log("res", res.toArray());
-
         dispatch({ type: actions.SET_GROUPS, data: res.toArray() });
       })
       .catch(e => {

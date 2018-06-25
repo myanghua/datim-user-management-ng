@@ -47,8 +47,6 @@ export const coreReducers = (state = initialState, action) => {
         roles: action.data,
       };
     case actions.SET_GROUPS:
-      console.log("reducer SET_GROUPS", action);
-
       return {
         ...state,
         groups: action.data,
