@@ -6,7 +6,11 @@ import RaisedButton from 'material-ui/lib/raised-button';
 import TextField from 'material-ui/lib/text-field';
 import SelectField from 'material-ui/lib/select-field';
 import MenuItem from 'material-ui/lib/menus/menu-item';
+import Checkbox from 'material-ui/lib/checkbox';
+import {GridList, GridTile} from 'material-ui/lib/grid-list';
 
+import DataStream from './DataStream.component';
+import DataAction from './DataAction.component';
 import AppTheme from '../../colortheme';
 import actions from '../../actions';
 import '../../translationRegistration';
@@ -40,6 +44,8 @@ class Invite extends React.Component {
         agency:false,
         partner:false,
         streams:{},
+        actions: {},
+        userManager: false,
         userGroupFilter:false,
       };
       this.handleChangeType = this.handleChangeType.bind(this);
@@ -48,8 +54,11 @@ class Invite extends React.Component {
       this.handleChangeLocale = this.handleChangeLocale.bind(this);
       this.handleChangeAgency = this.handleChangeAgency.bind(this);
       this.handleChangePartner = this.handleChangePartner.bind(this);
-      this.getDatimUserGroups().then(res => console.log('dugs',res))
-      .catch(e => console.error(e));
+      this.handleCheckUserManager = this.handleCheckUserManager.bind(this);
+      this.handleChangeStream = this.handleChangeStream.bind(this);
+      this.handleChangeActions = this.handleChangeActions.bind(this);
+      // this.getDatimUserGroups().then(res => console.log('dugs',res))
+      // .catch(e => console.error(e));
     }
 
     // Get all user groups with (DATIM) in their name
@@ -62,6 +71,47 @@ class Invite extends React.Component {
       return list;
     }
 
+    // get a list of relevant Partners based upon the selected "country"
+    getPartners(ouUID) {
+      const { core, d2 } = this.props;
+      const countryName = core.countries.filter(r=> (r.id===ouUID))[0].name;
+      const params = {
+        paging: false,
+        fields: 'id,name,code',
+        filter: 'name:ilike:' + countryName + ' Partner',
+      };
+      console.log('params',params);
+      d2.models.userGroups.list(params).then(res=>{
+
+        //these three functions are copied from the original stores.json
+        let getPartnerCode = (userGroup) => {
+          return (/Partner \\d+?(?= )/i.exec(userGroup.name) || '').toString().replace('Partner ', 'Partner_');
+        }
+        let getType = (userGroup) => {
+          return (/ all mechanisms - /i.test(userGroup.name) ? 'mechUserGroup' : (/ user administrators - /i.test(userGroup.name) ? 'userAdminUserGroup' : 'userUserGroup'));
+        }
+        let extendObj = (obj, userGroup, partnerName, groupType) => {
+          return (function () { obj[partnerName] = obj[partnerName] || {}; obj[partnerName][groupType] = userGroup; return obj; })();
+        }
+
+
+        if (res) {
+          let map = res.toArray().map(p => {
+            return [p.id,p.name,p.code];
+          });
+          console.log("PARTNERS",map);
+          // const agencies = res.userGroups.toArray().sort((a,b)=>{
+          //   return a.name > b.name;
+          // });
+          // dispatch({ type: actions.SET_AGENCIES, data: agencies });
+        }
+      })
+      .catch(e=>{
+        // @TODO:: snackbar alert
+        //d2Actions.showSnackbarMessage("Error fetching data");
+        console.error(e);
+      });
+    }
 
     handleChangeType(event, index, value) {
       let ugFilter = '';
@@ -81,6 +131,7 @@ class Invite extends React.Component {
             ugFilter = 'Data MOH Access';
             break;
           case 'Partner':
+            this.getPartners(this.state.country);
             ugFilter = 'OU ' + this.state.country + ' Partner ';
             break;
           case 'Partner DoD':
@@ -114,53 +165,57 @@ class Invite extends React.Component {
         email: event.target.value,
       });
     }
-
-    menuOUs() {
-        // return persons.map(() => (
-        //   <MenuItem
-        //     key={person.value}
-        //     insetChildren={true}
-        //     checked={this.state.values.indexOf(person.value) > -1}
-        //     value={person.value}
-        //     primaryText={person.name}
-        //   />
-        // ));
+    handleCheckUserManager = () => {
+      this.setState({
+        userManager: !this.state.userManager,
+      });
+    }
+    handleChangeStream(streamName, state, value) {
+      console.log('stream',streamName, state, value);
+    }
+    handleChangeActions(roleUID, value) {
+      console.log('actions',roleUID,value);
     }
 
-
     render() {
-        const d2 = this.props.d2;
+        const { d2, core } = this.props;
 
-        let uts = new Set().values();
+        let uts = [];
         let countries = [];
         let locales = [];
         let partners = [{id:'aaaa',name:'Alice'}];
         let agencies = [{id:'bbbb',name:'Bob'}];
 
-        if (this.props.core) {
-          if (this.props.core.userTypes){
-            uts = this.props.core.userTypes;
+        if (core) {
+          if (core.userTypes){
+            uts = core.userTypes;
           }
-          if (this.props.core.countries){
-            countries = this.props.core.countries;
+          if (core.countries){
+            countries = core.countries;
             if (countries && countries[0] && countries[0].id!=='global'){
               countries.unshift({id:'global',name:'Global'});
             }
           }
-          if (this.props.core.locales){
-            locales = this.props.core.locales;
+          if (core.locales){
+            locales = core.locales;
           }
-          if (this.props.core.partners){
-            partners = this.props.core.partners;
+          if (core.partners){
+            partners = core.partners;
           }
-          if (this.props.core.agencies){
-            agencies = this.props.core.agencies;
+          if (core.agencies){
+            agencies = core.agencies;
           }
-
+        }
+        else{
+          //BAD CORE CONFIG @TODO:: redirect with warning
         }
 
         let typeMenus = [];
         uts.forEach(el => {
+          // don't show "Partner DoD" as an option here
+          if (core.config[el].isDoD) {
+            return;
+          }
           typeMenus.push(
             <MenuItem
               key={el}
@@ -175,6 +230,7 @@ class Invite extends React.Component {
           );
         })
 
+        // Build the select menus
         const countryMenus = countries.map((v) => (
           <MenuItem
             key={v.id}
@@ -211,6 +267,36 @@ class Invite extends React.Component {
           />
         ));
 
+        // Build the Stream / Action radios
+        let streams = [];
+        let actions = [];
+        if (core.config.hasOwnProperty(this.state.userType)){
+          let cfg = core.config[this.state.userType];
+          // Check for DoD awareness
+          if (this.state.userType==="Partner" && core.config.dod && core.config.dod[this.state.country]){
+            console.log('IS DOD?',core.config.dod[this.state.country])
+          }
+
+          //convert to array for easier sorting
+          const s = Object.entries(cfg.streams).map(([key, value]) => ({key,value})).sort((a,b)=> a.value.sortOrder > b.value.sortOrder);
+          s.forEach(stream => {
+            streams.push(
+              <GridTile key={stream.key} >
+                <DataStream stream={stream} onChangeStream={this.handleChangeStream} userManager={this.state.userManager}/>
+              </GridTile>
+            );
+          });
+          //convert to array for easier sorting
+          const act = cfg.actions
+            .filter(a => a.hidden===0)
+            .sort((a,b)=> a.sortOrder > b.sortOrder);
+          act.forEach(action => {
+            console.log('action',action);
+            actions.push(
+              <DataAction key={action.roleUID} action={action} onChangeAction={this.handleChangeActions} userManager={this.state.userManager}/>
+            );
+          });
+        }
 
 
         return (
@@ -244,6 +330,7 @@ class Invite extends React.Component {
                 <SelectField
                         floatingLabelText="Partner"
                         hintText="Select a partner"
+                        fullWidth={true}
                         value={this.state.partner}
                         onChange={this.handleChangePartner}
                       >
@@ -280,7 +367,32 @@ class Invite extends React.Component {
                 {localeMenus}
               </SelectField>
 
+
+              <Checkbox
+                style={{marginTop:"1em"}}
+                label="User Manager"
+                checked={this.state.userManager}
+                onCheck={this.handleCheckUserManager}
+                disabled={(!this.state.userType)}
+              />
+
             </Paper>
+
+            <Paper className="card filters">
+              <h3>Data Streams</h3>
+              <GridList
+                  style={{display: 'flex', flexWrap: 'nowrap', overflowX: 'auto'}}
+                  cols={streams.length}
+              >
+                {streams.length>0? streams: <p>None</p>}
+              </GridList>
+            </Paper>
+
+            <Paper className="card filters">
+              <h3>User Actions</h3>
+              {actions.length>0? actions: <p>None</p>}
+            </Paper>
+
           </div>
         );
     }
