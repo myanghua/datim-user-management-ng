@@ -58,17 +58,20 @@ class DataStream extends React.Component {
           <RadioButton
             value="noaccess"
             label="No access"
+            disabled={this.props.userManager}
           />
           {stream.value.hasOwnProperty('View Data') ?
             <RadioButton
               value="View Data"
               label="View Data"
+              disabled={this.props.userManager}
             />
             : <span style={{display:"none"}}/>}
           {stream.value.hasOwnProperty('Enter Data') ?
             <RadioButton
               value="Enter Data"
               label="Enter Data"
+              disabled={this.props.userManager}
             />
           : <span style={{display:"none"}}/>}
         </RadioButtonGroup>

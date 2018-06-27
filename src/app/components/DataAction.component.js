@@ -46,7 +46,7 @@ class DataAction extends React.Component {
          label={action.name}
          checked={this.state.checked}
          onCheck={this.handleClick}
-         disabled={action.locked===1}
+         disabled={action.locked===1 || this.props.userManager}
        />
     );
   }
