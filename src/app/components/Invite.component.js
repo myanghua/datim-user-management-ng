@@ -41,6 +41,8 @@ class Invite extends React.Component {
         country: false,
         email:'',
         locale:'en',
+        agencies: [],
+        partners: [],
         agency:false,
         partner:false,
         streams:{},
@@ -72,7 +74,8 @@ class Invite extends React.Component {
     }
 
     // get a list of relevant Partners based upon the selected "country"
-    getPartners(ouUID) {
+    // for some reason "Partners" are both userGroups and categoryOptionGroups
+    getPartnersInOrg(ouUID) {
       const { core, d2 } = this.props;
       const countryName = core.countries.filter(r=> (r.id===ouUID))[0].name;
       const params = {
@@ -83,28 +86,41 @@ class Invite extends React.Component {
       console.log('params',params);
       d2.models.userGroups.list(params).then(res=>{
 
-        //these three functions are copied from the original stores.json
+        // these three functions are copied from the original stores.json
+        // extract the partner code in  format of categoryOptionGroups "Partner_XXXX"
         let getPartnerCode = (userGroup) => {
-          return (/Partner \\d+?(?= )/i.exec(userGroup.name) || '').toString().replace('Partner ', 'Partner_');
+          return (/Partner \d+?(?= )/i.exec(userGroup.name) || '').toString().replace('Partner ', 'Partner_');
         }
+        // figure out the user group type based on the nameing convention
         let getType = (userGroup) => {
           return (/ all mechanisms - /i.test(userGroup.name) ? 'mechUserGroup' : (/ user administrators - /i.test(userGroup.name) ? 'userAdminUserGroup' : 'userUserGroup'));
         }
+        // merge together userGroups based upon their partner ID
         let extendObj = (obj, userGroup, partnerName, groupType) => {
           return (function () { obj[partnerName] = obj[partnerName] || {}; obj[partnerName][groupType] = userGroup; return obj; })();
         }
 
+        // take the userGroups that have a name like our OU, group and index them by their partner_code
+        const merged = res.toArray().reduce((obj, ug) => {
+            return extendObj(obj, ug.toJSON(), getPartnerCode(ug),  getType(ug)); }, {}
+        );
+        // shove that data into the main partners object
+        const mapped = core.partners.map(p=>{
+          return Object.assign({}, p, merged[p.code]);
+        });
+        // remove any that didn't get mapped
+        let filtered = mapped.filter(p => {
+          return p.mechUserGroup && p.mechUserGroup.id && p.userUserGroup && p.userUserGroup.id;
+        });
+        filtered.sort((a, b) => { return (a.name > b.name)?1:(a.name< b.name)?-1:0});
+        // check for DoD silliness
+        filtered.forEach(p => {
+          p.dodEntry = ((core.dod[ouUID] || {})[p.id] || false);  // will be false, 0, or 1
+          p.normalEntry = (p.dodEntry === false);                 // no DoD information
+        });
 
-        if (res) {
-          let map = res.toArray().map(p => {
-            return [p.id,p.name,p.code];
-          });
-          console.log("PARTNERS",map);
-          // const agencies = res.userGroups.toArray().sort((a,b)=>{
-          //   return a.name > b.name;
-          // });
-          // dispatch({ type: actions.SET_AGENCIES, data: agencies });
-        }
+
+        this.setState({partners:filtered});
       })
       .catch(e=>{
         // @TODO:: snackbar alert
@@ -131,7 +147,7 @@ class Invite extends React.Component {
             ugFilter = 'Data MOH Access';
             break;
           case 'Partner':
-            this.getPartners(this.state.country);
+            this.getPartnersInOrg(this.state.country);
             ugFilter = 'OU ' + this.state.country + ' Partner ';
             break;
           case 'Partner DoD':
@@ -142,6 +158,7 @@ class Invite extends React.Component {
       }
       this.setState({userType:value,agency:false,partner:false});
     }
+
     handleChangeCountry(event, index, value) {
       this.setState({country:value});
       if (value==='global'){
@@ -151,28 +168,36 @@ class Invite extends React.Component {
           this.handleChangeType(event, 0, false);
       }
     }
+
     handleChangeLocale(event, index, value) {
       this.setState({locale:value});
     }
+
     handleChangeAgency(event, index, value) {
       this.setState({agency:value});
     }
+
     handleChangePartner(event, index, value) {
+      // @TODO check if we need to add DoD objects to view
       this.setState({partner:value});
     }
+
     handleChangeEmail = (event) => {
       this.setState({
         email: event.target.value,
       });
     }
+
     handleCheckUserManager = () => {
       this.setState({
         userManager: !this.state.userManager,
       });
     }
+
     handleChangeStream(streamName, state, value) {
       console.log('stream',streamName, state, value);
     }
+
     handleChangeActions(roleUID, value) {
       console.log('actions',roleUID,value);
     }
@@ -183,8 +208,7 @@ class Invite extends React.Component {
         let uts = [];
         let countries = [];
         let locales = [];
-        let partners = [{id:'aaaa',name:'Alice'}];
-        let agencies = [{id:'bbbb',name:'Bob'}];
+        let agencies = [{id:'-',name:'Loading...'}];
 
         if (core) {
           if (core.userTypes){
@@ -198,9 +222,6 @@ class Invite extends React.Component {
           }
           if (core.locales){
             locales = core.locales;
-          }
-          if (core.partners){
-            partners = core.partners;
           }
           if (core.agencies){
             agencies = core.agencies;
@@ -258,7 +279,8 @@ class Invite extends React.Component {
           />
         ));
 
-        const partnerMenus = partners.map((v) => (
+        console.log('PARTNERS',this.state.partners);
+        const partnerMenus = this.state.partners.map((v) => (
           <MenuItem
             key={v.id}
             value={v.id}
