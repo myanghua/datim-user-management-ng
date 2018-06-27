@@ -73,6 +73,14 @@ class Invite extends React.Component {
       return list;
     }
 
+    // merge together userGroups based upon their cogs ID (for agencies and partners)
+    extendObj = (obj, userGroup, name, groupType) => {
+      return (function () {
+        obj[name] = obj[name] || {};
+        obj[name][groupType] = userGroup;
+        return obj; })();
+    }
+
     // get a list of relevant Partners based upon the selected "country"
     // for some reason "Partners" are both userGroups and categoryOptionGroups
     getPartnersInOrg(ouUID) {
@@ -85,28 +93,21 @@ class Invite extends React.Component {
       };
 
       d2.models.userGroups.list(params).then(res=>{
-        // these three functions are copied from the original stores.json
+        // these functions are copied from the original stores.json
         // extract the partner code in  format of categoryOptionGroups "Partner_XXXX"
         let getPartnerCode = (userGroup) => {
           return (/Partner \d+?(?= )/i.exec(userGroup.name) || '').toString().replace('Partner ', 'Partner_');
         }
-        // figure out the user group type based on the nameing convention
+        // figure out the user group type based on the naming convention
         let getType = (userGroup) => {
           return (/ all mechanisms - /i.test(userGroup.name) ? 'mechUserGroup' :
                  (/ user administrators - /i.test(userGroup.name) ? 'userAdminUserGroup' :
                  'userUserGroup'));
         }
-        // merge together userGroups based upon their partner ID
-        let extendObj = (obj, userGroup, partnerName, groupType) => {
-          return (function () {
-            obj[partnerName] = obj[partnerName] || {};
-            obj[partnerName][groupType] = userGroup;
-            return obj; })();
-        }
 
         // take the userGroups that have a name like our OU, group and index them by their partner_code
         const merged = res.toArray().reduce((obj, ug) => {
-            return extendObj(obj, ug.toJSON(), getPartnerCode(ug),  getType(ug)); }, {}
+            return this.extendObj(obj, ug.toJSON(), getPartnerCode(ug), getType(ug)); }, {}
         );
         // shove that data into the main partners object
         const mapped = core.partners.map(p=>{
@@ -132,11 +133,60 @@ class Invite extends React.Component {
       });
     }
 
+    // get a list of relevant Agencies for this OU/Country
+    getAgenciesInOrg(ouUID) {
+      const { core, d2 } = this.props;
+      const countryName = core.countries.filter(r=> (r.id===ouUID))[0].name;
+      const params = {
+        paging: false,
+        fields: 'id,name,code',
+        filter: 'name:ilike:' + countryName + ' Agency',
+      };
+      d2.models.userGroups.list(params).then(res=>{
+        // these three functions are copied from the original stores.json
+        // extract the agency code in  format of categoryOptionGroups "Agency_XXXX"
+        let getAgencyCode = (userGroup) => {
+          return (/Agency .+?(?= all| user)/i.exec(userGroup.name) || '').toString().replace('Agency ', 'Agency_');
+        }
+        // figure out the user group type based on the naming convention
+        let getType = (userGroup) => {
+          return (/all mechanisms$/i.test(userGroup.name) ? 'mechUserGroup' :
+                 (/user administrators$/i.test(userGroup.name) ? 'userAdminUserGroup' :
+                 'userUserGroup'));
+        }
+
+        // take the userGroups that have a name like our OU, group and index them by their partner_code
+        const merged = res.toArray().reduce((obj, ug) => {
+            return this.extendObj(obj, ug.toJSON(), getAgencyCode(ug), getType(ug)); }, {}
+        );
+console.log('merged',merged);
+        // shove that data into the main partners object
+        const mapped = core.agencies.map(a=>{
+          return Object.assign({}, a, merged[a.code]);
+        });
+console.log('mapped',mapped);
+        // remove any that didn't get mapped and sort
+        let filtered = mapped.filter(a => {
+          return a.mechUserGroup && a.mechUserGroup.id && a.userUserGroup && a.userUserGroup.id;
+        }).sort((a, b) => {
+          return (a.name > b.name)?1:(a.name< b.name)?-1:0
+        });
+console.log('filtered',filtered);
+        this.setState({agencies:filtered});
+      })
+      .catch(e=>{
+        // @TODO:: snackbar alert
+        //d2Actions.showSnackbarMessage("Error fetching data");
+        console.error(e);
+      });
+    }
+
     handleChangeType(event, index, value) {
       let ugFilter = '';
       if (this.state.country || value == 'MOH'){
         switch(value){
           case 'Agency':
+            this.getAgenciesInOrg(this.state.country);
             ugFilter = 'OU ' + this.state.country + ' Agency ';
             break;
           case 'Global':
@@ -211,7 +261,6 @@ class Invite extends React.Component {
         let uts = [];
         let countries = [];
         let locales = [];
-        let agencies = [{id:'-',name:'Loading...'}];
 
         if (core) {
           if (core.userTypes){
@@ -225,9 +274,6 @@ class Invite extends React.Component {
           }
           if (core.locales){
             locales = core.locales;
-          }
-          if (core.agencies){
-            agencies = core.agencies;
           }
         }
         else{
@@ -273,7 +319,7 @@ class Invite extends React.Component {
           />
         ));
 
-        const agencyMenus = agencies.map((v) => (
+        const agencyMenus = this.state.agencies.map((v) => (
           <MenuItem
             key={v.id}
             value={v.id}
@@ -341,6 +387,7 @@ class Invite extends React.Component {
               <SelectField
                       floatingLabelText="Country"
                       hintText="Select a country"
+                      fullWidth={true}
                       value={this.state.country}
                       onChange={this.handleChangeCountry}
                     >
@@ -350,6 +397,7 @@ class Invite extends React.Component {
               <SelectField
                       floatingLabelText="User Type"
                       hintText="Select a user type"
+                      fullWidth={true}
                       value={this.state.userType}
                       onChange={this.handleChangeType}
                     >
@@ -373,6 +421,7 @@ class Invite extends React.Component {
                 <SelectField
                         floatingLabelText="Agency"
                         hintText="Select an agency"
+                        fullWidth={true}
                         value={this.state.agency}
                         onChange={this.handleChangeAgency}
                       >
@@ -386,12 +435,14 @@ class Invite extends React.Component {
                 id="email"
                 floatingLabelText="E-mail address"
                 hintText="user@organisation.tld"
+                fullWidth={true}
               />
               <br />
 
               <SelectField
                       floatingLabelText="Language"
                       hintText="Select a language"
+                      fullWidth={true}
                       value={this.state.locale}
                       onChange={this.handleChangeLocale}
                     >
