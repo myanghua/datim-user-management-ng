@@ -233,9 +233,10 @@ export function getPartners(d2, ipUID, dispatch) {
     .get(ipUID, params)
     .then(res => {
       if (res.hasOwnProperty("categoryOptionGroups")) {
-        const partners = res.categoryOptionGroups.toArray().sort((a, b) => {
-          return a.name > b.name;
-        });
+        const partners = res.categoryOptionGroups
+          .toArray()
+          .map(p=>{ return p.toJSON()})   //remove all the d2 model cruft
+          .sort((a, b) => { return a.name > b.name;  });
         dispatch({ type: actions.SET_PARTNERS, data: partners });
       }
     })
