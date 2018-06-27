@@ -83,9 +83,8 @@ class Invite extends React.Component {
         fields: 'id,name,code',
         filter: 'name:ilike:' + countryName + ' Partner',
       };
-      console.log('params',params);
-      d2.models.userGroups.list(params).then(res=>{
 
+      d2.models.userGroups.list(params).then(res=>{
         // these three functions are copied from the original stores.json
         // extract the partner code in  format of categoryOptionGroups "Partner_XXXX"
         let getPartnerCode = (userGroup) => {
@@ -93,11 +92,16 @@ class Invite extends React.Component {
         }
         // figure out the user group type based on the nameing convention
         let getType = (userGroup) => {
-          return (/ all mechanisms - /i.test(userGroup.name) ? 'mechUserGroup' : (/ user administrators - /i.test(userGroup.name) ? 'userAdminUserGroup' : 'userUserGroup'));
+          return (/ all mechanisms - /i.test(userGroup.name) ? 'mechUserGroup' :
+                 (/ user administrators - /i.test(userGroup.name) ? 'userAdminUserGroup' :
+                 'userUserGroup'));
         }
         // merge together userGroups based upon their partner ID
         let extendObj = (obj, userGroup, partnerName, groupType) => {
-          return (function () { obj[partnerName] = obj[partnerName] || {}; obj[partnerName][groupType] = userGroup; return obj; })();
+          return (function () {
+            obj[partnerName] = obj[partnerName] || {};
+            obj[partnerName][groupType] = userGroup;
+            return obj; })();
         }
 
         // take the userGroups that have a name like our OU, group and index them by their partner_code
@@ -108,18 +112,17 @@ class Invite extends React.Component {
         const mapped = core.partners.map(p=>{
           return Object.assign({}, p, merged[p.code]);
         });
-        // remove any that didn't get mapped
+        // remove any that didn't get mapped and sort
         let filtered = mapped.filter(p => {
           return p.mechUserGroup && p.mechUserGroup.id && p.userUserGroup && p.userUserGroup.id;
+        }).sort((a, b) => {
+          return (a.name > b.name)?1:(a.name< b.name)?-1:0
         });
-        filtered.sort((a, b) => { return (a.name > b.name)?1:(a.name< b.name)?-1:0});
         // check for DoD silliness
         filtered.forEach(p => {
           p.dodEntry = ((core.dod[ouUID] || {})[p.id] || false);  // will be false, 0, or 1
           p.normalEntry = (p.dodEntry === false);                 // no DoD information
         });
-
-
         this.setState({partners:filtered});
       })
       .catch(e=>{
@@ -279,7 +282,6 @@ class Invite extends React.Component {
           />
         ));
 
-        console.log('PARTNERS',this.state.partners);
         const partnerMenus = this.state.partners.map((v) => (
           <MenuItem
             key={v.id}
@@ -294,12 +296,20 @@ class Invite extends React.Component {
         let actions = [];
         if (core.config.hasOwnProperty(this.state.userType)){
           let cfg = core.config[this.state.userType];
+
           // Check for DoD awareness
-          if (this.state.userType==="Partner" && core.config.dod && core.config.dod[this.state.country]){
-            console.log('IS DOD?',core.config.dod[this.state.country])
+          if (this.state.userType==="Partner" && this.state.partner){
+            // does the selected partner have DoD info
+            const partner = this.state.partners.filter(p => {
+              return (p.id === this.state.partner);
+            })[0] || {};
+
+            if (partner.hasOwnProperty('normalEntry') && partner.normalEntry != true){
+              cfg = core.config['Partner DoD'];
+            }
           }
 
-          //convert to array for easier sorting
+          //convert streams to array for easier sorting
           const s = Object.entries(cfg.streams).map(([key, value]) => ({key,value})).sort((a,b)=> a.value.sortOrder > b.value.sortOrder);
           s.forEach(stream => {
             streams.push(
@@ -308,12 +318,11 @@ class Invite extends React.Component {
               </GridTile>
             );
           });
-          //convert to array for easier sorting
+          //get only the visible actions for checkbox display
           const act = cfg.actions
             .filter(a => a.hidden===0)
             .sort((a,b)=> a.sortOrder > b.sortOrder);
           act.forEach(action => {
-            console.log('action',action);
             actions.push(
               <DataAction key={action.roleUID} action={action} onChangeAction={this.handleChangeActions} userManager={this.state.userManager}/>
             );
@@ -400,7 +409,7 @@ class Invite extends React.Component {
 
             </Paper>
 
-            <Paper className="card filters">
+            <Paper className="card streams">
               <h3>Data Streams</h3>
               <GridList
                   style={{display: 'flex', flexWrap: 'nowrap', overflowX: 'auto'}}
@@ -410,7 +419,7 @@ class Invite extends React.Component {
               </GridList>
             </Paper>
 
-            <Paper className="card filters">
+            <Paper className="card actions">
               <h3>User Actions</h3>
               {actions.length>0? actions: <p>None</p>}
             </Paper>

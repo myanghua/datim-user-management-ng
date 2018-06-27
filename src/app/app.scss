@@ -37,7 +37,7 @@ $main-color: $primary1Color;
 .menuwrapper {
   max-width: 1280px;
   margin: auto;
-  z-index: 5000;
+  z-index: 1390;
   position: relative;
 }
 
@@ -86,6 +86,15 @@ $main-color: $primary1Color;
 
 .card.filters {
   width: 96%;
+}
+
+.card.streams {
+  width: 70%;
+}
+
+.card.actions {
+  width: 25%;
+  min-height:18em;
 }
 
 .card.listing {
