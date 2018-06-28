@@ -20,9 +20,11 @@ const styles = {
 };
 
 const parseStreamName = name => {
-  const parts = name.split(" ");
-  const type = parts[1];
-  const level = parts[parts.length - 1];
+  const firstSpacePos = name.indexOf(" ");
+  const lastSpacePos = name.lastIndexOf(" ");
+  const type = name.slice(firstSpacePos, lastSpacePos).trim();
+  const level = name.slice(lastSpacePos).trim();
+
   return [type, level];
 };
 
