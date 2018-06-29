@@ -25,6 +25,7 @@ let injectTapEventPlugin = require("react-tap-event-plugin");
 injectTapEventPlugin();
 
 import MainMenu from "./containers/MainMenu.js";
+import AccessDenied from './components/AccessDenied.component.js';
 import Processing from "./components/Processing.component.js";
 import Invite from "./containers/InvitePage.js";
 import List from "./containers/ListPage.js";
@@ -116,6 +117,7 @@ class App extends Component<Props> {
     const d2 = this.props.d2;
     return (
       <div className="app-wrapper">
+        <AccessDenied />
         <HeaderBar />
         <Processing />
         <div className="menuwrapper">

@@ -63,6 +63,15 @@ $main-color: $primary1Color;
   z-index: 5000;
 }
 
+.accessDeniedTitle {
+  color: #FF4136 !important;
+}
+.accessDeniedDialog {
+}
+.accessDeniedBackground {
+  background-color: #fff !important;
+}
+
 .title {
   margin-bottom: 0;
   width: 30em;
