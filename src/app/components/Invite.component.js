@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 import Paper from 'material-ui/lib/paper';
 import FontIcon from 'material-ui/lib/font-icon';
@@ -9,6 +10,7 @@ import MenuItem from 'material-ui/lib/menus/menu-item';
 import Checkbox from 'material-ui/lib/checkbox';
 import {GridList, GridTile} from 'material-ui/lib/grid-list';
 
+import AccessDenied from './AccessDenied.component';
 import DataStream from './DataStream.component';
 import DataAction from './DataAction.component';
 import AppTheme from '../../colortheme';
@@ -24,10 +26,12 @@ const styles = {
   }
 }
 
-class Invite extends React.Component {
+class Invite extends Component<Props> {
+    props: Props;
 
     propTypes: {
         d2: React.PropTypes.object,
+        showProcessing: PropTypes.func.isRequired,
     }
 
     contextTypes: {
@@ -36,6 +40,10 @@ class Invite extends React.Component {
 
     constructor(props) {
       super(props);
+
+      const { showProcessing } = this.props;
+      showProcessing();
+
       this.state = {
         userType: false,
         country: false,
@@ -49,6 +57,7 @@ class Invite extends React.Component {
         actions: {},
         userManager: false,
         userGroupFilter:false,
+        accessDenied: false,
       };
       this.handleChangeType = this.handleChangeType.bind(this);
       this.handleChangeCountry = this.handleChangeCountry.bind(this);
@@ -59,8 +68,55 @@ class Invite extends React.Component {
       this.handleCheckUserManager = this.handleCheckUserManager.bind(this);
       this.handleChangeStream = this.handleChangeStream.bind(this);
       this.handleChangeActions = this.handleChangeActions.bind(this);
-      // this.getDatimUserGroups().then(res => console.log('dugs',res))
-      // .catch(e => console.error(e));
+    }
+
+    componentDidMount() {
+      //this.props.showProcessing();
+      if (this.props.core.me.hasAllAuthority|| false) {
+        this.secCheck();
+      }
+    }
+
+    componentDidUpdate(prevProps) {
+      if (this.props.core.me !== prevProps.core.me) {
+        this.secCheck();
+      }
+    }
+
+    secCheck() {
+      const { core, hideProcessing, denyAccess } = this.props;
+      // access check super user
+      if (!core.me.hasAllAuthority() && !core.me.isUserAdministrator()) {
+        hideProcessing();
+        denyAccess('Your user account does not seem to have the authorities to access this functionality.');
+        console.warn('This user is not a user administrator', core.me.hasAllAuthority(), core.me.isUserAdministrator());
+        return;
+      }
+
+      // Figure out this user's relevant userGroups
+      const userGroups = core.me.userGroups || [];
+      const userTypesArr = Object.keys(core.config).map(function (key) {
+        let obj = core.config[key];
+        obj.name = key;
+        return obj;
+      })
+      const myStreams = userTypesArr.filter(ut => {
+        return userGroups.some(ug => {
+          return (new RegExp(ut.groupFilter,'i').test(ug.name));
+        });
+      });
+
+      // Make sure they have at least one relevant userGroup stream
+      if (myStreams.length <= 0) {
+        hideProcessing();
+        denyAccess('Your user account does not seem to have access to any of the data streams.');
+        console.warn('No valid streams. I have access to ', userGroups);
+        return;
+      }
+
+      hideProcessing();
+
+      console.log(core.me.userGroups,myStreams);
     }
 
     // Get all user groups with (DATIM) in their name
@@ -93,7 +149,7 @@ class Invite extends React.Component {
       };
 
       d2.models.userGroups.list(params).then(res=>{
-        // these functions are copied from the original stores.json
+        // these two functions are copied from the original stores.json
         // extract the partner code in  format of categoryOptionGroups "Partner_XXXX"
         let getPartnerCode = (userGroup) => {
           return (/Partner \d+?(?= )/i.exec(userGroup.name) || '').toString().replace('Partner ', 'Partner_');
@@ -143,7 +199,7 @@ class Invite extends React.Component {
         filter: 'name:ilike:' + countryName + ' Agency',
       };
       d2.models.userGroups.list(params).then(res=>{
-        // these three functions are copied from the original stores.json
+        // these two functions are copied from the original stores.json
         // extract the agency code in  format of categoryOptionGroups "Agency_XXXX"
         let getAgencyCode = (userGroup) => {
           return (/Agency .+?(?= all| user)/i.exec(userGroup.name) || '').toString().replace('Agency ', 'Agency_');
@@ -159,19 +215,16 @@ class Invite extends React.Component {
         const merged = res.toArray().reduce((obj, ug) => {
             return this.extendObj(obj, ug.toJSON(), getAgencyCode(ug), getType(ug)); }, {}
         );
-console.log('merged',merged);
         // shove that data into the main partners object
         const mapped = core.agencies.map(a=>{
           return Object.assign({}, a, merged[a.code]);
         });
-console.log('mapped',mapped);
         // remove any that didn't get mapped and sort
         let filtered = mapped.filter(a => {
           return a.mechUserGroup && a.mechUserGroup.id && a.userUserGroup && a.userUserGroup.id;
         }).sort((a, b) => {
           return (a.name > b.name)?1:(a.name< b.name)?-1:0
         });
-console.log('filtered',filtered);
         this.setState({agencies:filtered});
       })
       .catch(e=>{

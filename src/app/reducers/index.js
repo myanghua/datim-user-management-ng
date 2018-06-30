@@ -4,6 +4,7 @@ import core from "./coreReducers";
 import processing from "./processingReducers";
 import access from "./accessReducers";
 import list from "./listReducers";
+import invite from "./inviteReducers";
 import mainMenu from "./mainMenuReducers";
 
 export default combineReducers({
@@ -11,5 +12,6 @@ export default combineReducers({
   processing,
   access,
   list,
+  invite,
   mainMenu
 })
