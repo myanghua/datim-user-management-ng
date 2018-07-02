@@ -31,8 +31,11 @@ export function setMe() {
             me.hasAllAuthority = () => {
               return (me.authorities || []).indexOf("ALL") >= 0;
             };
+            me.hasAuthority = (auth) => {
+              return (me.authorities || []).indexOf(auth) >= 0;
+            };
             me.isUserAdministrator = () => {
-              return me.hasUserRole("User Administrator");
+              return me.hasRole("User Administrator");
             };
             me.isGlobalUser = () => {
               return (
