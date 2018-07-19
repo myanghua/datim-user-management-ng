@@ -32,7 +32,7 @@ const configuration = {
       {
         "hidden": 1,
         "locked": 0,
-        "name": "Data Entry - Aggregate",
+        "name": "Data Entry Aggregate",
         "preSelected": 0,
         "roleUID": "k7BWFXkG6zt",
         "selectWhenUA": 1,
@@ -190,7 +190,7 @@ const configuration = {
       {
         "hidden": 1,
         "locked": 0,
-        "name": "Data Entry - Aggregate",
+        "name": "Data Entry Aggregate",
         "preSelected": 0,
         "roleUID": "k7BWFXkG6zt",
         "selectWhenUA": 1,
@@ -239,7 +239,7 @@ const configuration = {
             "groupUID": "c6hGi8GEZot",
             "impliedRoles": [
               {
-                "name": "Data Entry - Aggregate",
+                "name": "Data Entry Aggregate",
                 "roleUID": "k7BWFXkG6zt"
               }
             ],
@@ -312,7 +312,7 @@ const configuration = {
       {
         "hidden": 1,
         "locked": 0,
-        "name": "Data Entry - Aggregate",
+        "name": "Data Entry Aggregate",
         "preSelected": 0,
         "roleUID": "k7BWFXkG6zt",
         "selectWhenUA": 1,
@@ -335,7 +335,7 @@ const configuration = {
             "groupUID": "XgctRYBpSiR",
             "impliedRoles": [
               {
-                "name": "Data Entry - Aggregate",
+                "name": "Data Entry Aggregate",
                 "roleUID": "k7BWFXkG6zt"
               }
             ],
@@ -358,7 +358,7 @@ const configuration = {
             "groupUID": "hCofOhr3q1Q",
             "impliedRoles": [
               {
-                "name": "Data Entry - Aggregate",
+                "name": "Data Entry Aggregate",
                 "roleUID": "k7BWFXkG6zt"
               }
             ],
@@ -393,7 +393,7 @@ const configuration = {
       {
         "hidden": 1,
         "locked": 0,
-        "name": "Data Entry - Aggregate",
+        "name": "Data Entry Aggregate",
         "preSelected": 0,
         "roleUID": "k7BWFXkG6zt",
         "selectWhenUA": 1,
@@ -416,7 +416,7 @@ const configuration = {
             "groupUID": "XgctRYBpSiR",
             "impliedRoles": [
               {
-                "name": "Data Entry - Aggregate",
+                "name": "Data Entry Aggregate",
                 "roleUID": "k7BWFXkG6zt"
               }
             ],
@@ -439,7 +439,7 @@ const configuration = {
             "groupUID": "rP0VPKQcC8y",
             "impliedRoles": [
               {
-                "name": "Data Entry - Aggregate",
+                "name": "Data Entry Aggregate",
                 "roleUID": "k7BWFXkG6zt"
               }
             ],
