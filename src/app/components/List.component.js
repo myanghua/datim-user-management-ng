@@ -171,11 +171,7 @@ class List extends Component<Props> {
 
         {!selectedUser ? null : (
           <Paper className="card details">
-            <UserDetails
-              user={selectedUser}
-              onClickEdit={this.handleUserEdit}
-              onClickDisable={this.handleUserDisable}
-            />
+            <UserDetails user={selectedUser} />
           </Paper>
         )}
       </div>

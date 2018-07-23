@@ -48,14 +48,6 @@ const Actions = ({ actions }) => {
 };
 
 class UserDetails extends Component {
-  handleClickEdit = () => {
-    this.props.onClickEdit(this.props.user);
-  };
-
-  handleClickDisable = () => {
-    this.props.onClickDisable(this.props.user);
-  };
-
   render() {
     const user = getUser(this.props.user);
 
