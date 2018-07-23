@@ -41,10 +41,10 @@ const Streams = ({ streams }) => {
   );
 };
 
-const Actions = ({ roles }) => {
-  const roleItems = roles.map((r, i) => <li key={`useraction-${i}`}>{r.displayName}</li>);
+const Actions = ({ actions }) => {
+  const actionItems = actions.map((action, i) => <li key={`useraction-${i}`}>{action}</li>);
 
-  return <ul>{roleItems}</ul>;
+  return <ul>{actionItems}</ul>;
 };
 
 class UserDetails extends Component {
@@ -77,8 +77,12 @@ class UserDetails extends Component {
         </p>
         <h4>Data streams</h4>
         <Streams streams={user.dataStreams} />
-        <h4>Actions</h4>
-        <Actions roles={user.roles} />
+        {user.actions.length ? (
+          <div>
+            <h4>Actions</h4>
+            <Actions actions={user.actions} />
+          </div>
+        ) : null}
       </div>
     );
   }

@@ -16,11 +16,15 @@ const getUserCountry = rawUser => {
   return userCountry ? userCountry.name : "Global";
 };
 
-const getUserRoles = rawUser =>
-  rawUser.userCredentials.userRoles
-    .filter(r => allRoles[r.name])
-    .map(r => allRoles[r.name])
-    .filter(r => !r.implied);
+const getUserActions = (rawUser, type) => {
+  const visibleActions = config[type].actions.filter(a => a.hidden === 0);
+  const userRoleIds = rawUser.userCredentials.userRoles.map(r => r.id);
+
+  return visibleActions
+    .filter(va => userRoleIds.indexOf(va.roleUID) !== -1)
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map(va => va.name);
+};
 
 const getStreamAccesses = (groups, stream) => {
   const accesses = stream.accessLevels;
@@ -52,7 +56,7 @@ const getUser = rawUser => {
   const user = {};
   user.type = getUserType(rawUser);
   user.dataStreams = getDataStreams(rawUser, user.type);
-  user.roles = [];
+  user.actions = getUserActions(rawUser, user.type);
   user.employer = rawUser.employer;
   user.displayName = rawUser.displayName;
   user.country = getUserCountry(rawUser);
