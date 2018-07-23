@@ -9,6 +9,7 @@ import { getUserTypes } from "../reducers/coreReducers";
 import "../../translationRegistration";
 import allStreams from "../constants/streams";
 import allRoles from "../constants/roles";
+import config from "../actions/config";
 
 import "./UserDetails.component.css";
 
@@ -82,18 +83,14 @@ class UserDetails extends React.Component {
   };
 
   getUserType = () => {
-    // if we were to use the user custom attribute
-    // const userType = this.props.user.attributeValues.find(v => v.attribute.code === "usertype");
-    // return userType ? userType.value : "unknown";
+    const ug = this.props.user.userGroups.toArray();
 
-    // getUserType by parsing the userGroups
-    const types = this.props.userTypes.map(t => t.toLowerCase());
-    const groupsString = this.props.user.userGroups
-      .toArray()
-      .map(g => g.name.toLowerCase())
-      .join(" ");
-
-    return types.find(t => groupsString.includes(t)) || "unknown";
+    return Object.keys(config).reduce((acc, type) => {
+      if (ug.find(g => RegExp(config[type].groupFilter).test(g.name))) {
+        acc.push(type);
+      }
+      return acc;
+    }, [])[0]; //hack, return the first one
   };
 
   getUserCountry = () => {
