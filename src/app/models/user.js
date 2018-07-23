@@ -37,13 +37,15 @@ const getStreamAccesses = (groups, stream) => {
 const getDataStreams = (rawUser, type) => {
   const allTypeStreams = config[type].streams;
   const groups = rawUser.userGroups.toArray();
-  return Object.keys(allTypeStreams).map(name => {
-    return {
-      name,
-      accesses: getStreamAccesses(groups, allTypeStreams[name]),
-      sortOrder: allTypeStreams[name].sortOrder,
-    };
-  });
+  return Object.keys(allTypeStreams)
+    .map(name => {
+      return {
+        name,
+        accesses: getStreamAccesses(groups, allTypeStreams[name]),
+        sortOrder: allTypeStreams[name].sortOrder,
+      };
+    })
+    .sort((a, b) => a.sortOrder - b.sortOrder);
 };
 
 const getUser = rawUser => {
