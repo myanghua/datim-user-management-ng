@@ -17,7 +17,7 @@ const getUserCountry = rawUser => {
 };
 
 const getUserActions = (rawUser, type) => {
-  const visibleActions = config[type].actions.filter(a => a.hidden === 0);
+  const visibleActions = config[type].actions; //.filter(a => a.hidden === 0);
   const userRoleIds = rawUser.userCredentials.userRoles.map(r => r.id);
 
   return visibleActions
