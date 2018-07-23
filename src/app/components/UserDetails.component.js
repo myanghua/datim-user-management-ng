@@ -1,15 +1,7 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
-
 import FontIcon from "material-ui/lib/font-icon";
-
-import AppTheme from "../../colortheme";
-import actions from "../../actions";
-import { getUserTypes } from "../reducers/coreReducers";
 import "../../translationRegistration";
-import allStreams from "../constants/streams";
-import allRoles from "../constants/roles";
-import config from "../actions/config";
+import getUser from "../models/user";
 
 import "./UserDetails.component.css";
 
@@ -22,31 +14,13 @@ const styles = {
   },
 };
 
-const parseStreamName = name => {
-  const firstSpacePos = name.indexOf(" ");
-  const lastSpacePos = name.lastIndexOf(" ");
-  const type = name.slice(firstSpacePos, lastSpacePos).trim();
-  const level = name.slice(lastSpacePos).trim();
-
-  return [type, level];
-};
-
 const Streams = ({ streams }) => {
-  const mappedVals = streams
-    .map(s => parseStreamName(s))
-    .reduce((acc, [currentKey, currentVal]) => {
-      return {
-        ...acc,
-        [currentKey]: { ...acc[currentKey], ...{ [currentVal]: true } },
-      };
-    }, {});
-
-  const rows = Object.keys(mappedVals).map(k => {
-    const view = mappedVals[k].access ? "*" : "";
-    const enter = mappedVals[k].entry ? "*" : "";
+  const rows = streams.map((s, i) => {
+    const view = s.accesses["View Data"] ? s.accesses["View Data"] : "-";
+    const enter = s.accesses["Enter Data"] ? s.accesses["Enter Data"] : "-";
     return (
-      <tr key={k}>
-        <td>{k}</td>
+      <tr key={`${s.name}-${i}`}>
+        <td>{s.name}</td>
         <td>{view}</td>
         <td>{enter}</td>
       </tr>
@@ -73,7 +47,7 @@ const Actions = ({ roles }) => {
   return <ul>{roleItems}</ul>;
 };
 
-class UserDetails extends React.Component {
+class UserDetails extends Component {
   handleClickEdit = () => {
     this.props.onClickEdit(this.props.user);
   };
@@ -82,36 +56,8 @@ class UserDetails extends React.Component {
     this.props.onClickDisable(this.props.user);
   };
 
-  getUserType = () => {
-    const ug = this.props.user.userGroups.toArray();
-
-    return Object.keys(config).reduce((acc, type) => {
-      if (ug.find(g => RegExp(config[type].groupFilter).test(g.name))) {
-        acc.push(type);
-      }
-      return acc;
-    }, [])[0]; //hack, return the first one
-  };
-
-  getUserCountry = () => {
-    const userCountry = this.props.user.organisationUnits.toArray().find(c => c.level === 3);
-    return userCountry ? userCountry.name : "Global";
-  };
-
-  getUserRoles = () =>
-    this.props.user.userCredentials.userRoles
-      .filter(r => allRoles[r.name])
-      .map(r => allRoles[r.name])
-      .filter(r => !r.implied);
-
-  getUserDataStreams = () =>
-    this.props.user.userGroups
-      .toArray()
-      .filter(g => allStreams.indexOf(g.name) !== -1)
-      .map(s => s.name);
-
   render() {
-    const user = this.props.user;
+    const user = getUser(this.props.user);
 
     return (
       <div>
@@ -119,7 +65,7 @@ class UserDetails extends React.Component {
         <p>
           <FontIcon className="material-icons" style={styles.icon} />
           <strong>User Type:</strong>
-          <span>{this.getUserType()}</span>
+          <span>{user.type}</span>
         </p>
         <p>
           <FontIcon className="material-icons" style={styles.icon} />
@@ -127,23 +73,15 @@ class UserDetails extends React.Component {
         </p>
         <p>
           <FontIcon className="material-icons" style={styles.icon} />
-          <strong>Country:</strong> {this.getUserCountry()}
+          <strong>Country:</strong> {user.country}
         </p>
         <h4>Data streams</h4>
-        <Streams streams={this.getUserDataStreams()} />
+        <Streams streams={user.dataStreams} />
         <h4>Actions</h4>
-        <Actions roles={this.getUserRoles()} />
+        <Actions roles={user.roles} />
       </div>
     );
   }
 }
-const mapStateToProps = state => {
-  return {
-    userTypes: getUserTypes(state),
-  };
-};
 
-export default connect(
-  mapStateToProps,
-  null
-)(UserDetails);
+export default UserDetails;
