@@ -57,11 +57,6 @@ export class FilterManager extends Component {
 
     return (
       <div>
-        <Paper className="card filters">
-          <h3>Filters</h3>
-          <p>Select your filter type to limit your search</p>
-          <p>Start typing your filter value</p>
-        </Paper>
         {filterFields}
         <div>
           <button onClick={this.addFilterField}>Add filter</button>
