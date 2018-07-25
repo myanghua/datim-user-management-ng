@@ -53,8 +53,8 @@ class Invite extends Component<Props> {
         partners: [],
         agency:false,
         partner:false,
-        streams:{},
-        actions: {},
+        streams: [],
+        actions: [],
         userManager: false,
         userGroupFilter:false,
         accessDenied: false,
@@ -71,15 +71,22 @@ class Invite extends Component<Props> {
     }
 
     componentDidMount() {
-      //this.props.showProcessing();
+      // make sure my auth properties have been loaded.
+      // Probably haven't yet, so we check in componentDidUpdate as well
       if (this.props.core.me.hasAllAuthority|| false) {
         this.secCheck();
       }
     }
 
     componentDidUpdate(prevProps) {
+      // make sure my auth properties have been loaded
       if (this.props.core.me !== prevProps.core.me) {
         this.secCheck();
+        // preselect the user's first country
+        // console.log('My country:',this.props.core.me.organisationUnits[0].id);
+        // this.setState({country: this.props.core.me.organisationUnits[0].id})
+        // preselect the user type
+
       }
     }
 
@@ -107,7 +114,7 @@ class Invite extends Component<Props> {
       });
 
       // Make sure they have at least one relevant userGroup stream
-      if (myStreams.length <= 0) {
+      if (!core.me.hasRole('Superuser ALL authorities') || myStreams.length <= 0) {
         hideProcessing();
         denyAccess('Your user account does not seem to have access to any of the data streams.');
         console.warn('No valid streams. I have access to ', userGroups);
@@ -266,7 +273,7 @@ class Invite extends Component<Props> {
     }
 
     handleChangeCountry(event, index, value) {
-      this.setState({country:value});
+      this.setState({country: value, streams:[], actions: []});
       if (value==='global'){
         this.handleChangeType(event, 0, 'Global');
       }
@@ -276,16 +283,16 @@ class Invite extends Component<Props> {
     }
 
     handleChangeLocale(event, index, value) {
-      this.setState({locale:value});
+      this.setState({locale: value, streams:[], actions: []});
     }
 
     handleChangeAgency(event, index, value) {
-      this.setState({agency:value});
+      this.setState({agency: value, streams:[], actions: []});
     }
 
     handleChangePartner(event, index, value) {
       // @TODO check if we need to add DoD objects to view
-      this.setState({partner:value});
+      this.setState({partner: value, streams:[], actions: []});
     }
 
     handleChangeEmail = (event) => {
@@ -295,17 +302,119 @@ class Invite extends Component<Props> {
     }
 
     handleCheckUserManager = () => {
+      // @TODO set proper streams / actions
       this.setState({
         userManager: !this.state.userManager,
       });
     }
 
     handleChangeStream(streamName, state, value) {
-      console.log('stream',streamName, state, value);
+      let streams = this.state.streams;
+      streams[streamName]=state;
+      this.setState({streams: streams});
     }
 
     handleChangeActions(roleUID, value) {
-      console.log('actions',roleUID,value);
+      let actions = this.state.actions;
+      let idx = actions.findIndex(x => x.id===roleUID);
+      if (roleUID && value===true){       //add it if it doesn't exist already
+        if (idx === -1) {
+          actions.push({id:roleUID});
+        }
+      }
+      else if (roleUID && value===false){  //remove it if it exists
+        if (idx !== -1) {
+          actions.splice(idx,1);
+        }
+      }
+      this.setState({actions:actions});
+    }
+
+    handleInviteUser = () => {
+      const { d2, core } = this.props;
+
+      console.log('inviteUser',this.state.country,this.state.userType,this.state.email);
+
+      let user = d2.models.users.create();
+      user.email = this.state.email;
+      user.organisationUnits= [{id:this.state.country}];
+      user.dataViewOrganisationUnits=[];
+      user.userGroups=[];  //Global users
+      user.userCredentials={
+          userRoles:[
+                //{'id':'b2uHwX9YLhu'}
+            ]
+      };
+      user.firstName='';
+      user.surname='';
+
+      // streams / groups
+      // if streams[streamName] is not set, use the default from config taking in account userManager flag
+      // else use whatver they selected
+      // let level = core.config[this.state.userType].streams[streamName].accessLevels;
+      console.log('streams',this.state.streams);
+
+
+      //user.save();
+
+      console.log(user);
+
+      //userInviteObject = getInviteObject(vm.dataGroups, vm.actions);
+            // userService.getUserInviteObject(
+            //   $scope.user,
+            //   dataGroups,
+            //   actions,
+            //   [getCurrentOrgUnit()],
+            //   userActions.dataEntryRestrictions);
+      //addDimensionConstraintForType();
+            // if (getUserType() !== 'Inter-Agency') {
+            //     vm.userInviteObject.addDimensionConstraint(dimensionConstraint);
+            // }
+      // if (!verifyUserInviteObject() || !addUserGroupsForMechanismsAndUsers()) {
+      //     return;
+      // }
+            // if (!userService.verifyInviteData(vm.userInviteObject)) {
+            //   notify.error('Invite did not pass basic validation');
+            //   vm.isProcessingAddUser = true;
+            //   return false;
+            // }
+
+            // var entity = $scope.user.userEntity;
+            // var hasMechUserGroup = entity && entity.mechUserGroup && entity.mechUserGroup.id;
+            // var hasUserUserGroup = entity && entity.userUserGroup && entity.userUserGroup.id;
+            //
+            // if (hasMechUserGroup) {
+            //     vm.userInviteObject.addEntityUserGroup(entity.mechUserGroup);
+            // }
+            // if (hasUserUserGroup) {
+            //     vm.userInviteObject.addEntityUserGroup(entity.userUserGroup);
+            // }
+            //
+            // if (!hasMechUserGroup && !hasUserUserGroup) {
+            //     notify.error('User groups for mechanism and users not found on selected entity');
+            //     return false;
+            // }
+            //
+            // return true;
+      // userService.inviteUser(vm.userInviteObject)
+      //             .then(function (newUser) {
+      //                 if (newUser.userCredentials && angular.isString(newUser.userCredentials.username) && $scope.user.locale && $scope.user.locale.code) {
+      //                     userService.saveUserLocale(newUser.userCredentials.username, $scope.user.locale.code)
+      //                         .then(function () {
+      //                             notify.success('User invitation sent');
+      //                             $scope.user = userService.getUserObject();
+      //                             vm.isProcessingAddUser = false;
+      //                             $state.go('add', {}, {reload: true});
+      //                         }, function () {
+      //                             vm.isProcessingAddUser = false;
+      //                             notify.warning('Saved user but was not able to save the user locale');
+      //                         });
+      //                 }
+      //
+      //             }, function () {
+      //                 notify.error('Request to add the user failed');
+      //                 vm.isProcessingAddUser = false;
+      //             });
     }
 
     render() {
@@ -411,9 +520,28 @@ class Invite extends Component<Props> {
           //convert streams to array for easier sorting
           const s = Object.entries(cfg.streams).map(([key, value]) => ({key,value})).sort((a,b)=> a.value.sortOrder > b.value.sortOrder);
           s.forEach(stream => {
+
+            let defaultSelected = 'noaccess';
+            // if nothing has been selected yet, use the config defaults
+            if (!this.state.streams[stream.key]){
+              if (stream.value.accessLevels['Enter Data'] || false) {
+                if (stream.value.accessLevels['Enter Data'].preSelected===1 || (stream.value.accessLevels['Enter Data'].selectWhenUA===1 && this.state.userManager===true)){
+                  defaultSelected = 'Enter Data';
+                }
+              }
+              else if (stream.value.accessLevels['View Data'] || false) {
+                if (stream.value.accessLevels['View Data'].preSelected===1 || (stream.value.accessLevels['View Data'].selectWhenUA===1 && this.state.userManager===true)){
+                  defaultSelected = 'View Data';
+                }
+              }
+            }
+            else{
+              defaultSelected = this.state.streams[stream.key];
+            }
+
             streams.push(
               <GridTile key={stream.key} >
-                <DataStream stream={stream} onChangeStream={this.handleChangeStream} userManager={this.state.userManager}/>
+                <DataStream stream={stream} selected={defaultSelected} onChangeStream={this.handleChangeStream} userManager={this.state.userManager}/>
               </GridTile>
             );
           });
@@ -427,7 +555,6 @@ class Invite extends Component<Props> {
             );
           });
         }
-
 
         return (
           <div className="wrapper">
@@ -489,6 +616,7 @@ class Invite extends Component<Props> {
                 floatingLabelText="E-mail address"
                 hintText="user@organisation.tld"
                 fullWidth={true}
+                onChange={this.handleChangeEmail}
               />
               <br />
 
@@ -527,6 +655,14 @@ class Invite extends Component<Props> {
               <h3>User Actions</h3>
               {actions.length>0? actions: <p>None</p>}
             </Paper>
+
+            <RaisedButton
+              style={{display:'block',padding:'0 18em'}}
+              disabled={!this.state.country || !this.state.userType || !this.state.email}
+              primary={true}
+              onClick={this.handleInviteUser}
+              label={d2.i18n.getTranslation('invite')}
+            />
 
           </div>
         );

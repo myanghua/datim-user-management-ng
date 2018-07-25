@@ -8,34 +8,12 @@ class DataStream extends React.Component {
   constructor(props) {
     super(props);
     // make sure preSelected fields are checked
-    this.state = this.updateState();
+    this.state = {defaultSelected: this.props.selected};
     this.handleClick = this.handleClick.bind(this);
   }
 
-  updateState() {
-    const { stream } = this.props;
-    let canView = stream.value.accessLevels.hasOwnProperty('View Data');
-    let canEdit = stream.value.accessLevels.hasOwnProperty('Enter Data');
-    let defaultSelected = 'noaccess';
-
-    if (canEdit) {
-      if (stream.value.accessLevels['Enter Data'].preSelected===1 || (stream.value.accessLevels['Enter Data'].selectWhenUA===1 && this.props.userManager===true)){
-        defaultSelected = 'Enter Data';
-      }
-    }
-    else if (canView) {
-      if (stream.value.accessLevels['View Data'].preSelected===1 || (stream.value.accessLevels['View Data'].selectWhenUA===1 && this.props.userManager===true)){
-        defaultSelected = 'View Data';
-      }
-    }
-
-    return {defaultSelected: defaultSelected};
-  }
-
   componentDidUpdate(prevProps) {
-    if (this.props.userManager !== prevProps.userManager || this.props.stream!==prevProps.stream) {
-      this.setState(this.updateState());
-    }
+    this.state = {defaultSelected: this.props.selected};
   }
 
   handleClick(event) {
@@ -45,7 +23,6 @@ class DataStream extends React.Component {
 
   render() {
     const { stream } = this.props;
-console.log('stream',stream);
 
     return (
       <div className="stream">
@@ -61,14 +38,14 @@ console.log('stream',stream);
             label="No access"
             disabled={this.props.userManager}
           />
-        {stream.value.accessLevels.hasOwnProperty('View Data') ?
+        {stream.value.accessLevels['View Data'] || false ?
             <RadioButton
               value="View Data"
               label="View Data"
               disabled={this.props.userManager}
             />
             : <span style={{display:"none"}}/>}
-          {stream.value.accessLevels.hasOwnProperty('Enter Data') ?
+          {stream.value.accessLevels['Enter Data'] || false ?
             <RadioButton
               value="Enter Data"
               label="Enter Data"
