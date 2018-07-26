@@ -53,7 +53,7 @@ class Invite extends Component<Props> {
         partners: [],
         agency:false,
         partner:false,
-        streams: [],
+        streams: {},
         actions: [],
         userManager: false,
         userGroupFilter:false,
@@ -330,6 +330,16 @@ class Invite extends Component<Props> {
       this.setState({actions:actions});
     }
 
+    getDefaultStreamsForUserType(userType) {
+      const { core } = this.props;
+      console.log('getDefaultStreamsForUserType',core.config[userType].streams);
+      let streams = {};
+      Object.keys(core.config[userType].streams).forEach(k => {
+        console.log('s',core.config[userType].streams[k].accessLevels);
+      })
+      return streams;
+    }
+
     handleInviteUser = () => {
       const { d2, core } = this.props;
 
@@ -337,22 +347,28 @@ class Invite extends Component<Props> {
 
       let user = d2.models.users.create();
       user.email = this.state.email;
-      user.organisationUnits= [{id:this.state.country}];
-      user.dataViewOrganisationUnits=[];
+      user.organisationUnits = [{id:this.state.country}];
+      user.dataViewOrganisationUnits = [{id:this.state.country}];
+      user.dataViewOrganisationUnits =[];
       user.userGroups=[];  //Global users
       user.userCredentials={
           userRoles:[
                 //{'id':'b2uHwX9YLhu'}
             ]
       };
-      user.firstName='';
-      user.surname='';
+      // user.firstName='';
+      // user.surname='';
 
       // streams / groups
       // if streams[streamName] is not set, use the default from config taking in account userManager flag
       // else use whatver they selected
       // let level = core.config[this.state.userType].streams[streamName].accessLevels;
       console.log('streams',this.state.streams);
+      let streams = this.getDefaultStreamsForUserType(this.state.userType);
+
+      Object.keys(this.state.streams).forEach(s => {
+        console.log('stream',s,this.state.streams[s]);
+      })
 
 
       //user.save();
