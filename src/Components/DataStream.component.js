@@ -12,21 +12,23 @@ class DataStream extends React.Component {
 
   updateState() {
     const { stream } = this.props;
-    let canView = stream.value.hasOwnProperty("View Data");
-    let canEdit = stream.value.hasOwnProperty("Enter Data");
+    let canView = stream.value.accessLevels.hasOwnProperty("View Data");
+    let canEdit = stream.value.accessLevels.hasOwnProperty("Enter Data");
     let defaultSelected = "noaccess";
 
     if (canEdit) {
       if (
-        stream.value["Enter Data"].preSelected === 1 ||
-        (stream.value["Enter Data"].selectWhenUA === 1 && this.props.userManager === true)
+        stream.value.accessLevels["Enter Data"].preSelected === 1 ||
+        (stream.value.accessLevels["Enter Data"].selectWhenUA === 1 &&
+          this.props.userManager === true)
       ) {
         defaultSelected = "Enter Data";
       }
     } else if (canView) {
       if (
-        stream.value["View Data"].preSelected === 1 ||
-        (stream.value["View Data"].selectWhenUA === 1 && this.props.userManager === true)
+        stream.value.accessLevels["View Data"].preSelected === 1 ||
+        (stream.value.accessLevels["View Data"].selectWhenUA === 1 &&
+          this.props.userManager === true)
       ) {
         defaultSelected = "View Data";
       }
@@ -62,12 +64,12 @@ class DataStream extends React.Component {
           onChange={this.handleClick}
         >
           <Radio value="noaccess" label="No access" disabled={this.props.userManager} />
-          {stream.value.hasOwnProperty("View Data") ? (
+          {stream.value.accessLevels.hasOwnProperty("View Data") ? (
             <Radio value="View Data" label="View Data" disabled={this.props.userManager} />
           ) : (
             <span style={{ display: "none" }} />
           )}
-          {stream.value.hasOwnProperty("Enter Data") ? (
+          {stream.value.accessLevels.hasOwnProperty("Enter Data") ? (
             <Radio value="Enter Data" label="Enter Data" disabled={this.props.userManager} />
           ) : (
             <span style={{ display: "none" }} />
