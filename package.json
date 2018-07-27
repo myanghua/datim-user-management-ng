@@ -61,13 +61,13 @@
   "scripts": {
     "prestart": "d2-manifest package.json ./public/manifest.webapp",
     "start": "node scripts/start.js",
-    "prebuild": "rm -rf build && npm run lint && mkdir build && npm run manifest",
+    "prebuild": "npm run lint && npm run manifest",
     "build": "node scripts/build.js",
     "postbuild": "cp -rv images build/",
     "test": "node scripts/test.js --env=jsdom",
     "coverage": "npm test -- --coverage",
     "lint": "eslint -c .eslintrc.json src",
-    "manifest": "d2-manifest package.json build/manifest.webapp",
+    "manifest": "d2-manifest package.json public/manifest.webapp",
     "prettify": "prettier \"src/{**/*,*}.js\" --write",
     "dist": "npm run build && cd build && zip -r user-management.zip * && cd .."
   },
@@ -87,7 +87,7 @@
     },
     "activities": {
       "dhis": {
-        "href": ".."
+        "href": "../../.."
       }
     }
   },

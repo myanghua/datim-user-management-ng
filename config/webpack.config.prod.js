@@ -35,7 +35,9 @@ if (env.stringified["process.env"].NODE_ENV !== '"production"') {
   throw new Error("Production builds must have NODE_ENV=production.");
 }
 
-const manifest = JSON.parse(fs.readFileSync(`${paths.appBuild}/manifest.webapp`, "utf8"));
+const manifest = JSON.parse(
+  fs.readFileSync(`${paths.appPublic}/manifest.webapp`, "utf8")
+);
 const globals = Object.assign(
   {},
   {
@@ -56,7 +58,7 @@ const extractTextPluginOptions = shouldUseRelativeAssetPaths
     { publicPath: Array(cssFilename.split("/").length).join("../") }
   : {};
 
-const scriptPrefix = "..";
+const scriptPrefix = manifest.activities.dhis.href;
 
 // This is the production configuration.
 // It compiles slowly and is focused on producing a fast and minimal bundle.
@@ -78,7 +80,7 @@ module.exports = {
     filename: "static/js/[name].[chunkhash:8].js",
     chunkFilename: "static/js/[name].[chunkhash:8].chunk.js",
     // We inferred the "public path" (such as / or /my-project) from homepage.
-    publicPath: publicPath,
+    publicPath: "./",
     // Point sourcemap entries to original disk location (format as URL on Windows)
     devtoolModuleFilenameTemplate: info =>
       path.relative(paths.appSrc, info.absoluteResourcePath).replace(/\\/g, "/"),
