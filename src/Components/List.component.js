@@ -26,8 +26,8 @@ const styles = {
   disabledColor: "#E53935",
   icon: {
     color: "#369",
-    marginRight: 2
-  }
+    marginRight: 2,
+  },
 };
 
 const getPageNumber = url => {
@@ -135,13 +135,11 @@ class List extends Component {
                       backgroundColor:
                         user.userCredentials.disabled === true
                           ? styles.disabledColor
-                          : styles.activeColor
+                          : styles.activeColor,
                     }}
                   >
                     <div className="rotate90">
-                      {user.userCredentials.disabled === true
-                        ? "Disabled"
-                        : "Active"}
+                      {user.userCredentials.disabled === true ? "Disabled" : "Active"}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -170,7 +168,7 @@ class List extends Component {
 List.propTypes = {
   getUserListing: PropTypes.func.isRequired,
   setSelectedUser: PropTypes.func.isRequired,
-  setTab: PropTypes.func.isRequired
+  setTab: PropTypes.func.isRequired,
 };
 
 export default List;

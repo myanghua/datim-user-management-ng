@@ -12,7 +12,7 @@ const mapStateToProps = state => {
     pager: list.pager,
     selectedUser: list.selectedUser,
     tab: list.tab,
-    currentPage: list.currentPage
+    currentPage: list.currentPage,
   };
 };
 

@@ -36,7 +36,7 @@ class DataAction extends React.Component {
     this.props.onChangeAction(this.props.action.roleUID, !this.state.checked);
     this.setState(oldState => {
       return {
-        checked: !oldState.checked
+        checked: !oldState.checked,
       };
     });
   }

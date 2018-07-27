@@ -38,7 +38,7 @@ class Invite extends Component {
   //   };
 
   contextTypes: {
-    d2: React.PropTypes.object
+    d2: React.PropTypes.object,
   };
 
   constructor(props) {
@@ -60,7 +60,7 @@ class Invite extends Component {
       actions: [],
       userManager: false,
       userGroupFilter: false,
-      accessDenied: false
+      accessDenied: false,
     };
     this.handleChangeType = this.handleChangeType.bind(this);
     this.handleChangeCountry = this.handleChangeCountry.bind(this);
@@ -122,10 +122,7 @@ class Invite extends Component {
     });
 
     // Make sure they have at least one relevant userGroup stream
-    if (
-      !core.me.hasRole("Superuser ALL authorities") ||
-      myStreams.length <= 0
-    ) {
+    if (!core.me.hasRole("Superuser ALL authorities") || myStreams.length <= 0) {
       hideProcessing();
       denyAccess(
         "Your user account does not seem to have access to any of the data streams."
@@ -144,7 +141,7 @@ class Invite extends Component {
     const d2 = this.props.d2;
     let list = await d2.models.userGroups.list({
       filter: "name:like: (DATIM)",
-      fields: "id,name,users[id,name]"
+      fields: "id,name,users[id,name]",
     });
     return list;
   };
@@ -166,7 +163,7 @@ class Invite extends Component {
     const params = {
       paging: false,
       fields: "id,name,code",
-      filter: "name:ilike:" + countryName + " Partner"
+      filter: "name:ilike:" + countryName + " Partner",
     };
 
     d2.models.userGroups
@@ -190,12 +187,7 @@ class Invite extends Component {
 
         // take the userGroups that have a name like our OU, group and index them by their partner_code
         const merged = res.toArray().reduce((obj, ug) => {
-          return this.extendObj(
-            obj,
-            ug.toJSON(),
-            getPartnerCode(ug),
-            getType(ug)
-          );
+          return this.extendObj(obj, ug.toJSON(), getPartnerCode(ug), getType(ug));
         }, {});
         // shove that data into the main partners object
         const mapped = core.partners.map(p => {
@@ -234,7 +226,7 @@ class Invite extends Component {
     const params = {
       paging: false,
       fields: "id,name,code",
-      filter: "name:ilike:" + countryName + " Agency"
+      filter: "name:ilike:" + countryName + " Agency",
     };
     d2.models.userGroups
       .list(params)
@@ -257,12 +249,7 @@ class Invite extends Component {
 
         // take the userGroups that have a name like our OU, group and index them by their partner_code
         const merged = res.toArray().reduce((obj, ug) => {
-          return this.extendObj(
-            obj,
-            ug.toJSON(),
-            getAgencyCode(ug),
-            getType(ug)
-          );
+          return this.extendObj(obj, ug.toJSON(), getAgencyCode(ug), getType(ug));
         }, {});
         // shove that data into the main partners object
         const mapped = core.agencies.map(a => {
@@ -347,14 +334,14 @@ class Invite extends Component {
 
   handleChangeEmail = event => {
     this.setState({
-      email: event.target.value
+      email: event.target.value,
     });
   };
 
   handleCheckUserManager = () => {
     // @TODO set proper streams / actions
     this.setState({
-      userManager: !this.state.userManager
+      userManager: !this.state.userManager,
     });
   };
 
@@ -384,12 +371,7 @@ class Invite extends Component {
   handleInviteUser = () => {
     const { d2, core } = this.props;
 
-    console.log(
-      "inviteUser",
-      this.state.country,
-      this.state.userType,
-      this.state.email
-    );
+    console.log("inviteUser", this.state.country, this.state.userType, this.state.email);
 
     let user = d2.models.users.create();
     user.email = this.state.email;
@@ -399,7 +381,7 @@ class Invite extends Component {
     user.userCredentials = {
       userRoles: [
         //{'id':'b2uHwX9YLhu'}
-      ]
+      ],
     };
     user.firstName = "";
     user.surname = "";
@@ -526,11 +508,7 @@ class Invite extends Component {
     ));
 
     const localeMenus = locales.map(v => (
-      <MenuItem
-        key={v.locale}
-        value={v.locale}
-        checked={this.state.locale === v.locale}
-      >
+      <MenuItem key={v.locale} value={v.locale} checked={this.state.locale === v.locale}>
         {v.name}
       </MenuItem>
     ));
@@ -561,10 +539,7 @@ class Invite extends Component {
             return p.id === this.state.partner;
           })[0] || {};
 
-        if (
-          partner.hasOwnProperty("normalEntry") &&
-          partner.normalEntry !== true
-        ) {
+        if (partner.hasOwnProperty("normalEntry") && partner.normalEntry !== true) {
           cfg = core.config["Partner DoD"];
         }
       }
@@ -638,7 +613,7 @@ class Invite extends Component {
               onChange={this.handleChangeCountry}
               inputProps={{
                 name: "country",
-                id: "country"
+                id: "country",
               }}
             >
               {countryMenus}
@@ -654,7 +629,7 @@ class Invite extends Component {
               onChange={this.handleChangeType}
               inputProps={{
                 name: "userType",
-                id: "userType"
+                id: "userType",
               }}
             >
               {typeMenus}
@@ -671,7 +646,7 @@ class Invite extends Component {
                 onChange={this.handleChangePartner}
                 inputProps={{
                   name: "partner",
-                  id: "partner"
+                  id: "partner",
                 }}
               >
                 {partnerMenus}
@@ -688,7 +663,7 @@ class Invite extends Component {
                 onChange={this.handleChangeAgency}
                 inputProps={{
                   name: "agency",
-                  id: "agency"
+                  id: "agency",
                 }}
               >
                 {agencyMenus}
@@ -714,7 +689,7 @@ class Invite extends Component {
               onChange={this.handleChangeLocale}
               inputProps={{
                 name: "locale",
-                id: "locale"
+                id: "locale",
               }}
             >
               {localeMenus}
@@ -749,9 +724,7 @@ class Invite extends Component {
         <Button
           variant="contained"
           style={{ display: "block", padding: "0 18em" }}
-          disabled={
-            !this.state.country || !this.state.userType || !this.state.email
-          }
+          disabled={!this.state.country || !this.state.userType || !this.state.email}
           primary={true}
           onClick={this.handleInviteUser}
           label={d2.i18n.getTranslation("invite")}

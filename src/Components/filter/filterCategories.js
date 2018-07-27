@@ -3,44 +3,44 @@ const filterCategories = {
     id: "name",
     param: "name:ilike:",
     displayName: "Name",
-    model: ""
+    model: "",
   },
   username: {
     id: "username",
     param: "userCredentials.username:ilike:",
     displayName: "Username",
-    model: ""
+    model: "",
   },
   email: {
     id: "email",
     param: "email:ilike:",
     displayName: "Email",
-    model: ""
+    model: "",
   },
   usertype: {
     id: "usertype",
     param: "userGroups.name:ilike:",
     displayName: "User type",
-    model: "userTypes"
+    model: "userTypes",
   },
   orgunit: {
     id: "orgunit",
     param: "organisationUnits.name:ilike:",
     displayName: "Organisation Unit",
-    model: "orgunit"
+    model: "orgunit",
   },
   userrole: {
     id: "userrole",
     param: "userCredentials.userRoles.name:eq:",
     displayName: "User role",
-    model: "userrole"
+    model: "userrole",
   },
   usergroup: {
     id: "usergroup",
     param: "userGroups.name:eq:",
     displayName: "User group",
-    model: "usergroup"
-  }
+    model: "usergroup",
+  },
 };
 
 export const filterCategoryDefault = "name";

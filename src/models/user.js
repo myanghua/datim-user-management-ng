@@ -12,9 +12,7 @@ const getUserType = rawUser => {
 };
 
 const getUserCountry = rawUser => {
-  const userCountry = rawUser.organisationUnits
-    .toArray()
-    .find(c => c.level === 3);
+  const userCountry = rawUser.organisationUnits.toArray().find(c => c.level === 3);
   return userCountry ? userCountry.name : "Global";
 };
 
@@ -31,13 +29,11 @@ const getUserActions = (rawUser, type) => {
 const getStreamAccesses = (groups, stream) => {
   const accesses = stream.accessLevels;
   return Object.keys(accesses).reduce((acc, currKey) => {
-    const found = groups.find(g =>
-      RegExp(accesses[currKey].groupName).test(g.name)
-    );
+    const found = groups.find(g => RegExp(accesses[currKey].groupName).test(g.name));
 
     return {
       ...acc,
-      [currKey]: found ? "Y" : "N"
+      [currKey]: found ? "Y" : "N",
     };
   }, {});
 };
@@ -50,7 +46,7 @@ const getDataStreams = (rawUser, type) => {
       return {
         name,
         accesses: getStreamAccesses(groups, allTypeStreams[name]),
-        sortOrder: allTypeStreams[name].sortOrder
+        sortOrder: allTypeStreams[name].sortOrder,
       };
     })
     .sort((a, b) => a.sortOrder - b.sortOrder);

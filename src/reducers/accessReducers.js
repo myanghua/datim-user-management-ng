@@ -3,7 +3,7 @@ import * as actions from "../constants/ActionTypes";
 
 const initialState = {
   show: false,
-  message: ""
+  message: "",
 };
 
 export const accessReducers = (state = initialState, action) => {
@@ -12,7 +12,7 @@ export const accessReducers = (state = initialState, action) => {
       return {
         ...state,
         show: true,
-        message: action.message
+        message: action.message,
       };
     default: {
       return state;

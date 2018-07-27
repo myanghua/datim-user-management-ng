@@ -38,7 +38,7 @@ class MainMenu extends Component {
 }
 
 MainMenu.propTypes = {
-  setPage: PropTypes.func.isRequired
+  setPage: PropTypes.func.isRequired,
 };
 
 export default MainMenu;

@@ -16,7 +16,7 @@ const initialState = {
   dodid: null,
   dod: [],
   streams: [],
-  config: {}
+  config: {},
 };
 
 export const coreReducers = (state = initialState, action) => {
@@ -24,77 +24,77 @@ export const coreReducers = (state = initialState, action) => {
     case actions.SET_D2:
       return {
         ...state,
-        d2: action.d2
+        d2: action.d2,
       };
     case actions.SET_ME:
       return {
         ...state,
-        me: action.data
+        me: action.data,
       };
     case actions.SET_CONFIG:
       return {
         ...state,
-        config: action.data
+        config: action.data,
       };
     case actions.SET_STREAMS:
       return {
         ...state,
-        streams: action.data
+        streams: action.data,
       };
     case actions.SET_ROLES:
       return {
         ...state,
-        roles: action.data
+        roles: action.data,
       };
     case actions.SET_GROUPS:
       return {
         ...state,
-        groups: action.data
+        groups: action.data,
       };
     case actions.SET_COUNTRIES:
       return {
         ...state,
-        countries: action.data
+        countries: action.data,
       };
     case actions.SET_USERTYPES:
       return {
         ...state,
-        userTypes: action.data
+        userTypes: action.data,
       };
     case actions.SET_LOCALES:
       return {
         ...state,
-        locales: action.data
+        locales: action.data,
       };
     case actions.SET_FUNDINGAGENCY:
       return {
         ...state,
-        fundingagency: action.data
+        fundingagency: action.data,
       };
     case actions.SET_AGENCIES:
       return {
         ...state,
-        agencies: action.data
+        agencies: action.data,
       };
     case actions.SET_IMPLEMENTINGPARTNER:
       return {
         ...state,
-        implementingpartner: action.data
+        implementingpartner: action.data,
       };
     case actions.SET_PARTNERS:
       return {
         ...state,
-        partners: action.data
+        partners: action.data,
       };
     case actions.SET_DODUID:
       return {
         ...state,
-        dodid: action.data
+        dodid: action.data,
       };
     case actions.SET_DOD:
       return {
         ...state,
-        dod: action.data
+        dod: action.data,
       };
     default: {
       return state;

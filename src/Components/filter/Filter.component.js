@@ -13,7 +13,7 @@ class Filter extends Component {
   state = {
     id: "",
     category: "",
-    detail: ""
+    detail: "",
   };
 
   componentDidMount() {
@@ -39,8 +39,8 @@ class Filter extends Component {
       [this.state.id]: {
         id: this.state.id,
         category: this.state.category,
-        detail: this.state.detail
-      }
+        detail: this.state.detail,
+      },
     };
 
     this.props.setFilter(filter);
@@ -97,6 +97,6 @@ export default connect(
   null,
   {
     setFilter,
-    removeFilter
+    removeFilter,
   }
 )(Filter);

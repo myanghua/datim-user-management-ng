@@ -30,7 +30,7 @@ const setupD2 = () => {
     "userGroup",
     "userCredentials",
     "organisationUnit",
-    "categoryOptionGroupSet"
+    "categoryOptionGroupSet",
   ];
 
   return (

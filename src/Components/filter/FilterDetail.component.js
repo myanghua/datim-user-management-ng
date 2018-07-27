@@ -8,12 +8,12 @@ import {
   getUserGroups,
   getUserTypes,
   getCountries,
-  getUserRoles
+  getUserRoles,
 } from "../../reducers/coreReducers";
 
 class FilterDetail extends Component {
   state = {
-    value: ""
+    value: "",
   };
 
   valueChanged = value => {
@@ -68,11 +68,7 @@ class FilterDetail extends Component {
     } else if (category.model === "usergroup") {
       optionComponents = this.props.userGroups.map(g => {
         return (
-          <MenuItem
-            key={g.id}
-            value={g.name}
-            checked={g.name === this.state.value}
-          >
+          <MenuItem key={g.id} value={g.name} checked={g.name === this.state.value}>
             {g.name}
           </MenuItem>
         );
@@ -80,11 +76,7 @@ class FilterDetail extends Component {
     } else if (category.model === "userrole") {
       optionComponents = this.props.userRoles.map(g => {
         return (
-          <MenuItem
-            key={g.id}
-            value={g.name}
-            checked={g.name === this.state.value}
-          >
+          <MenuItem key={g.id} value={g.name} checked={g.name === this.state.value}>
             {g.name}
           </MenuItem>
         );
@@ -110,7 +102,7 @@ const mapStateToProps = state => {
     userGroups: getUserGroups(state),
     userTypes: getUserTypes(state),
     countries: getCountries(state),
-    userRoles: getUserRoles(state)
+    userRoles: getUserRoles(state),
   };
 };
 

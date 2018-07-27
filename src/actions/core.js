@@ -73,7 +73,7 @@ export function getCountries(d2) {
       let params = {
         paging: false,
         fields: "id,name,level",
-        filter: "level:eq:3"
+        filter: "level:eq:3",
       };
       d2.models.organisationUnits
         .list(params)
@@ -124,15 +124,13 @@ export function getUserRoles(d2) {
     } else {
       let params = {
         paging: false,
-        fields: "id,name,description"
+        fields: "id,name,description",
       };
       d2.models.userRoles
         .list(params)
         .then(res => {
           res.getByName = name => {
-            return res.filter(
-              el => el.name.toLowerCase() === name.toLowerCase()
-            );
+            return res.filter(el => el.name.toLowerCase() === name.toLowerCase());
           };
           dispatch({ type: actions.SET_ROLES, data: res });
           localStorage.setItem("userroles", JSON.stringify(res));
@@ -180,7 +178,7 @@ export function getFundingAgencyUID(d2) {
 export function getAgencies(d2, fundingAgencyUID, dispatch) {
   let params = {
     paging: false,
-    fields: "categoryOptionGroups[id,name,code]"
+    fields: "categoryOptionGroups[id,name,code]",
   };
   d2.models.categoryOptionGroupSets
     .get(fundingAgencyUID, params)
@@ -233,7 +231,7 @@ export function getImplementingPartnerUID(d2) {
 export function getPartners(d2, ipUID, dispatch) {
   let params = {
     paging: false,
-    fields: "categoryOptionGroups[id,name,code]"
+    fields: "categoryOptionGroups[id,name,code]",
   };
   d2.models.categoryOptionGroupSets
     .get(ipUID, params)
@@ -280,7 +278,7 @@ export function getDoDUID(d2) {
 
 export function getDoDView(d2, dodUID, dispatch) {
   let params = {
-    paging: false
+    paging: false,
   };
   d2.Api.getApi()
     .get("/sqlViews/" + dodUID + "/data.json", params)
@@ -307,7 +305,7 @@ export function getUserGroups(d2) {
   return dispatch => {
     let params = {
       paging: true,
-      fields: "id,name,userGroupAccesses[id,displayName],managedByGroups"
+      fields: "id,name,userGroupAccesses[id,displayName],managedByGroups",
     };
     d2.models.userGroups
       .list(params)

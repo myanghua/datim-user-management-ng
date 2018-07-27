@@ -8,20 +8,20 @@ import { setCurrentPage } from "../actions/list";
 const style = {
   container: {
     float: "right",
-    margin: "10px"
+    margin: "10px",
   },
   button: {
-    padding: "5px"
+    padding: "5px",
   },
   disabled: {
-    color: "light-grey"
+    color: "light-grey",
   },
   enabled: {
-    color: "black"
+    color: "black",
   },
   status: {
-    display: "inline-block"
-  }
+    display: "inline-block",
+  },
 };
 
 const backArrow = "<";

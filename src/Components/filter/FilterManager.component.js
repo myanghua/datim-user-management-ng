@@ -7,7 +7,7 @@ import { removeFilters } from "../../actions/list";
 const defaultFilterField = {
   id: "",
   category: "name",
-  detail: ""
+  detail: "",
 };
 
 const generateId = () => {
@@ -17,12 +17,12 @@ const generateId = () => {
 
 export class FilterManager extends Component {
   state = {
-    newFields: {}
+    newFields: {},
   };
 
   initState = () => {
     const newField = Object.assign({}, defaultFilterField, {
-      id: generateId()
+      id: generateId(),
     });
     const newFields = { [newField.id]: newField };
     this.setState({ newFields });
@@ -34,10 +34,10 @@ export class FilterManager extends Component {
 
   addFilterField = () => {
     const newField = Object.assign({}, defaultFilterField, {
-      id: generateId()
+      id: generateId(),
     });
     const newFields = Object.assign({}, this.state.newFields, {
-      [newField.id]: newField
+      [newField.id]: newField,
     });
     this.setState({ newFields });
   };
@@ -81,7 +81,7 @@ export class FilterManager extends Component {
 
 const mapStateToProps = state => {
   return {
-    filters: state.list.filters
+    filters: state.list.filters,
   };
 };
 

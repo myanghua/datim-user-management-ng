@@ -3,11 +3,11 @@ export const tabs = {
   active: {
     id: "active",
     displayName: "Active users",
-    param: "userCredentials.disabled:eq:false"
+    param: "userCredentials.disabled:eq:false",
   },
   disabled: {
     id: "disabled",
     displayName: "Disabled users",
-    param: "userCredentials.disabled:eq:true"
-  }
+    param: "userCredentials.disabled:eq:true",
+  },
 };

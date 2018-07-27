@@ -9,7 +9,7 @@ import { Action } from "@dhis2/d2-ui-core";
 
 const actions = {
   // Snackbar
-  showSnackbarMessage: Action.create("Show Snackbar message")
+  showSnackbarMessage: Action.create("Show Snackbar message"),
 };
 
 export default actions;
