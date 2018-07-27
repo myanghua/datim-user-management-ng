@@ -26,7 +26,7 @@ class AccessDenied extends Component {
 }
 
 const mapStateToProps = state => ({
-  access: state.access,
+  access: state.access
 });
 
 export default connect(mapStateToProps)(AccessDenied);

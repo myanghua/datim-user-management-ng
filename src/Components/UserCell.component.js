@@ -15,8 +15,8 @@ const styles = {
   disabledColor: "#E53935",
   icon: {
     color: "#369",
-    marginRight: 2,
-  },
+    marginRight: 2
+  }
 };
 
 class UserCell extends React.Component {
@@ -31,7 +31,9 @@ class UserCell extends React.Component {
   render() {
     const user = this.props.user;
     const bgcolor =
-      user.userCredentials.disabled === true ? styles.disabledColor : styles.activeColor;
+      user.userCredentials.disabled === true
+        ? styles.disabledColor
+        : styles.activeColor;
 
     return (
       <div>
@@ -45,10 +47,19 @@ class UserCell extends React.Component {
           style={{ float: "right", backgroundColor: bgcolor }}
           onClick={this.handleClickDisable}
         >
-          {user.userCredentials.disabled === true ? <CancelIcon /> : <CheckIcon />}
+          {user.userCredentials.disabled === true ? (
+            <CancelIcon />
+          ) : (
+            <CheckIcon />
+          )}
         </Button>
 
-        <Button variant="fab" mini={true} style={{ float: "right" }} onClick={this.handleClickEdit}>
+        <Button
+          variant="fab"
+          mini={true}
+          style={{ float: "right" }}
+          onClick={this.handleClickEdit}
+        >
           <EditIcon />
         </Button>
 

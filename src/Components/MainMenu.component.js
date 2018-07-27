@@ -24,7 +24,11 @@ class MainMenu extends Component {
           <PeopleIcon />
           List
         </Button>
-        <Button color="primary" style={{ marginLeft: "1em" }} onClick={this.handleInviteAction}>
+        <Button
+          color="primary"
+          style={{ marginLeft: "1em" }}
+          onClick={this.handleInviteAction}
+        >
           <PersonAddIcon />
           Invite
         </Button>
@@ -34,7 +38,7 @@ class MainMenu extends Component {
 }
 
 MainMenu.propTypes = {
-  setPage: PropTypes.func.isRequired,
+  setPage: PropTypes.func.isRequired
 };
 
 export default MainMenu;

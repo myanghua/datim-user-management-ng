@@ -2,7 +2,7 @@
 import * as actions from "../constants/ActionTypes";
 
 const initialState = {
-  processing: true,
+  processing: true
 };
 
 export const processingReducers = (state = initialState, action) => {
@@ -10,12 +10,12 @@ export const processingReducers = (state = initialState, action) => {
     case actions.SHOW_PROCESSING:
       return {
         ...state,
-        processing: true,
+        processing: true
       };
     case actions.HIDE_PROCESSING:
       return {
         ...state,
-        processing: false,
+        processing: false
       };
     default: {
       return state;

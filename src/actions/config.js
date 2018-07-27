@@ -10,7 +10,7 @@ const configuration = {
         preSelected: 0,
         roleUID: "QbxXEPw9xlf",
         selectWhenUA: 1,
-        sortOrder: 0,
+        sortOrder: 0
       },
       {
         hidden: 0,
@@ -19,7 +19,7 @@ const configuration = {
         preSelected: 0,
         roleUID: "n777lf1THwQ",
         selectWhenUA: 1,
-        sortOrder: 2,
+        sortOrder: 2
       },
       {
         hidden: 0,
@@ -28,7 +28,7 @@ const configuration = {
         preSelected: 1,
         roleUID: "R74PQmVFl6R",
         selectWhenUA: 1,
-        sortOrder: 3,
+        sortOrder: 3
       },
       {
         hidden: 1,
@@ -37,7 +37,7 @@ const configuration = {
         preSelected: 0,
         roleUID: "k7BWFXkG6zt",
         selectWhenUA: 1,
-        sortOrder: -1,
+        sortOrder: -1
       },
       {
         hidden: 1,
@@ -46,8 +46,8 @@ const configuration = {
         preSelected: 1,
         roleUID: "b2uHwX9YLhu",
         selectWhenUA: 1,
-        sortOrder: -1,
-      },
+        sortOrder: -1
+      }
     ],
     streams: {
       Expenditure: {
@@ -57,10 +57,10 @@ const configuration = {
             groupUID: "M9Uer9SioL7",
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 1,
-          },
+            selectWhenUA: 1
+          }
         },
-        sortOrder: 1,
+        sortOrder: 1
       },
       MER: {
         accessLevels: {
@@ -69,10 +69,10 @@ const configuration = {
             groupUID: "c6hGi8GEZot",
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 1,
-          },
+            selectWhenUA: 1
+          }
         },
-        sortOrder: 0,
+        sortOrder: 0
       },
       MOH: {
         accessLevels: {
@@ -81,10 +81,10 @@ const configuration = {
             groupUID: "OoiLAfMTyMx",
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 1,
-          },
+            selectWhenUA: 1
+          }
         },
-        sortOrder: 2,
+        sortOrder: 2
       },
       SIMS: {
         accessLevels: {
@@ -93,12 +93,12 @@ const configuration = {
             groupUID: "iuD8wUFz95X",
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 1,
-          },
+            selectWhenUA: 1
+          }
         },
-        sortOrder: 3,
-      },
-    },
+        sortOrder: 3
+      }
+    }
   },
   Global: {
     userTypePriority: 1,
@@ -111,8 +111,8 @@ const configuration = {
         preSelected: 1,
         roleUID: "b2uHwX9YLhu",
         selectWhenUA: 1,
-        sortOrder: -1,
-      },
+        sortOrder: -1
+      }
     ],
     streams: {
       Expenditure: {
@@ -122,10 +122,10 @@ const configuration = {
             groupUID: "M9Uer9SioL7",
             locked: 1,
             preSelected: 1,
-            selectWhenUA: 0,
-          },
+            selectWhenUA: 0
+          }
         },
-        sortOrder: 1,
+        sortOrder: 1
       },
       MER: {
         accessLevels: {
@@ -134,10 +134,10 @@ const configuration = {
             groupUID: "c6hGi8GEZot",
             locked: 1,
             preSelected: 1,
-            selectWhenUA: 0,
-          },
+            selectWhenUA: 0
+          }
         },
-        sortOrder: 0,
+        sortOrder: 0
       },
       MOH: {
         accessLevels: {
@@ -146,10 +146,10 @@ const configuration = {
             groupUID: "OoiLAfMTyMx",
             locked: 1,
             preSelected: 1,
-            selectWhenUA: 0,
-          },
+            selectWhenUA: 0
+          }
         },
-        sortOrder: 2,
+        sortOrder: 2
       },
       SIMS: {
         accessLevels: {
@@ -158,10 +158,10 @@ const configuration = {
             groupUID: "iuD8wUFz95X",
             locked: 1,
             preSelected: 1,
-            selectWhenUA: 0,
-          },
+            selectWhenUA: 0
+          }
         },
-        sortOrder: 3,
+        sortOrder: 3
       },
       SaS: {
         accessLevels: {
@@ -170,12 +170,12 @@ const configuration = {
             groupUID: "CwFniyubXbx",
             locked: 1,
             preSelected: 1,
-            selectWhenUA: 0,
-          },
+            selectWhenUA: 0
+          }
         },
-        sortOrder: 4,
-      },
-    },
+        sortOrder: 4
+      }
+    }
   },
   "Inter-Agency": {
     userTypePriority: 4,
@@ -188,7 +188,7 @@ const configuration = {
         preSelected: 0,
         roleUID: "QbxXEPw9xlf",
         selectWhenUA: 1,
-        sortOrder: 0,
+        sortOrder: 0
       },
       {
         hidden: 0,
@@ -197,7 +197,7 @@ const configuration = {
         preSelected: 0,
         roleUID: "n777lf1THwQ",
         selectWhenUA: 1,
-        sortOrder: 1,
+        sortOrder: 1
       },
       {
         hidden: 1,
@@ -206,7 +206,7 @@ const configuration = {
         preSelected: 1,
         roleUID: "R74PQmVFl6R",
         selectWhenUA: 1,
-        sortOrder: 3,
+        sortOrder: 3
       },
       {
         hidden: 1,
@@ -215,7 +215,7 @@ const configuration = {
         preSelected: 0,
         roleUID: "k7BWFXkG6zt",
         selectWhenUA: 1,
-        sortOrder: -1,
+        sortOrder: -1
       },
       {
         hidden: 0,
@@ -224,7 +224,7 @@ const configuration = {
         preSelected: 0,
         roleUID: "PZAx69RkL9Q",
         selectWhenUA: 1,
-        sortOrder: -1,
+        sortOrder: -1
       },
       {
         hidden: 1,
@@ -233,8 +233,8 @@ const configuration = {
         preSelected: 1,
         roleUID: "b2uHwX9YLhu",
         selectWhenUA: 1,
-        sortOrder: -1,
-      },
+        sortOrder: -1
+      }
     ],
     streams: {
       Expenditure: {
@@ -244,10 +244,10 @@ const configuration = {
             groupUID: "M9Uer9SioL7",
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 1,
-          },
+            selectWhenUA: 1
+          }
         },
-        sortOrder: 1,
+        sortOrder: 1
       },
       "MER Country Team": {
         accessLevels: {
@@ -256,7 +256,7 @@ const configuration = {
             groupUID: "zY2t7de7Jzz",
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 1,
+            selectWhenUA: 1
           },
           "View Data": {
             groupName: "Data PRIME access",
@@ -264,15 +264,15 @@ const configuration = {
             impliedRoles: [
               {
                 name: "Data Entry Aggregate",
-                roleUID: "k7BWFXkG6zt",
-              },
+                roleUID: "k7BWFXkG6zt"
+              }
             ],
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 0,
-          },
+            selectWhenUA: 0
+          }
         },
-        sortOrder: 0,
+        sortOrder: 0
       },
       MOH: {
         accessLevels: {
@@ -281,10 +281,10 @@ const configuration = {
             groupUID: "OoiLAfMTyMx",
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 1,
-          },
+            selectWhenUA: 1
+          }
         },
-        sortOrder: 2,
+        sortOrder: 2
       },
       SIMS: {
         accessLevels: {
@@ -293,12 +293,12 @@ const configuration = {
             groupUID: "iuD8wUFz95X",
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 1,
-          },
+            selectWhenUA: 1
+          }
         },
-        sortOrder: 3,
-      },
-    },
+        sortOrder: 3
+      }
+    }
   },
   MOH: {
     userTypePriority: 8,
@@ -311,8 +311,8 @@ const configuration = {
         preSelected: 1,
         roleUID: "b2uHwX9YLhu",
         selectWhenUA: 1,
-        sortOrder: -1,
-      },
+        sortOrder: -1
+      }
     ],
     streams: {
       MOH: {
@@ -322,12 +322,12 @@ const configuration = {
             groupUID: "OoiLAfMTyMx",
             locked: 0,
             preSelected: 1,
-            selectWhenUA: 1,
-          },
+            selectWhenUA: 1
+          }
         },
-        sortOrder: 1,
-      },
-    },
+        sortOrder: 1
+      }
+    }
   },
   Partner: {
     userTypePriority: 7,
@@ -340,7 +340,7 @@ const configuration = {
         preSelected: 0,
         roleUID: "n777lf1THwQ",
         selectWhenUA: 1,
-        sortOrder: 0,
+        sortOrder: 0
       },
       {
         hidden: 1,
@@ -349,7 +349,7 @@ const configuration = {
         preSelected: 0,
         roleUID: "k7BWFXkG6zt",
         selectWhenUA: 1,
-        sortOrder: -1,
+        sortOrder: -1
       },
       {
         hidden: 1,
@@ -358,8 +358,8 @@ const configuration = {
         preSelected: 1,
         roleUID: "b2uHwX9YLhu",
         selectWhenUA: 1,
-        sortOrder: -1,
-      },
+        sortOrder: -1
+      }
     ],
     streams: {
       Expenditure: {
@@ -370,22 +370,22 @@ const configuration = {
             impliedRoles: [
               {
                 name: "Data Entry Aggregate",
-                roleUID: "k7BWFXkG6zt",
-              },
+                roleUID: "k7BWFXkG6zt"
+              }
             ],
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 1,
+            selectWhenUA: 1
           },
           "View Data": {
             groupName: "Data Expenditure access",
             groupUID: "M9Uer9SioL7",
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 0,
-          },
+            selectWhenUA: 0
+          }
         },
-        sortOrder: 1,
+        sortOrder: 1
       },
       MER: {
         accessLevels: {
@@ -395,24 +395,24 @@ const configuration = {
             impliedRoles: [
               {
                 name: "Data Entry Aggregate",
-                roleUID: "k7BWFXkG6zt",
-              },
+                roleUID: "k7BWFXkG6zt"
+              }
             ],
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 1,
+            selectWhenUA: 1
           },
           "View Data": {
             groupName: "Data PRIME access",
             groupUID: "c6hGi8GEZot",
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 0,
-          },
+            selectWhenUA: 0
+          }
         },
-        sortOrder: 0,
-      },
-    },
+        sortOrder: 0
+      }
+    }
   },
   "Partner DoD": {
     userTypePriority: 6,
@@ -426,7 +426,7 @@ const configuration = {
         preSelected: 0,
         roleUID: "n777lf1THwQ",
         selectWhenUA: 1,
-        sortOrder: 0,
+        sortOrder: 0
       },
       {
         hidden: 1,
@@ -435,7 +435,7 @@ const configuration = {
         preSelected: 0,
         roleUID: "k7BWFXkG6zt",
         selectWhenUA: 1,
-        sortOrder: -1,
+        sortOrder: -1
       },
       {
         hidden: 1,
@@ -444,8 +444,8 @@ const configuration = {
         preSelected: 1,
         roleUID: "b2uHwX9YLhu",
         selectWhenUA: 1,
-        sortOrder: -1,
-      },
+        sortOrder: -1
+      }
     ],
     streams: {
       Expenditure: {
@@ -456,22 +456,22 @@ const configuration = {
             impliedRoles: [
               {
                 name: "Data Entry Aggregate",
-                roleUID: "k7BWFXkG6zt",
-              },
+                roleUID: "k7BWFXkG6zt"
+              }
             ],
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 1,
+            selectWhenUA: 1
           },
           "View Data": {
             groupName: "Data Expenditure access",
             groupUID: "M9Uer9SioL7",
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 0,
-          },
+            selectWhenUA: 0
+          }
         },
-        sortOrder: 1,
+        sortOrder: 1
       },
       "MER DoD": {
         accessLevels: {
@@ -481,25 +481,25 @@ const configuration = {
             impliedRoles: [
               {
                 name: "Data Entry Aggregate",
-                roleUID: "k7BWFXkG6zt",
-              },
+                roleUID: "k7BWFXkG6zt"
+              }
             ],
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 1,
+            selectWhenUA: 1
           },
           "View Data": {
             groupName: "Data PRIME access",
             groupUID: "c6hGi8GEZot",
             locked: 0,
             preSelected: 0,
-            selectWhenUA: 0,
-          },
+            selectWhenUA: 0
+          }
         },
-        sortOrder: 0,
-      },
-    },
-  },
+        sortOrder: 0
+      }
+    }
+  }
 };
 
 export default configuration;

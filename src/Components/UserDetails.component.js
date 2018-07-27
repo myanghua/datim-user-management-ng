@@ -40,7 +40,9 @@ const Streams = ({ streams }) => {
 };
 
 const Actions = ({ actions }) => {
-  const actionItems = actions.map((action, i) => <li key={`useraction-${i}`}>{action}</li>);
+  const actionItems = actions.map((action, i) => (
+    <li key={`useraction-${i}`}>{action}</li>
+  ));
 
   return <ul>{actionItems}</ul>;
 };

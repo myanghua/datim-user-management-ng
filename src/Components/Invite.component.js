@@ -35,7 +35,7 @@ class Invite extends Component {
   //   };
 
   contextTypes: {
-    d2: React.PropTypes.object,
+    d2: React.PropTypes.object
   };
 
   constructor(props) {
@@ -57,7 +57,7 @@ class Invite extends Component {
       actions: {},
       userManager: false,
       userGroupFilter: false,
-      accessDenied: false,
+      accessDenied: false
     };
     this.handleChangeType = this.handleChangeType.bind(this);
     this.handleChangeCountry = this.handleChangeCountry.bind(this);
@@ -115,7 +115,9 @@ class Invite extends Component {
     // Make sure they have at least one relevant userGroup stream
     if (myStreams.length <= 0) {
       hideProcessing();
-      denyAccess("Your user account does not seem to have access to any of the data streams.");
+      denyAccess(
+        "Your user account does not seem to have access to any of the data streams."
+      );
       console.warn("No valid streams. I have access to ", userGroups);
       return;
     }
@@ -130,7 +132,7 @@ class Invite extends Component {
     const d2 = this.props.d2;
     let list = await d2.models.userGroups.list({
       filter: "name:like: (DATIM)",
-      fields: "id,name,users[id,name]",
+      fields: "id,name,users[id,name]"
     });
     return list;
   };
@@ -152,7 +154,7 @@ class Invite extends Component {
     const params = {
       paging: false,
       fields: "id,name,code",
-      filter: "name:ilike:" + countryName + " Partner",
+      filter: "name:ilike:" + countryName + " Partner"
     };
 
     d2.models.userGroups
@@ -176,7 +178,12 @@ class Invite extends Component {
 
         // take the userGroups that have a name like our OU, group and index them by their partner_code
         const merged = res.toArray().reduce((obj, ug) => {
-          return this.extendObj(obj, ug.toJSON(), getPartnerCode(ug), getType(ug));
+          return this.extendObj(
+            obj,
+            ug.toJSON(),
+            getPartnerCode(ug),
+            getType(ug)
+          );
         }, {});
         // shove that data into the main partners object
         const mapped = core.partners.map(p => {
@@ -184,9 +191,13 @@ class Invite extends Component {
         });
         // remove any that didn't get mapped and sort
         let filtered = mapped
-          .filter(p => {
-            return p.mechUserGroup && p.mechUserGroup.id && p.userUserGroup && p.userUserGroup.id;
-          })
+          .filter(
+            p =>
+              p.mechUserGroup &&
+              p.mechUserGroup.id &&
+              p.userUserGroup &&
+              p.userUserGroup.id
+          )
           .sort((a, b) => {
             return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
           });
@@ -211,7 +222,7 @@ class Invite extends Component {
     const params = {
       paging: false,
       fields: "id,name,code",
-      filter: "name:ilike:" + countryName + " Agency",
+      filter: "name:ilike:" + countryName + " Agency"
     };
     d2.models.userGroups
       .list(params)
@@ -234,7 +245,12 @@ class Invite extends Component {
 
         // take the userGroups that have a name like our OU, group and index them by their partner_code
         const merged = res.toArray().reduce((obj, ug) => {
-          return this.extendObj(obj, ug.toJSON(), getAgencyCode(ug), getType(ug));
+          return this.extendObj(
+            obj,
+            ug.toJSON(),
+            getAgencyCode(ug),
+            getType(ug)
+          );
         }, {});
         // shove that data into the main partners object
         const mapped = core.agencies.map(a => {
@@ -242,9 +258,13 @@ class Invite extends Component {
         });
         // remove any that didn't get mapped and sort
         let filtered = mapped
-          .filter(a => {
-            return a.mechUserGroup && a.mechUserGroup.id && a.userUserGroup && a.userUserGroup.id;
-          })
+          .filter(
+            a =>
+              a.mechUserGroup &&
+              a.mechUserGroup.id &&
+              a.userUserGroup &&
+              a.userUserGroup.id
+          )
           .sort((a, b) => {
             return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
           });
@@ -314,13 +334,13 @@ class Invite extends Component {
 
   handleChangeEmail = event => {
     this.setState({
-      email: event.target.value,
+      email: event.target.value
     });
   };
 
   handleCheckUserManager = () => {
     this.setState({
-      userManager: !this.state.userManager,
+      userManager: !this.state.userManager
     });
   };
 
@@ -397,7 +417,12 @@ class Invite extends Component {
     ));
 
     const agencyMenus = this.state.agencies.map(v => (
-      <MenuItem key={v.id} value={v.id} primaryText={v.name} checked={this.state.agency === v.id} />
+      <MenuItem
+        key={v.id}
+        value={v.id}
+        primaryText={v.name}
+        checked={this.state.agency === v.id}
+      />
     ));
 
     const partnerMenus = this.state.partners.map(v => (
@@ -423,7 +448,10 @@ class Invite extends Component {
             return p.id === this.state.partner;
           })[0] || {};
 
-        if (partner.hasOwnProperty("normalEntry") && partner.normalEntry !== true) {
+        if (
+          partner.hasOwnProperty("normalEntry") &&
+          partner.normalEntry !== true
+        ) {
           cfg = core.config["Partner DoD"];
         }
       }
@@ -444,7 +472,9 @@ class Invite extends Component {
         );
       });
       //get only the visible actions for checkbox display
-      const act = cfg.actions.filter(a => a.hidden === 0).sort((a, b) => a.sortOrder > b.sortOrder);
+      const act = cfg.actions
+        .filter(a => a.hidden === 0)
+        .sort((a, b) => a.sortOrder > b.sortOrder);
       act.forEach(action => {
         actions.push(
           <DataAction

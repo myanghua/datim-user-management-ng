@@ -13,7 +13,10 @@ class DataAction extends React.Component {
     const { action } = this.props;
     let checked = false;
 
-    if (action.preSelected || (action.selectWhenUA === 1 && this.props.userManager === true)) {
+    if (
+      action.preSelected ||
+      (action.selectWhenUA === 1 && this.props.userManager === true)
+    ) {
       checked = true;
     }
 
@@ -33,7 +36,7 @@ class DataAction extends React.Component {
     this.props.onChangeAction(this.props.action.roleUID, !this.state.checked);
     this.setState(oldState => {
       return {
-        checked: !oldState.checked,
+        checked: !oldState.checked
       };
     });
   }

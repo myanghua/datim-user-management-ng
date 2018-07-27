@@ -26,16 +26,16 @@ const theme = {
     canvasColor: white,
     borderColor: grey[300],
     disabledColor: grey[200], //ColorManipulator.fade(black, 0.3),
-    pickerHeaderColor: lightBlue[600],
-  },
+    pickerHeaderColor: lightBlue[600]
+  }
 };
 
 function createAppTheme() {
   return {
     forms: {
       minWidth: 350,
-      maxWidth: 900,
-    },
+      maxWidth: 900
+    }
   };
 }
 

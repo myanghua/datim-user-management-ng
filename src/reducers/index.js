@@ -13,5 +13,5 @@ export default combineReducers({
   access,
   list,
   invite,
-  mainMenu,
+  mainMenu
 });

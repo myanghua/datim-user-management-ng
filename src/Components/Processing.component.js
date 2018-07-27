@@ -18,7 +18,7 @@ class Processing extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  processing: state.processing,
+  processing: state.processing
 });
 
 export default connect(mapStateToProps)(Processing);

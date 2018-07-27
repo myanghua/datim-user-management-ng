@@ -18,14 +18,14 @@ export function getUserListing() {
 
     dispatch({
       type: actions.SHOW_PROCESSING,
-      status: true,
+      status: true
     });
 
     let params = {
       paging: true,
       fields:
         "id,surname,firstName,email,employer,displayName,userCredentials[username,disabled,lastLogin,userRoles[id,displayName,name]],userGroups[id,name],organisationUnits[id,name,level],attributeValues[value,name,displayName,attribute[id,code]]",
-      page: page,
+      page: page
     };
 
     let filterStrings = filters
@@ -46,21 +46,21 @@ export function getUserListing() {
       .then(u => {
         dispatch({
           type: actions.SET_USERS,
-          data: u.toArray(),
+          data: u.toArray()
         });
         dispatch({
           type: actions.SET_PAGER,
-          data: u.pager,
+          data: u.pager
         });
         dispatch({
           type: actions.HIDE_PROCESSING,
-          status: false,
+          status: false
         });
       })
       .catch(e => {
         dispatch({
           type: actions.HIDE_PROCESSING,
-          status: false,
+          status: false
         });
         // @TODO:: snackbar alert
         //d2Actions.showSnackbarMessage("Error fetching data");

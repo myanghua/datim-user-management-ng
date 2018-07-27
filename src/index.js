@@ -5,7 +5,7 @@ import { render } from "react-dom";
 import { Provider } from "react-redux";
 import log from "loglevel";
 import { config, getUserSettings, init } from "d2/lib/d2";
-import App from "./App";
+import App from "./app";
 import registerServiceWorker from "./registerServiceWorker";
 import store from "./store";
 // import i18n from "./locales";
@@ -30,7 +30,7 @@ const setupD2 = () => {
     "userGroup",
     "userCredentials",
     "organisationUnit",
-    "categoryOptionGroupSet",
+    "categoryOptionGroupSet"
   ];
 
   return (

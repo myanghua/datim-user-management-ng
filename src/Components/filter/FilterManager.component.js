@@ -7,7 +7,7 @@ import { removeFilters } from "../../actions/list";
 const defaultFilterField = {
   id: "",
   category: "name",
-  detail: "",
+  detail: ""
 };
 
 const generateId = () => {
@@ -17,11 +17,13 @@ const generateId = () => {
 
 export class FilterManager extends Component {
   state = {
-    newFields: {},
+    newFields: {}
   };
 
   initState = () => {
-    const newField = Object.assign({}, defaultFilterField, { id: generateId() });
+    const newField = Object.assign({}, defaultFilterField, {
+      id: generateId()
+    });
     const newFields = { [newField.id]: newField };
     this.setState({ newFields });
   };
@@ -31,8 +33,12 @@ export class FilterManager extends Component {
   }
 
   addFilterField = () => {
-    const newField = Object.assign({}, defaultFilterField, { id: generateId() });
-    const newFields = Object.assign({}, this.state.newFields, { [newField.id]: newField });
+    const newField = Object.assign({}, defaultFilterField, {
+      id: generateId()
+    });
+    const newFields = Object.assign({}, this.state.newFields, {
+      [newField.id]: newField
+    });
     this.setState({ newFields });
   };
 
@@ -47,11 +53,17 @@ export class FilterManager extends Component {
   };
 
   render() {
-    const filterList = Object.values(Object.assign({}, this.state.newFields, this.props.filters));
+    const filterList = Object.values(
+      Object.assign({}, this.state.newFields, this.props.filters)
+    );
 
     const filterFields = filterList.map(f => {
       return (
-        <Filter key={f.id} filter={f} onRemove={filterList.length > 1 ? this.onRemove : null} />
+        <Filter
+          key={f.id}
+          filter={f}
+          onRemove={filterList.length > 1 ? this.onRemove : null}
+        />
       );
     });
 
@@ -69,7 +81,7 @@ export class FilterManager extends Component {
 
 const mapStateToProps = state => {
   return {
-    filters: state.list.filters,
+    filters: state.list.filters
   };
 };
 

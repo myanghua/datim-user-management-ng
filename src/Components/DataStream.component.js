@@ -19,14 +19,16 @@ class DataStream extends React.Component {
     if (canEdit) {
       if (
         stream.value["Enter Data"].preSelected === 1 ||
-        (stream.value["Enter Data"].selectWhenUA === 1 && this.props.userManager === true)
+        (stream.value["Enter Data"].selectWhenUA === 1 &&
+          this.props.userManager === true)
       ) {
         defaultSelected = "Enter Data";
       }
     } else if (canView) {
       if (
         stream.value["View Data"].preSelected === 1 ||
-        (stream.value["View Data"].selectWhenUA === 1 && this.props.userManager === true)
+        (stream.value["View Data"].selectWhenUA === 1 &&
+          this.props.userManager === true)
       ) {
         defaultSelected = "View Data";
       }
@@ -61,14 +63,26 @@ class DataStream extends React.Component {
           valueSelected={this.state.defaultSelected}
           onChange={this.handleClick}
         >
-          <Radio value="noaccess" label="No access" disabled={this.props.userManager} />
+          <Radio
+            value="noaccess"
+            label="No access"
+            disabled={this.props.userManager}
+          />
           {stream.value.hasOwnProperty("View Data") ? (
-            <Radio value="View Data" label="View Data" disabled={this.props.userManager} />
+            <Radio
+              value="View Data"
+              label="View Data"
+              disabled={this.props.userManager}
+            />
           ) : (
             <span style={{ display: "none" }} />
           )}
           {stream.value.hasOwnProperty("Enter Data") ? (
-            <Radio value="Enter Data" label="Enter Data" disabled={this.props.userManager} />
+            <Radio
+              value="Enter Data"
+              label="Enter Data"
+              disabled={this.props.userManager}
+            />
           ) : (
             <span style={{ display: "none" }} />
           )}

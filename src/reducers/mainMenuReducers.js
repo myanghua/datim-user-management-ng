@@ -2,7 +2,7 @@
 import * as actions from "../constants/ActionTypes";
 
 const initialState = {
-  page: "list",
+  page: "list"
 };
 
 export const mainMenuReducers = (state = initialState, action) => {
@@ -10,7 +10,7 @@ export const mainMenuReducers = (state = initialState, action) => {
     case actions.SET_PAGE:
       return {
         ...state,
-        page: action.data,
+        page: action.data
       };
     default: {
       return state;

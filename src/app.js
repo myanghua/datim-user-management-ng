@@ -22,7 +22,7 @@ injectTapEventPlugin();
 class App extends Component {
   getChildContext = () => ({
     d2: this.props.d2,
-    muiTheme: AppTheme,
+    muiTheme: AppTheme
   });
 
   constructor(props) {
@@ -53,7 +53,7 @@ class App extends Component {
         } else {
           this.setState({ snackbar: params.data });
         }
-      }),
+      })
     ];
   }
 
@@ -102,7 +102,9 @@ class App extends Component {
           onRequestClose={this.closeSnackbar}
           open={!!this.state.snackbar}
         />
-        <div className="content-area">{this.renderSection(this.props.section)}</div>
+        <div className="content-area">
+          {this.renderSection(this.props.section)}
+        </div>
       </div>
     );
   }
@@ -110,15 +112,16 @@ class App extends Component {
 
 App.childContextTypes = {
   d2: PropTypes.object,
-  muiTheme: PropTypes.object,
+  muiTheme: PropTypes.object
 };
 
 App.propTypes = {
-  d2: PropTypes.object.isRequired,
+  d2: PropTypes.object.isRequired
 };
 
 const mapStateToProps = state => ({ section: state.mainMenu.page });
-const mapDispatchToProps = dispatch => bindActionCreators(coreActions, dispatch);
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(coreActions, dispatch);
 
 export default connect(
   mapStateToProps,
