@@ -6,7 +6,7 @@ class DataStream extends React.Component {
   constructor(props) {
     super(props);
     // make sure preSelected fields are checked
-    this.state = this.updateState();
+    this.state = { defaultSelected: this.props.selected };
     this.handleClick = this.handleClick.bind(this);
   }
 
@@ -38,12 +38,7 @@ class DataStream extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (
-      this.props.userManager !== prevProps.userManager ||
-      this.props.stream !== prevProps.stream
-    ) {
-      this.setState(this.updateState());
-    }
+    this.setState(this.updateState());
   }
 
   handleClick(event) {
