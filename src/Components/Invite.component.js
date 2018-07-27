@@ -2,9 +2,13 @@ import React, { Component } from "react";
 // import PropTypes from "prop-types";
 
 import Paper from "@material-ui/core/Paper";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import FormControl from "@material-ui/core/FormControl";
 import TextField from "@material-ui/core/TextField";
 import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
+import Input from "@material-ui/core/Input";
+import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import Checkbox from "@material-ui/core/Checkbox";
 import GridList from "@material-ui/core/GridList";
@@ -118,7 +122,10 @@ class Invite extends Component {
     });
 
     // Make sure they have at least one relevant userGroup stream
-    if (!core.me.hasRole("Superuser ALL authorities") || myStreams.length <= 0) {
+    if (
+      !core.me.hasRole("Superuser ALL authorities") ||
+      myStreams.length <= 0
+    ) {
       hideProcessing();
       denyAccess(
         "Your user account does not seem to have access to any of the data streams."
@@ -376,7 +383,12 @@ class Invite extends Component {
   handleInviteUser = () => {
     const { d2, core } = this.props;
 
-    console.log("inviteUser", this.state.country, this.state.userType, this.state.email);
+    console.log(
+      "inviteUser",
+      this.state.country,
+      this.state.userType,
+      this.state.email
+    );
 
     let user = d2.models.users.create();
     user.email = this.state.email;
@@ -386,7 +398,7 @@ class Invite extends Component {
     user.userCredentials = {
       userRoles: [
         //{'id':'b2uHwX9YLhu'}
-      ],
+      ]
     };
     user.firstName = "";
     user.surname = "";
@@ -493,52 +505,45 @@ class Invite extends Component {
         <MenuItem
           key={el}
           value={el}
-          primaryText={el}
           checked={this.state.userType === el}
           disabled={
             this.state.country === "global" ||
             (el === "Global" && this.state.country !== "Global") ||
             !this.state.country
           }
-        />
+        >
+          {el}
+        </MenuItem>
       );
     });
 
     // Build the select menus
     const countryMenus = countries.map(v => (
-      <MenuItem
-        key={v.id}
-        value={v.id}
-        primaryText={v.name}
-        checked={this.state.country === v.id}
-      />
+      <MenuItem key={v.id} value={v.id} checked={this.state.country === v.id}>
+        {v.name}
+      </MenuItem>
     ));
 
     const localeMenus = locales.map(v => (
       <MenuItem
         key={v.locale}
         value={v.locale}
-        primaryText={v.name}
         checked={this.state.locale === v.locale}
-      />
+      >
+        {v.name}
+      </MenuItem>
     ));
 
     const agencyMenus = this.state.agencies.map(v => (
-      <MenuItem
-        key={v.id}
-        value={v.id}
-        primaryText={v.name}
-        checked={this.state.agency === v.id}
-      />
+      <MenuItem key={v.id} value={v.id} checked={this.state.agency === v.id}>
+        {v.name}
+      </MenuItem>
     ));
 
     const partnerMenus = this.state.partners.map(v => (
-      <MenuItem
-        key={v.id}
-        value={v.id}
-        primaryText={v.name}
-        checked={this.state.partner === v.id}
-      />
+      <MenuItem key={v.id} value={v.id} checked={this.state.partner === v.id}>
+        {v.name}
+      </MenuItem>
     ));
 
     // Build the Stream / Action radios
@@ -621,53 +626,74 @@ class Invite extends Component {
 
     return (
       <div className="wrapper">
-        <h2 className="title">{d2.i18n.getTranslation("invite")}</h2>
-        <h3 className="subTitle">{d2.i18n.getTranslation("app")}</h3>
+        <h2 className="title">Invite</h2>
+        <h3 className="subTitle">User Management</h3>
 
         <Paper className="card filters">
-          <Select
-            floatingLabelText="Country"
-            hintText="Select a country"
-            fullWidth={true}
-            value={this.state.country}
-            onChange={this.handleChangeCountry}
-          >
-            {countryMenus}
-          </Select>
+          <FormControl required style={{ width: "100%" }}>
+            <InputLabel htmlFor="country">Country</InputLabel>
+            <Select
+              value={this.state.country}
+              onChange={this.handleChangeCountry}
+              inputProps={{
+                name: "country",
+                id: "country"
+              }}
+            >
+              {countryMenus}
+            </Select>
+            <FormHelperText>Select a country</FormHelperText>
+          </FormControl>
           <br />
-          <Select
-            floatingLabelText="User Type"
-            hintText="Select a user type"
-            fullWidth={true}
-            value={this.state.userType}
-            onChange={this.handleChangeType}
-          >
-            {typeMenus}
-          </Select>
+
+          <FormControl required style={{ width: "100%" }}>
+            <InputLabel htmlFor="userType">User Type</InputLabel>
+            <Select
+              value={this.state.userType}
+              onChange={this.handleChangeType}
+              inputProps={{
+                name: "userType",
+                id: "userType"
+              }}
+            >
+              {typeMenus}
+            </Select>
+            <FormHelperText>Select a user type</FormHelperText>
+          </FormControl>
           <br />
 
           {this.state.userType === "Partner" ? (
-            <Select
-              floatingLabelText="Partner"
-              hintText="Select a partner"
-              fullWidth={true}
-              value={this.state.partner}
-              onChange={this.handleChangePartner}
-            >
-              {partnerMenus}
-            </Select>
+            <FormControl required style={{ width: "100%" }}>
+              <InputLabel htmlFor="partner">Partner</InputLabel>
+              <Select
+                value={this.state.partner}
+                onChange={this.handleChangePartner}
+                inputProps={{
+                  name: "partner",
+                  id: "partner"
+                }}
+              >
+                {partnerMenus}
+              </Select>
+              <FormHelperText>Select a partner</FormHelperText>
+            </FormControl>
           ) : null}
           <br />
           {this.state.userType === "Agency" ? (
-            <Select
-              floatingLabelText="Agency"
-              hintText="Select an agency"
-              fullWidth={true}
-              value={this.state.agency}
-              onChange={this.handleChangeAgency}
-            >
-              {agencyMenus}
-            </Select>
+            <FormControl required style={{ width: "100%" }}>
+              <InputLabel htmlFor="agency">Agency</InputLabel>
+              <Select
+                value={this.state.agency}
+                onChange={this.handleChangeAgency}
+                inputProps={{
+                  name: "agency",
+                  id: "agency"
+                }}
+              >
+                {agencyMenus}
+              </Select>
+              <FormHelperText>Select an agency</FormHelperText>
+            </FormControl>
           ) : null}
           <br />
 
@@ -680,15 +706,20 @@ class Invite extends Component {
           />
           <br />
 
-          <Select
-            floatingLabelText="Language"
-            hintText="Select a language"
-            fullWidth={true}
-            value={this.state.locale}
-            onChange={this.handleChangeLocale}
-          >
-            {localeMenus}
-          </Select>
+          <FormControl required style={{ width: "100%" }}>
+            <InputLabel htmlFor="locale">Language</InputLabel>
+            <Select
+              value={this.state.locale}
+              onChange={this.handleChangeLocale}
+              inputProps={{
+                name: "locale",
+                id: "locale"
+              }}
+            >
+              {localeMenus}
+            </Select>
+            <FormHelperText>Select a language</FormHelperText>
+          </FormControl>
 
           <Checkbox
             style={{ marginTop: "1em" }}
@@ -717,7 +748,9 @@ class Invite extends Component {
         <Button
           variant="contained"
           style={{ display: "block", padding: "0 18em" }}
-          disabled={!this.state.country || !this.state.userType || !this.state.email}
+          disabled={
+            !this.state.country || !this.state.userType || !this.state.email
+          }
           primary={true}
           onClick={this.handleInviteUser}
           label={d2.i18n.getTranslation("invite")}
