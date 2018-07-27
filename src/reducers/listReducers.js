@@ -22,6 +22,11 @@ export const listReducers = (state = initialState, action) => {
         ...state,
         selectedUser: action.data,
       };
+    case actions.CLEAR_USER:
+      return {
+        ...state,
+        selectedUser: initialState.selectedUser,
+      };
     case actions.SET_PAGER:
       return {
         ...state,

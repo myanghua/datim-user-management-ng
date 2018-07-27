@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import getUser from "../models/user";
+import CancelIcon from "@material-ui/icons/Cancel";
+import IconButton from "@material-ui/core/IconButton";
 
 import "./UserDetails.component.css";
 
@@ -52,8 +54,15 @@ class UserDetails extends Component {
     const user = getUser(this.props.user);
 
     return (
-      <div>
+      <div style={{ position: "relative" }}>
         <h3>{user.displayName}</h3>
+        <IconButton
+          style={{ position: "absolute", top: "-18px", right: 0 }}
+          onClick={this.props.onCloseDetails}
+          aria-label="Close user details"
+        >
+          <CancelIcon />
+        </IconButton>
         <p>
           <strong>User Type:</strong>
           <span>{user.type}</span>

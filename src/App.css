@@ -107,8 +107,12 @@ p {
   min-height: 18em;
 }
 
+.card.listing.show-user-details {
+  width: 60%;
+}
+
 .card.listing {
-  width: 65%;
+  width: 98%;
   padding: 0;
 }
 

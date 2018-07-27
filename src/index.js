@@ -5,7 +5,7 @@ import { render } from "react-dom";
 import { Provider } from "react-redux";
 import log from "loglevel";
 import { config, getUserSettings, init } from "d2/lib/d2";
-import App from "./app";
+import App from "./App";
 import registerServiceWorker from "./registerServiceWorker";
 import store from "./store";
 // import i18n from "./locales";

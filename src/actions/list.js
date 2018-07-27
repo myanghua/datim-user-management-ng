@@ -127,6 +127,12 @@ export function setSelectedUser(user) {
   };
 }
 
+export function clearSelectedUser() {
+  return dispatch => {
+    dispatch({ type: actions.CLEAR_USER });
+  };
+}
+
 export function setFilters(filters) {
   return dispatch => {
     dispatch({ type: actions.SET_FILTERS, data: filters });

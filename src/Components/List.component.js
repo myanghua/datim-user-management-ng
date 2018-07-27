@@ -77,6 +77,10 @@ class List extends Component {
     console.log("disable user toggle", user.displayName);
   };
 
+  handleCloseUserDetails = () => {
+    this.props.clearSelectedUser();
+  };
+
   // DISPLAY THE INFO
   render() {
     let { users, selectedUser, pager, tab } = this.props;
@@ -89,6 +93,8 @@ class List extends Component {
       return <Tab key={t.id} label={t.displayName} value={t.id} />;
     });
 
+    const showDetailsClass = selectedUser && "show-user-details";
+
     return (
       <div className="wrapper">
         <h2 className="title">Manage Users</h2>
@@ -96,7 +102,7 @@ class List extends Component {
 
         <FilterManager />
 
-        <Paper className="card listing">
+        <Paper className={`card listing ${showDetailsClass}`}>
           <Tabs
             value={tab}
             indicatorColor="primary"
@@ -157,7 +163,10 @@ class List extends Component {
 
         {!selectedUser ? null : (
           <Paper className="card details">
-            <UserDetails user={selectedUser} />
+            <UserDetails
+              user={selectedUser}
+              onCloseDetails={this.handleCloseUserDetails}
+            />
           </Paper>
         )}
       </div>
@@ -168,6 +177,7 @@ class List extends Component {
 List.propTypes = {
   getUserListing: PropTypes.func.isRequired,
   setSelectedUser: PropTypes.func.isRequired,
+  clearSelectedUser: PropTypes.func.isRequired,
   setTab: PropTypes.func.isRequired,
 };
 
