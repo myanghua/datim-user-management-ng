@@ -322,27 +322,28 @@ class Invite extends Component {
     this.setState({ userType: value, agency: false, partner: false });
   }
 
-  handleChangeCountry(event, index, value) {
-    this.setState({ country: value, streams: [], actions: [] });
-    if (value === "global") {
+  handleChangeCountry = event => {
+    this.setState({ [event.target.name]: event.target.value });
+    //   this.setState({ country: value, streams: [], actions: [] });
+    if (event.target.value === "global") {
       this.handleChangeType(event, 0, "Global");
     } else {
       this.handleChangeType(event, 0, false);
     }
-  }
+  };
 
-  handleChangeLocale(event, index, value) {
-    this.setState({ locale: value, streams: [], actions: [] });
-  }
+  handleChangeLocale = event => {
+    this.setState({ [event.target.name]: event.target.value });
+  };
 
-  handleChangeAgency(event, index, value) {
-    this.setState({ agency: value, streams: [], actions: [] });
-  }
+  handleChangeAgency = event => {
+    this.setState({ [event.target.name]: event.target.value });
+  };
 
-  handleChangePartner(event, index, value) {
+  handleChangePartner = event => {
     // @TODO check if we need to add DoD objects to view
-    this.setState({ partner: value, streams: [], actions: [] });
-  }
+    this.setState({ [event.target.name]: event.target.value });
+  };
 
   handleChangeEmail = event => {
     this.setState({
