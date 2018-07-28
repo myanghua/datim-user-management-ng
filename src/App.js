@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+import { JssProvider } from "react-jss";
 import HeaderBar from "@dhis2/d2-ui-header-bar";
 import Snackbar from "@material-ui/core/Snackbar";
 import injectTapEventPlugin from "react-tap-event-plugin";
@@ -88,22 +89,24 @@ class App extends Component {
   render() {
     const d2 = this.props.d2;
     return (
-      <div className="app-wrapper">
-        <AccessDenied />
-        <HeaderBar d2={d2} />
-        <Processing />
-        <div className="menuwrapper">
-          <MainMenu d2={d2} />
+      <JssProvider>
+        <div className="app-wrapper">
+          <AccessDenied />
+          <HeaderBar d2={d2} />
+          <Processing />
+          <div className="menuwrapper">
+            <MainMenu d2={d2} />
+          </div>
+          <Snackbar
+            className="snackbar"
+            message={this.state.snackbar || ""}
+            autoHideDuration={2500}
+            onRequestClose={this.closeSnackbar}
+            open={!!this.state.snackbar}
+          />
+          <div className="content-area">{this.renderSection(this.props.section)}</div>
         </div>
-        <Snackbar
-          className="snackbar"
-          message={this.state.snackbar || ""}
-          autoHideDuration={2500}
-          onRequestClose={this.closeSnackbar}
-          open={!!this.state.snackbar}
-        />
-        <div className="content-area">{this.renderSection(this.props.section)}</div>
-      </div>
+      </JssProvider>
     );
   }
 }
