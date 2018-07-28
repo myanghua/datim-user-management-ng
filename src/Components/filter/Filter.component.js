@@ -3,7 +3,8 @@ import { connect } from "react-redux";
 import debounce from "lodash.debounce";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
-import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import CancelIcon from "@material-ui/icons/Cancel";
 import filterCategories from "./filterCategories";
 import FilterDetail from "./FilterDetail.component";
 import { setFilter, removeFilter } from "../../actions/list";
@@ -81,12 +82,13 @@ class Filter extends Component {
           id={this.state.category}
         />
         {this.props.onRemove ? (
-          <Button
-            variant="contained"
-            style={{ marginLeft: 30 }}
+          <IconButton
+            color="secondary"
             onClick={this.onRemoveFilter}
-            label="Remove Filter"
-          />
+            aria-label="Remove filter"
+          >
+            <CancelIcon />
+          </IconButton>
         ) : null}
       </div>
     );

@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 // import Paper from "@material-ui/core/Paper";
 import Filter from "./Filter.component";
 import { removeFilters } from "../../actions/list";
+import Button from "@material-ui/core/Button";
 
 const defaultFilterField = {
   id: "",
@@ -71,8 +72,12 @@ export class FilterManager extends Component {
       <div>
         {filterFields}
         <div>
-          <button onClick={this.addFilterField}>Add filter</button>
-          <button onClick={this.clearFilterFields}>Clear filters</button>
+          <Button color="primary" onClick={this.addFilterField}>
+            Add filter
+          </Button>
+          <Button color="primary" onClick={this.clearFilterFields}>
+            Clear filters
+          </Button>
         </div>
       </div>
     );
