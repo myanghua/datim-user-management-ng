@@ -2,81 +2,56 @@ import React from "react";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import Radio from "@material-ui/core/Radio";
 
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import FormControl from "@material-ui/core/FormControl";
+import FormLabel from "@material-ui/core/FormLabel";
+
 class DataStream extends React.Component {
   constructor(props) {
     super(props);
-    // make sure preSelected fields are checked
-    this.state = { defaultSelected: this.props.selected };
-    this.handleClick = this.handleClick.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
-  updateState() {
-    const { stream } = this.props;
-    let canView = stream.value.hasOwnProperty("View Data");
-    let canEdit = stream.value.hasOwnProperty("Enter Data");
-    let defaultSelected = "noaccess";
-
-    if (canEdit) {
-      if (
-        stream.value["Enter Data"].preSelected === 1 ||
-        (stream.value["Enter Data"].selectWhenUA === 1 && this.props.userManager === true)
-      ) {
-        defaultSelected = "Enter Data";
-      }
-    } else if (canView) {
-      if (
-        stream.value["View Data"].preSelected === 1 ||
-        (stream.value["View Data"].selectWhenUA === 1 && this.props.userManager === true)
-      ) {
-        defaultSelected = "View Data";
-      }
-    }
-
-    return { defaultSelected: defaultSelected };
-  }
-
-  componentDidUpdate(prevProps) {
-    this.setState(this.updateState());
-  }
-
-  handleClick(event) {
-    this.setState({ defaultSelected: event.target.value });
+  handleChange = event => {
     this.props.onChangeStream(this.props.stream.key, event.target.value);
-  }
+  };
 
   render() {
     const { stream } = this.props;
+    // shorten the variable
+    const accessLevels = stream.value.accessLevels;
+
+    const locked =
+      (accessLevels["View Data"] &&
+        accessLevels["View Data"].locked &&
+        accessLevels["View Data"].locked === 1) ||
+      (accessLevels["Enter Data"] &&
+        accessLevels["Enter Data"].locked &&
+        accessLevels["Enter Data"].locked === 1);
 
     return (
-      <div className="stream">
-        <h4>{stream.key}</h4>
+      <FormControl
+        component="fieldset"
+        required
+        className="stream"
+        disabled={this.props.userManager || locked === 1}
+      >
+        <FormLabel component="legend">{stream.key}</FormLabel>
         <RadioGroup
-          style={{ display: "inline", fontSize: "smaller" }}
+          aria-label={stream.key}
           name={stream.key}
-          valueSelected={this.state.defaultSelected}
-          onChange={this.handleClick}
+          value={this.props.selected}
+          onChange={this.handleChange}
         >
-          <Radio value="noaccess" label="No access" disabled={this.props.userManager} />
-          {stream.value.hasOwnProperty("View Data") ? (
-            <Radio
-              value="View Data"
-              label="View Data"
-              disabled={this.props.userManager}
-            />
-          ) : (
-            <span style={{ display: "none" }} />
-          )}
-          {stream.value.hasOwnProperty("Enter Data") ? (
-            <Radio
-              value="Enter Data"
-              label="Enter Data"
-              disabled={this.props.userManager}
-            />
-          ) : (
-            <span style={{ display: "none" }} />
-          )}
+          <FormControlLabel value="noaccess" control={<Radio />} label="No Access" />
+          {accessLevels.hasOwnProperty("View Data") ? (
+            <FormControlLabel value="View Data" control={<Radio />} label="View Data" />
+          ) : null}
+          {accessLevels.hasOwnProperty("Enter Data") ? (
+            <FormControlLabel value="Enter Data" control={<Radio />} label="Enter Data" />
+          ) : null}
         </RadioGroup>
-      </div>
+      </FormControl>
     );
   }
 }

@@ -4,6 +4,7 @@ import React, { Component } from "react";
 import Paper from "@material-ui/core/Paper";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControl from "@material-ui/core/FormControl";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from "@material-ui/core/TextField";
 import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
@@ -56,10 +57,9 @@ class Invite extends Component {
       partners: [],
       agency: false,
       partner: false,
-      streams: [],
+      streams: {},
       actions: [],
       userManager: false,
-      userGroupFilter: false,
       accessDenied: false,
     };
     this.handleChangeType = this.handleChangeType.bind(this);
@@ -132,8 +132,6 @@ class Invite extends Component {
     }
 
     hideProcessing();
-
-    console.log(core.me.userGroups, myStreams);
   }
 
   // Get all user groups with (DATIM) in their name
@@ -276,47 +274,90 @@ class Invite extends Component {
       });
   }
 
-  handleChangeType(event, index, value) {
-    let ugFilter = "";
-    if (this.state.country || value === "MOH") {
-      switch (value) {
-        case "Agency":
-          this.getAgenciesInOrg(this.state.country);
-          ugFilter = "OU " + this.state.country + " Agency ";
-          break;
-        case "Global":
-          ugFilter = "Global users";
-          break;
-        case "Inter-Agency":
-          //country team
-          ugFilter = "OU " + this.state.country + " Country team";
-          break;
-        case "MOH":
-          ugFilter = "Data MOH Access";
-          break;
-        case "Partner":
-          this.getPartnersInOrg(this.state.country);
-          ugFilter = "OU " + this.state.country + " Partner ";
-          break;
-        case "Partner DoD":
-          // @TODO
-          break;
-        default:
-          break;
-      }
-      this.setState({ userGroupFilter: ugFilter });
+  // fugure out which streams should be pre-selected
+  getStreamDefaults = (userType, isUserAdmin) => {
+    // get the streams for this userType
+    if (!userType) {
+      return;
     }
-    this.setState({ userType: value, agency: false, partner: false });
-  }
+    const { core } = this.props;
+    const cfg = core.config;
+    if (!cfg[userType]) {
+      return;
+    }
+
+    const cfgStreams = cfg[userType].streams;
+    // placeholder for the results
+    let streams = {};
+    // figure out which permission is the default
+    Object.keys(cfgStreams).forEach(key => {
+      const access = cfgStreams[key].accessLevels || {};
+      const view = access["View Data"] || false;
+      const enter = access["Enter Data"] || false;
+      if (view) {
+        if (view.preSelected === 1 || (isUserAdmin && view.selectWhenUA === 1)) {
+          streams[key] = "View Data";
+        }
+      }
+      if (enter) {
+        if (enter.preSelected === 1 || (isUserAdmin && enter.selectWhenUA === 1)) {
+          streams[key] = "Enter Data";
+        }
+      }
+    });
+
+    return streams;
+  };
 
   handleChangeCountry = event => {
     this.setState({ [event.target.name]: event.target.value });
     //   this.setState({ country: value, streams: [], actions: [] });
     if (event.target.value === "global") {
       this.handleChangeType(event, 0, "Global");
+      this.setState({
+        userType: "Global",
+        agency: false,
+        partner: false,
+        streams: this.getStreamDefaults("Global", this.state.userManager),
+        actions: [],
+      });
     } else {
-      this.handleChangeType(event, 0, false);
+      this.setState({
+        userType: false,
+        agency: false,
+        partner: false,
+        streams: {},
+        actions: [],
+      });
     }
+  };
+
+  handleChangeType = event => {
+    if (this.state.country !== false) {
+      switch (event.target.value) {
+        case "Agency":
+          this.getAgenciesInOrg(this.state.country);
+          break;
+        case "Partner":
+          this.getPartnersInOrg(this.state.country);
+          break;
+        case "Partner DoD":
+          // @TODO
+          break;
+        case "Global":
+        case "Inter-Agency":
+        case "MOH":
+        default:
+          break;
+      }
+    }
+    this.setState({
+      userType: event.target.value,
+      agency: false,
+      partner: false,
+      streams: this.getStreamDefaults(event.target.value, this.state.userManager),
+      actions: [],
+    });
   };
 
   handleChangeLocale = event => {
@@ -328,30 +369,61 @@ class Invite extends Component {
   };
 
   handleChangePartner = event => {
-    // @TODO check if we need to add DoD objects to view
-    this.setState({ [event.target.name]: event.target.value });
+    // check if we need to add DoD objects to view
+    let userType = "Partner";
+    if (event.target.value !== false) {
+      const partner = this.state.partners.filter(f => f.id === event.target.value);
+      if (partner.length === 0) {
+        console.error("Invalid partner selection");
+      } else if (partner[0].normalEntry === false) {
+        userType = "Partner DoD";
+      }
+    }
+
+    this.setState({
+      [event.target.name]: event.target.value,
+      streams: this.getStreamDefaults(userType, this.state.userManager),
+    });
   };
 
   handleChangeEmail = event => {
-    this.setState({
-      email: event.target.value,
-    });
+    this.setState({ email: event.target.value });
   };
 
   handleCheckUserManager = () => {
-    // @TODO set proper streams / actions
+    const { core } = this.props;
+    let um = !this.state.userManager;
+    let userType = this.state.userType;
+
+    // check if we need to add DoD objects to view
+    if (userType === "Partner") {
+      const partner = this.state.partners.filter(f => f.id === this.state.partner);
+      if (partner.length === 0) {
+        console.error("Invalid partner selection");
+      } else if (partner[0].normalEntry === false) {
+        userType = "Partner DoD";
+      }
+    }
+
     this.setState({
-      userManager: !this.state.userManager,
+      userManager: um,
+      streams: this.getStreamDefaults(userType, um),
     });
   };
 
-  handleChangeStream(streamName, state, value) {
+  handleChangeStream = (streamName, streamState) => {
+    const { core } = this.props;
     let streams = this.state.streams;
-    streams[streamName] = state;
+    // They don't want access so remove it
+    if (streams[streamName] && streamState == "noaccess") {
+      delete streams[streamName];
+    } else {
+      streams[streamName] = streamState;
+    }
     this.setState({ streams: streams });
-  }
+  };
 
-  handleChangeActions(roleUID, value) {
+  handleChangeActions = (roleUID, value) => {
     let actions = this.state.actions;
     let idx = actions.findIndex(x => x.id === roleUID);
     if (roleUID && value === true) {
@@ -366,7 +438,7 @@ class Invite extends Component {
       }
     }
     this.setState({ actions: actions });
-  }
+  };
 
   handleInviteUser = () => {
     const { d2, core } = this.props;
@@ -488,7 +560,6 @@ class Invite extends Component {
         <MenuItem
           key={el}
           value={el}
-          checked={this.state.userType === el}
           disabled={
             this.state.country === "global" ||
             (el === "Global" && this.state.country !== "Global") ||
@@ -502,25 +573,25 @@ class Invite extends Component {
 
     // Build the select menus
     const countryMenus = countries.map(v => (
-      <MenuItem key={v.id} value={v.id} checked={this.state.country === v.id}>
+      <MenuItem key={v.id} value={v.id}>
         {v.name}
       </MenuItem>
     ));
 
     const localeMenus = locales.map(v => (
-      <MenuItem key={v.locale} value={v.locale} checked={this.state.locale === v.locale}>
+      <MenuItem key={v.locale} value={v.locale}>
         {v.name}
       </MenuItem>
     ));
 
     const agencyMenus = this.state.agencies.map(v => (
-      <MenuItem key={v.id} value={v.id} checked={this.state.agency === v.id}>
+      <MenuItem key={v.id} value={v.id}>
         {v.name}
       </MenuItem>
     ));
 
     const partnerMenus = this.state.partners.map(v => (
-      <MenuItem key={v.id} value={v.id} checked={this.state.partner === v.id}>
+      <MenuItem key={v.id} value={v.id}>
         {v.name}
       </MenuItem>
     ));
@@ -549,35 +620,12 @@ class Invite extends Component {
         .map(([key, value]) => ({ key, value }))
         .sort((a, b) => a.value.sortOrder > b.value.sortOrder);
       s.forEach(stream => {
-        let defaultSelected = "noaccess";
-        // if nothing has been selected yet, use the config defaults
-        if (!this.state.streams[stream.key]) {
-          if (stream.value.accessLevels["Enter Data"] || false) {
-            if (
-              stream.value.accessLevels["Enter Data"].preSelected === 1 ||
-              (stream.value.accessLevels["Enter Data"].selectWhenUA === 1 &&
-                this.state.userManager === true)
-            ) {
-              defaultSelected = "Enter Data";
-            }
-          } else if (stream.value.accessLevels["View Data"] || false) {
-            if (
-              stream.value.accessLevels["View Data"].preSelected === 1 ||
-              (stream.value.accessLevels["View Data"].selectWhenUA === 1 &&
-                this.state.userManager === true)
-            ) {
-              defaultSelected = "View Data";
-            }
-          }
-        } else {
-          defaultSelected = this.state.streams[stream.key];
-        }
-
+        // add each stream/group to the view
         streams.push(
           <GridListTile key={stream.key}>
             <DataStream
               stream={stream}
-              selected={defaultSelected}
+              selected={this.state.streams[stream.key] || "noaccess"}
               onChangeStream={this.handleChangeStream}
               userManager={this.state.userManager}
             />
@@ -606,10 +654,10 @@ class Invite extends Component {
         <h3 className="subTitle">User Management</h3>
 
         <Paper className="card filters">
-          <FormControl required style={{ width: "100%" }}>
+          <FormControl required style={{ width: "100%", marginTop: "1em" }}>
             <InputLabel htmlFor="country">Country</InputLabel>
             <Select
-              value={this.state.country}
+              value={this.state.country || ""}
               onChange={this.handleChangeCountry}
               inputProps={{
                 name: "country",
@@ -620,12 +668,11 @@ class Invite extends Component {
             </Select>
             <FormHelperText>Select a country</FormHelperText>
           </FormControl>
-          <br />
 
-          <FormControl required style={{ width: "100%" }}>
+          <FormControl required style={{ width: "100%", marginTop: "1em" }}>
             <InputLabel htmlFor="userType">User Type</InputLabel>
             <Select
-              value={this.state.userType}
+              value={this.state.userType || ""}
               onChange={this.handleChangeType}
               inputProps={{
                 name: "userType",
@@ -636,13 +683,12 @@ class Invite extends Component {
             </Select>
             <FormHelperText>Select a user type</FormHelperText>
           </FormControl>
-          <br />
 
           {this.state.userType === "Partner" ? (
-            <FormControl required style={{ width: "100%" }}>
+            <FormControl required style={{ width: "100%", marginTop: "1em" }}>
               <InputLabel htmlFor="partner">Partner</InputLabel>
               <Select
-                value={this.state.partner}
+                value={this.state.partner || ""}
                 onChange={this.handleChangePartner}
                 inputProps={{
                   name: "partner",
@@ -654,12 +700,12 @@ class Invite extends Component {
               <FormHelperText>Select a partner</FormHelperText>
             </FormControl>
           ) : null}
-          <br />
+
           {this.state.userType === "Agency" ? (
-            <FormControl required style={{ width: "100%" }}>
+            <FormControl required style={{ width: "100%", marginTop: "1em" }}>
               <InputLabel htmlFor="agency">Agency</InputLabel>
               <Select
-                value={this.state.agency}
+                value={this.state.agency || ""}
                 onChange={this.handleChangeAgency}
                 inputProps={{
                   name: "agency",
@@ -671,21 +717,20 @@ class Invite extends Component {
               <FormHelperText>Select an agency</FormHelperText>
             </FormControl>
           ) : null}
-          <br />
 
-          <TextField
-            id="email"
-            floatingLabelText="E-mail address"
-            hintText="user@organisation.tld"
-            fullWidth={true}
-            onChange={this.handleChangeEmail}
-          />
-          <br />
+          <FormControl required style={{ width: "100%", marginTop: "1em" }}>
+            <TextField
+              id="email"
+              label="E-mail address"
+              placeholder="user@organisation.tld"
+              onChange={this.handleChangeEmail}
+            />
+          </FormControl>
 
-          <FormControl required style={{ width: "100%" }}>
+          <FormControl required style={{ width: "100%", marginTop: "1em" }}>
             <InputLabel htmlFor="locale">Language</InputLabel>
             <Select
-              value={this.state.locale}
+              value={this.state.locale || ""}
               onChange={this.handleChangeLocale}
               inputProps={{
                 name: "locale",
@@ -697,12 +742,17 @@ class Invite extends Component {
             <FormHelperText>Select a language</FormHelperText>
           </FormControl>
 
-          <Checkbox
+          <FormControlLabel
             style={{ marginTop: "1em" }}
+            control={
+              <Checkbox
+                checked={this.state.userManager || false}
+                onChange={this.handleCheckUserManager}
+                disabled={!this.state.userType}
+                value="checkedA"
+              />
+            }
             label="User Manager"
-            checked={this.state.userManager}
-            onCheck={this.handleCheckUserManager}
-            disabled={!this.state.userType}
           />
         </Paper>
 
@@ -723,12 +773,13 @@ class Invite extends Component {
 
         <Button
           variant="contained"
+          color="primary"
           style={{ display: "block", padding: "0 18em" }}
           disabled={!this.state.country || !this.state.userType || !this.state.email}
-          primary={true}
           onClick={this.handleInviteUser}
-          label={d2.i18n.getTranslation("invite")}
-        />
+        >
+          Invite
+        </Button>
       </div>
     );
   }
