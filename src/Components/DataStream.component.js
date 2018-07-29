@@ -34,7 +34,7 @@ class DataStream extends React.Component {
         component="fieldset"
         required
         className="stream"
-        disabled={this.props.userManager || locked === 1}
+        disabled={this.props.userManager || locked === 1 || locked === true}
       >
         <FormLabel component="legend">{stream.key}</FormLabel>
         <RadioGroup
