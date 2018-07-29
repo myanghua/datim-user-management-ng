@@ -58,7 +58,7 @@ class Invite extends Component {
       agency: false,
       partner: false,
       streams: {},
-      actions: [],
+      actions: {},
       userManager: false,
       accessDenied: false,
     };
@@ -274,7 +274,7 @@ class Invite extends Component {
       });
   }
 
-  // fugure out which streams should be pre-selected
+  // figure out which streams should be pre-selected
   getStreamDefaults = (userType, isUserAdmin) => {
     // get the streams for this userType
     if (!userType) {
@@ -309,6 +309,29 @@ class Invite extends Component {
     return streams;
   };
 
+  // determine preselected User Actions
+  getActionDefaults = (userType, isUserAdmin) => {
+    // get the streams for this userType
+    if (!userType) {
+      return;
+    }
+    const { core } = this.props;
+    const cfg = core.config;
+    if (!cfg[userType]) {
+      return;
+    }
+
+    const cfgActions = cfg[userType].actions;
+    // placeholder for the results
+    let actions = {};
+    cfgActions.forEach(action => {
+      if (action.preSelected === 1 || (isUserAdmin && action.selectWhenUA === 1)) {
+        actions[action.roleUID] = true;
+      }
+    });
+    return actions;
+  };
+
   handleChangeCountry = event => {
     this.setState({ [event.target.name]: event.target.value });
     //   this.setState({ country: value, streams: [], actions: [] });
@@ -319,7 +342,7 @@ class Invite extends Component {
         agency: false,
         partner: false,
         streams: this.getStreamDefaults("Global", this.state.userManager),
-        actions: [],
+        actions: this.getActionDefaults("Global", this.state.userManager),
       });
     } else {
       this.setState({
@@ -327,7 +350,7 @@ class Invite extends Component {
         agency: false,
         partner: false,
         streams: {},
-        actions: [],
+        actions: {},
       });
     }
   };
@@ -356,7 +379,7 @@ class Invite extends Component {
       agency: false,
       partner: false,
       streams: this.getStreamDefaults(event.target.value, this.state.userManager),
-      actions: [],
+      actions: this.getActionDefaults(event.target.value, this.state.userManager),
     });
   };
 
@@ -408,9 +431,11 @@ class Invite extends Component {
     this.setState({
       userManager: um,
       streams: this.getStreamDefaults(userType, um),
+      actions: this.getActionDefaults(userType, um),
     });
   };
 
+  // what to do when a radio button is clicked
   handleChangeStream = (streamName, streamState) => {
     const { core } = this.props;
     let streams = this.state.streams;
@@ -423,19 +448,13 @@ class Invite extends Component {
     this.setState({ streams: streams });
   };
 
+  // what to do when a User Actions checkbox is clicked
   handleChangeActions = (roleUID, value) => {
     let actions = this.state.actions;
-    let idx = actions.findIndex(x => x.id === roleUID);
-    if (roleUID && value === true) {
-      //add it if it doesn't exist already
-      if (idx === -1) {
-        actions.push({ id: roleUID });
-      }
-    } else if (roleUID && value === false) {
-      //remove it if it exists
-      if (idx !== -1) {
-        actions.splice(idx, 1);
-      }
+    if (actions[roleUID] && value === true) {
+      delete actions[roleUID];
+    } else {
+      actions[roleUID] = value;
     }
     this.setState({ actions: actions });
   };
@@ -641,6 +660,7 @@ class Invite extends Component {
           <DataAction
             key={action.roleUID}
             action={action}
+            checked={this.state.actions[action.roleUID] || false}
             onChangeAction={this.handleChangeActions}
             userManager={this.state.userManager}
           />
