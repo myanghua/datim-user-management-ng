@@ -459,33 +459,66 @@ class Invite extends Component {
     this.setState({ actions: actions });
   };
 
+  // the big todo
   handleInviteUser = () => {
     const { d2, core } = this.props;
+    const cfg = core.config[this.state.userType];
 
-    console.log("inviteUser", this.state.country, this.state.userType, this.state.email);
-
-    let user = d2.models.users.create();
+    let user = {};
+    user.firstName = "(TBD)";
+    user.surname = "(TBD)";
     user.email = this.state.email;
-    user.organisationUnits = [{ id: this.state.country }];
-    user.dataViewOrganisationUnits = [];
-    user.userGroups = []; //Global users
     user.userCredentials = {
-      userRoles: [
-        //{'id':'b2uHwX9YLhu'}
-      ],
+      userRoles: [],
     };
-    user.firstName = "";
-    user.surname = "";
+    user.organisationUnits = [{ id: this.state.country }];
+    user.userGroups = []; //Global users
+    user.dataViewOrganisationUnits = [{ id: this.state.country }];
 
     // streams / groups
-    // if streams[streamName] is not set, use the default from config taking in account userManager flag
-    // else use whatver they selected
-    // let level = core.config[this.state.userType].streams[streamName].accessLevels;
     console.log("streams", this.state.streams);
+    Object.keys(this.state.streams).forEach(stream => {
+      const s = cfg.streams[stream].accessLevels[this.state.streams[stream]];
+      user.userGroups.push({ id: s.groupUID });
+      // some groups have necessary roles
+      if (s.impliedRoles) {
+        s.impliedRoles.forEach(r => {
+          user.userCredentials.userRoles.push({ id: r.roleUID });
+        });
+      }
+    });
 
-    //user.save();
+    // actions / roles checkboxes
+    Object.keys(this.state.actions).forEach(roleUID => {
+      user.userCredentials.userRoles.push({ id: roleUID });
+    });
 
-    console.log(user);
+    console.warn(user);
+
+    const api = d2.Api.getApi();
+
+    // POST to /users/invite
+    // @see: https://docs.dhis2.org/master/en/developer/html/dhis2_developer_manual_full.html#webapi_user_invitations
+    api
+      .post("/users/invite", user)
+      .then(promise => {
+        console.log("invite result", promise);
+        // capture the response.uid
+        // d2.models.users.find(promise.message.id);
+      })
+      .catch(e => {
+        console.error("Invitation error", e);
+      });
+
+    // get the newly created user object   {fields: ':owner,userCredentials[:owner]'}
+
+    // get the username from the userCredentials
+
+    // save user locale
+    // POST userSettings/keyUiLocale
+    // !!! But it must be done as the local user, so we need to send headers !!!
+    // @SEE:: https://docs.dhis2.org/master/en/developer/html/dhis2_developer_manual_full.html#webapi_user_settings
+    // http://dhis2.github.io/d2/module-current-user.UserSettings.html
 
     //userInviteObject = getInviteObject(vm.dataGroups, vm.actions);
     // userService.getUserInviteObject(
