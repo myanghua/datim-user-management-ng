@@ -22,9 +22,10 @@ export function getUserListing() {
     });
 
     let params = {
+      canManage: true,
       paging: true,
       fields:
-        "id,surname,firstName,email,employer,displayName,userCredentials[username,disabled,lastLogin,userRoles[id,displayName,name]],userGroups[id,name],organisationUnits[id,name,level],attributeValues[value,name,displayName,attribute[id,code]]",
+        "id,firstName,surname,email,organisationUnits[name,displayName,id],userCredentials[username,disabled,userRoles[id,name,displayName]],userGroups[name,displayName,id]",
       page: page,
     };
 
