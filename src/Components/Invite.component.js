@@ -8,7 +8,6 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from "@material-ui/core/TextField";
 import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
-import Input from "@material-ui/core/Input";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import Checkbox from "@material-ui/core/Checkbox";
@@ -19,16 +18,7 @@ import GridListTile from "@material-ui/core/GridListTile";
 import DataStream from "./DataStream.component";
 import DataAction from "./DataAction.component";
 // import AppTheme from "../colortheme";
-// import actions from "../actions";
-
-// const styles = {
-//   activeColor: "#00C853",
-//   disabledColor: "#E53935",
-//   icon: {
-//     color: "#369",
-//     marginRight: 2,
-//   },
-// };
+import actions from "../actions";
 
 class Invite extends Component {
   //   props: Props;
@@ -211,8 +201,7 @@ class Invite extends Component {
         this.setState({ partners: filtered });
       })
       .catch(e => {
-        // @TODO:: snackbar alert
-        //d2Actions.showSnackbarMessage("Error fetching data");
+        actions.showSnackbarMessage("Error fetching partner organizations");
         console.error(e);
       });
   }
@@ -268,8 +257,7 @@ class Invite extends Component {
         this.setState({ agencies: filtered });
       })
       .catch(e => {
-        // @TODO:: snackbar alert
-        //d2Actions.showSnackbarMessage("Error fetching data");
+        actions.showSnackbarMessage("Error fetching agencies");
         console.error(e);
       });
   }
@@ -333,9 +321,10 @@ class Invite extends Component {
   };
 
   handleChangeCountry = event => {
+    const { core } = this.props;
     this.setState({ [event.target.name]: event.target.value });
     //   this.setState({ country: value, streams: [], actions: [] });
-    if (event.target.value === "global") {
+    if (event.target.value === core.config.Global.ouUID) {
       this.handleChangeType(event, 0, "Global");
       this.setState({
         userType: "Global",
@@ -414,7 +403,6 @@ class Invite extends Component {
   };
 
   handleCheckUserManager = () => {
-    const { core } = this.props;
     let um = !this.state.userManager;
     let userType = this.state.userType;
 
@@ -437,10 +425,9 @@ class Invite extends Component {
 
   // what to do when a radio button is clicked
   handleChangeStream = (streamName, streamState) => {
-    const { core } = this.props;
     let streams = this.state.streams;
     // They don't want access so remove it
-    if (streams[streamName] && streamState == "noaccess") {
+    if (streams[streamName] && streamState === "noaccess") {
       delete streams[streamName];
     } else {
       streams[streamName] = streamState;
@@ -464,6 +451,8 @@ class Invite extends Component {
     const { d2, core } = this.props;
     const cfg = core.config[this.state.userType];
 
+    let ouUID = this.state.country;
+
     let user = {};
     user.firstName = "(TBD)";
     user.surname = "(TBD)";
@@ -471,12 +460,11 @@ class Invite extends Component {
     user.userCredentials = {
       userRoles: [],
     };
-    user.organisationUnits = [{ id: this.state.country }];
+    user.organisationUnits = [{ id: ouUID }];
     user.userGroups = []; //Global users
-    user.dataViewOrganisationUnits = [{ id: this.state.country }];
+    user.dataViewOrganisationUnits = [{ id: ouUID }];
 
     // streams / groups
-    console.log("streams", this.state.streams);
     Object.keys(this.state.streams).forEach(stream => {
       const s = cfg.streams[stream].accessLevels[this.state.streams[stream]];
       user.userGroups.push({ id: s.groupUID });
@@ -493,108 +481,106 @@ class Invite extends Component {
       user.userCredentials.userRoles.push({ id: roleUID });
     });
 
-    console.warn(user);
-
     const api = d2.Api.getApi();
+    const locale = this.state.locale;
 
     // POST to /users/invite
-    // @see: https://docs.dhis2.org/master/en/developer/html/dhis2_developer_manual_full.html#webapi_user_invitations
+    // @TODO:: progress circle
     api
       .post("/users/invite", user)
       .then(promise => {
-        console.log("invite result", promise);
+        if (promise.errorReports) {
+          // something went wrong
+          actions.showSnackbarMessage("Invitation Failure: code 100");
+          console.error("Invitation Failure", promise.errorReports);
+          return;
+        }
         // capture the response.uid
-        // d2.models.users.find(promise.message.id);
+        if (!promise.uid) {
+          actions.showSnackbarMessage("Invitation Failure: code 200");
+          console.error("Invitation Failure", "Missing UID", promise);
+          return;
+        }
+        // get the newly created user object
+        d2.models.users
+          .get(promise.uid, { fields: ":owner,userCredentials[:owner]" })
+          .then(newUser => {
+            // set up their locale
+            if (newUser.userCredentials && newUser.userCredentials.username) {
+              actions.showSnackbarMessage("Invitation successfully sent");
+
+              // save user locale
+              const url =
+                //api.api.baseUrl +
+                "/api/29/userSettings/keyUiLocale?user=" +
+                newUser.userCredentials.username;
+              // POST userSettings/keyUiLocale
+              fetch(url, {
+                method: "POST",
+                cache: "no-cache",
+                credentials: "same-origin",
+                headers: { "Content-Type": "text/plain" },
+                redirect: "follow",
+                body: locale,
+              })
+                .then(response => {
+                  if (response.ok && response.ok === true) {
+                    actions.showSnackbarMessage("User's locale updated");
+                  } else {
+                    actions.showSnackbarMessage("Error setting locale: code 300");
+                    console.error("Error setting locale", response.body);
+                  }
+                })
+                .catch(e => {
+                  actions.showSnackbarMessage("Error setting locale: code 400");
+                  console.error("Error setting locale", e);
+                });
+            } else {
+              actions.showSnackbarMessage(
+                "Invitation error: Bad user creation: code 500"
+              );
+              console.error("Invitation error", "Bad user creation", newUser);
+            }
+          })
+          .catch(e => {
+            actions.showSnackbarMessage("Invitation error: code 600");
+            console.error("Invitation error", e);
+          });
       })
       .catch(e => {
+        actions.showSnackbarMessage("Invitation error: code 700");
         console.error("Invitation error", e);
       });
-
-    // get the newly created user object   {fields: ':owner,userCredentials[:owner]'}
-
-    // get the username from the userCredentials
-
-    // save user locale
-    // POST userSettings/keyUiLocale
-    // !!! But it must be done as the local user, so we need to send headers !!!
-    // @SEE:: https://docs.dhis2.org/master/en/developer/html/dhis2_developer_manual_full.html#webapi_user_settings
-    // http://dhis2.github.io/d2/module-current-user.UserSettings.html
-
-    //userInviteObject = getInviteObject(vm.dataGroups, vm.actions);
-    // userService.getUserInviteObject(
-    //   $scope.user,
-    //   dataGroups,
-    //   actions,
-    //   [getCurrentOrgUnit()],
-    //   userActions.dataEntryRestrictions);
-    //addDimensionConstraintForType();
-    // if (getUserType() !== 'Inter-Agency') {
-    //     vm.userInviteObject.addDimensionConstraint(dimensionConstraint);
-    // }
-    // if (!verifyUserInviteObject() || !addUserGroupsForMechanismsAndUsers()) {
-    //     return;
-    // }
-    // if (!userService.verifyInviteData(vm.userInviteObject)) {
-    //   notify.error('Invite did not pass basic validation');
-    //   vm.isProcessingAddUser = true;
-    //   return false;
-    // }
-
-    // var entity = $scope.user.userEntity;
-    // var hasMechUserGroup = entity && entity.mechUserGroup && entity.mechUserGroup.id;
-    // var hasUserUserGroup = entity && entity.userUserGroup && entity.userUserGroup.id;
-    //
-    // if (hasMechUserGroup) {
-    //     vm.userInviteObject.addEntityUserGroup(entity.mechUserGroup);
-    // }
-    // if (hasUserUserGroup) {
-    //     vm.userInviteObject.addEntityUserGroup(entity.userUserGroup);
-    // }
-    //
-    // if (!hasMechUserGroup && !hasUserUserGroup) {
-    //     notify.error('User groups for mechanism and users not found on selected entity');
-    //     return false;
-    // }
-    //
-    // return true;
-    // userService.inviteUser(vm.userInviteObject)
-    //             .then(function (newUser) {
-    //                 if (newUser.userCredentials && angular.isString(newUser.userCredentials.username) && $scope.user.locale && $scope.user.locale.code) {
-    //                     userService.saveUserLocale(newUser.userCredentials.username, $scope.user.locale.code)
-    //                         .then(function () {
-    //                             notify.success('User invitation sent');
-    //                             $scope.user = userService.getUserObject();
-    //                             vm.isProcessingAddUser = false;
-    //                             $state.go('add', {}, {reload: true});
-    //                         }, function () {
-    //                             vm.isProcessingAddUser = false;
-    //                             notify.warning('Saved user but was not able to save the user locale');
-    //                         });
-    //                 }
-    //
-    //             }, function () {
-    //                 notify.error('Request to add the user failed');
-    //                 vm.isProcessingAddUser = false;
-    //             });
   };
 
   render() {
-    const { d2, core } = this.props;
+    const { core } = this.props;
+    const myOUs = core.me.organisationUnits.map(ou => ou.id);
 
     let uts = [];
     let countries = [];
     let locales = [];
+    let isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) < 0;
 
     if (core) {
-      if (core.userTypes) {
-        uts = core.userTypes;
-      }
+      // determine what countries they can see
       if (core.countries) {
         countries = core.countries;
-        if (countries && countries[0] && countries[0].id !== "global") {
-          countries.unshift({ id: "global", name: "Global" });
+        // toss "Global" onto the front of the OU list
+        if (countries && countries[0] && countries[0].id !== core.config.Global.ouUID) {
+          countries.unshift({ id: core.config.Global.ouUID, name: "Global" });
+        }
+        // filter out all countries this user does not have access to
+        // if they have Global access, let them see everything
+        if (isGlobalUser) {
+          countries = countries.filter(c => myOUs.indexOf(c.id) < 0);
         }
       }
+
+      // determine what userTypes they can see
+      uts = core.userTypes;
+
+      // get the dhis2 ui locales to pick from
       if (core.locales) {
         locales = core.locales;
       }
@@ -603,22 +589,22 @@ class Invite extends Component {
     }
 
     let typeMenus = [];
-    uts.forEach(el => {
+    uts.forEach(userType => {
       // don't show "Partner DoD" as an option here
-      if (core.config[el].isDoD) {
+      if (core.config[userType].isDoD) {
         return;
       }
       typeMenus.push(
         <MenuItem
-          key={el}
-          value={el}
+          key={userType}
+          value={userType}
           disabled={
-            this.state.country === "global" ||
-            (el === "Global" && this.state.country !== "Global") ||
+            this.state.country === core.config.Global.ouUID ||
+            (userType === "Global" && this.state.country !== core.config.Global.ouUID) ||
             !this.state.country
           }
         >
-          {el}
+          {userType}
         </MenuItem>
       );
     });
