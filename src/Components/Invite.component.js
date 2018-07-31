@@ -448,8 +448,10 @@ class Invite extends Component {
 
   // the big todo
   handleInviteUser = () => {
-    const { d2, core } = this.props;
+    const { d2, core, showProcessing, hideProcessing } = this.props;
     const cfg = core.config[this.state.userType];
+    // start the Processing spinner
+    showProcessing();
 
     let ouUID = this.state.country;
 
@@ -493,12 +495,14 @@ class Invite extends Component {
           // something went wrong
           actions.showSnackbarMessage("Invitation Failure: code 100");
           console.error("Invitation Failure", promise.errorReports);
+          hideProcessing();
           return;
         }
         // capture the response.uid
         if (!promise.uid) {
           actions.showSnackbarMessage("Invitation Failure: code 200");
           console.error("Invitation Failure", "Missing UID", promise);
+          hideProcessing();
           return;
         }
         // get the newly created user object
@@ -507,8 +511,6 @@ class Invite extends Component {
           .then(newUser => {
             // set up their locale
             if (newUser.userCredentials && newUser.userCredentials.username) {
-              actions.showSnackbarMessage("Invitation successfully sent");
-
               // save user locale
               const url =
                 //api.api.baseUrl +
@@ -525,31 +527,40 @@ class Invite extends Component {
               })
                 .then(response => {
                   if (response.ok && response.ok === true) {
-                    actions.showSnackbarMessage("User's locale updated");
+                    actions.showSnackbarMessage("Invitation successfully sent");
                   } else {
-                    actions.showSnackbarMessage("Error setting locale: code 300");
+                    actions.showSnackbarMessage(
+                      "Invitation sent but there was an error setting their locale"
+                    );
                     console.error("Error setting locale", response.body);
+                    hideProcessing();
                   }
                 })
                 .catch(e => {
-                  actions.showSnackbarMessage("Error setting locale: code 400");
+                  actions.showSnackbarMessage(
+                    "Invitation sent but there was an error setting their locale"
+                  );
                   console.error("Error setting locale", e);
+                  hideProcessing();
                 });
             } else {
               actions.showSnackbarMessage(
                 "Invitation error: Bad user creation: code 500"
               );
               console.error("Invitation error", "Bad user creation", newUser);
+              hideProcessing();
             }
           })
           .catch(e => {
             actions.showSnackbarMessage("Invitation error: code 600");
             console.error("Invitation error", e);
+            hideProcessing();
           });
       })
       .catch(e => {
         actions.showSnackbarMessage("Invitation error: code 700");
         console.error("Invitation error", e);
+        hideProcessing();
       });
   };
 
