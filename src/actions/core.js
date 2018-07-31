@@ -73,7 +73,7 @@ export function getCountries(d2) {
       let params = {
         paging: false,
         fields: "id,name,level",
-        filter: "level:eq:3",
+        level: 3,
       };
       d2.models.organisationUnits
         .list(params)

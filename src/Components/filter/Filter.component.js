@@ -24,9 +24,8 @@ class Filter extends Component {
     this.onFilterChanged = debounce(this.onFilterChanged, 500);
   }
 
-  //eslint-disable-next-line no-empty-pattern
-  onChangeCategory = ({}, {}, category) => {
-    this.setState({ category });
+  onChangeCategory = event => {
+    this.setState({ category: event.target.value });
   };
 
   onChangeFilterDetail = value => {

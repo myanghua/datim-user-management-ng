@@ -26,8 +26,8 @@ class FilterDetail extends Component {
   };
 
   //eslint-disable-next-line no-empty-pattern
-  onChangeSelectInput = ({}, {}, value) => {
-    this.valueChanged(value);
+  onChangeSelectInput = event => {
+    this.valueChanged(event.target.value);
   };
 
   render() {
@@ -86,7 +86,6 @@ class FilterDetail extends Component {
     return (
       <Select
         value={this.state.value}
-        maxHeight={300}
         autoWidth={true}
         onChange={this.onChangeSelectInput}
         placeholder="Select a value"
