@@ -101,6 +101,7 @@ const configuration = {
     },
   },
   Global: {
+    ouUID: "ybg3MO3hcf4",
     userTypePriority: 1,
     groupFilter: "^Global Users",
     actions: [
