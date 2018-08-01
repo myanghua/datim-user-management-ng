@@ -25,8 +25,9 @@ export const SET_DOD = "SET_DOD";
 
 // listing
 export const SET_USERS = "SET_USERS";
+export const SET_SELECTED_USER = "SET_SELECTED_USER";
+export const CLEAR_SELECTED_USER = "CLEAR_SELECTED_USER";
 export const SET_USER = "SET_USER";
-export const CLEAR_USER = "CLEAR_USER";
 export const SET_PAGER = "SET_PAGER";
 export const SET_FILTERS = "SET_FILTERS";
 export const SET_FILTER = "SET_FILTER";

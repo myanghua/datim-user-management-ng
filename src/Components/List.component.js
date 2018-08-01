@@ -45,18 +45,14 @@ class List extends Component {
     this.props.getUserListing();
   }
 
-  handleChangeTab = (event, value) => {
+  handleChangeTab = (e, value) => {
     this.props.setTab(value);
   };
 
-  // What to do when the click on a table row
   handleUserSelect = (e, userId) => {
-    const selectedUser = this.props.users.find(u => u.id === userId);
-
-    this.props.setSelectedUser(selectedUser);
+    this.props.setSelectedUser(this.props.users[userId]);
   };
 
-  // Send user to editing interface
   handleUserEdit = user => {
     if (user === undefined) {
       return false;
@@ -65,16 +61,12 @@ class List extends Component {
     console.log("edit user", user.displayName);
   };
 
-  // Toggle the disable flag on a user
   handleUserDisable = user => {
     if (user === undefined) {
       return false;
     }
-    //update the UI
-    user.userCredentials.disabled = !user.userCredentials.disabled;
-    // @TODO redux this user and toggle disable flag
-    // @TODO send disable command to API
-    console.log("disable user toggle", user.displayName);
+
+    this.props.setUserDisabledState(user.id, !user.userCredentials.disabled);
   };
 
   handleCloseUserDetails = () => {
@@ -116,7 +108,7 @@ class List extends Component {
 
           <Table>
             <TableBody>
-              {users.map((user, index) => (
+              {Object.values(users).map((user, index) => (
                 <TableRow
                   hover
                   onClick={event => this.handleUserSelect(event, user.id)}

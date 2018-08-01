@@ -1,74 +1,74 @@
 import * as actions from "../constants/ActionTypes";
 import filterCategories from "../Components/filter/filterCategories";
 import { tabs } from "../Components/filter/tabCategories";
+import { apiPatchUserDisabledState, apiFetchUser, apiFetchUsers } from "../api/users";
 
 const filterString = (category, value) => {
   const filterParam = filterCategories[category].param;
   return value ? `${filterParam}${value}` : null;
 };
 
-export function getUserListing() {
-  return (dispatch, getState) => {
-    const state = getState();
-    //TODO: create selector
-    const filters = Object.values(state.list.filters);
-    const tab = state.list.tab;
-    const page = state.list.currentPage;
-    const d2 = state.core.d2;
+const arrayToIdMap = array => {
+  return array.reduce((obj, item) => {
+    obj[item.id] = item;
+    return obj;
+  }, {});
+};
 
-    dispatch({
-      type: actions.SHOW_PROCESSING,
-      status: true,
-    });
+export const getUserListing = () => (dispatch, getState) => {
+  const state = getState();
+  //TODO: create selector
+  const filters = Object.values(state.list.filters);
+  const tab = state.list.tab;
+  const page = state.list.currentPage;
 
-    let params = {
-      canManage: true,
-      paging: true,
-      fields:
-        "id,firstName,surname,email,organisationUnits[name,displayName,id],userCredentials[username,disabled,userRoles[id,name,displayName]],userGroups[name,displayName,id]",
-      page: page,
-    };
+  dispatch({
+    type: actions.SHOW_PROCESSING,
+    status: true,
+  });
 
-    let filterStrings = filters
-      .filter(f => f.detail.length > 0)
-      .map(filter => filterString(filter.category, filter.detail));
-
-    const tabFilter = tabs[tab].param;
-    if (tabFilter.length) {
-      filterStrings.push(tabFilter);
-    }
-
-    if (filterStrings.length > 0) {
-      params.filter = filterStrings;
-    }
-
-    d2.models.users
-      .list(params)
-      .then(u => {
-        dispatch({
-          type: actions.SET_USERS,
-          data: u.toArray(),
-        });
-        dispatch({
-          type: actions.SET_PAGER,
-          data: u.pager,
-        });
-        dispatch({
-          type: actions.HIDE_PROCESSING,
-          status: false,
-        });
-      })
-      .catch(e => {
-        dispatch({
-          type: actions.HIDE_PROCESSING,
-          status: false,
-        });
-        // @TODO:: snackbar alert
-        //d2Actions.showSnackbarMessage("Error fetching data");
-        console.error(e);
-      });
+  const params = {
+    page,
   };
-}
+
+  let filterStrings = filters
+    .filter(f => f.detail.length > 0)
+    .map(filter => filterString(filter.category, filter.detail));
+
+  const tabFilter = tabs[tab].param;
+  if (tabFilter.length) {
+    filterStrings.push(tabFilter);
+  }
+
+  if (filterStrings.length > 0) {
+    params.filter = filterStrings;
+  }
+
+  apiFetchUsers(params)
+    .then(u => {
+      dispatch({
+        type: actions.SET_USERS,
+        data: arrayToIdMap(u.toArray()),
+      });
+      dispatch({
+        type: actions.SET_PAGER,
+        data: u.pager,
+      });
+      dispatch({
+        type: actions.HIDE_PROCESSING,
+        status: false,
+      });
+    })
+    .catch(e => {
+      dispatch({
+        type: actions.HIDE_PROCESSING,
+        status: false,
+      });
+      // @TODO:: snackbar alert
+      //d2Actions.showSnackbarMessage("Error fetching data");
+      console.error(e);
+    });
+};
 
 export const setFilter = data => dispatch => {
   try {
@@ -124,15 +124,29 @@ export const setCurrentPage = data => dispatch => {
 
 export function setSelectedUser(user) {
   return dispatch => {
-    dispatch({ type: actions.SET_USER, data: user });
+    dispatch({ type: actions.SET_SELECTED_USER, data: user });
   };
 }
 
 export function clearSelectedUser() {
   return dispatch => {
-    dispatch({ type: actions.CLEAR_USER });
+    dispatch({ type: actions.CLEAR_SELECTED_USER });
   };
 }
+
+export const setUserDisabledState = (userId, disabled) => async dispatch => {
+  const onSuccess = user => {
+    return dispatch({ type: actions.SET_USER, data: user });
+  };
+
+  try {
+    await apiPatchUserDisabledState(userId, disabled);
+    const user = await apiFetchUser(userId);
+    return onSuccess(user);
+  } catch (error) {
+    console.log("Error changing enabled state of user", error);
+  }
+};
 
 export function setFilters(filters) {
   return dispatch => {
