@@ -2,7 +2,7 @@
 import * as actions from "../constants/ActionTypes";
 
 const initialState = {
-  users: [],
+  users: {},
   pager: {},
   selectedUser: false,
   filters: {},
@@ -17,16 +17,22 @@ export const listReducers = (state = initialState, action) => {
         ...state,
         users: action.data,
       };
-    case actions.SET_USER:
+    case actions.SET_SELECTED_USER:
       return {
         ...state,
         selectedUser: action.data,
       };
-    case actions.CLEAR_USER:
+    case actions.CLEAR_SELECTED_USER:
       return {
         ...state,
         selectedUser: initialState.selectedUser,
       };
+    case actions.SET_USER:
+      const user = action.data;
+      const users = { ...state.users, [user.id]: user };
+
+      return { ...state, users };
+
     case actions.SET_PAGER:
       return {
         ...state,

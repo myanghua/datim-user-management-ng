@@ -1,5 +1,5 @@
-import React from "react";
-
+import React, { Fragment } from "react";
+import { connect } from "react-redux";
 import EditIcon from "@material-ui/icons/EditSharp";
 import CancelIcon from "@material-ui/icons/Cancel";
 import CheckIcon from "@material-ui/icons/Check";
@@ -20,11 +20,13 @@ const styles = {
 };
 
 class UserCell extends React.Component {
-  handleClickEdit = () => {
+  handleClickEdit = e => {
+    e.stopPropagation();
     this.props.onClickEdit(this.props.user);
   };
 
-  handleClickDisable = () => {
+  handleClickDisable = e => {
+    e.stopPropagation();
     this.props.onClickDisable(this.props.user);
   };
 
@@ -39,24 +41,27 @@ class UserCell extends React.Component {
           {user.surname}, {user.firstName}
         </h4>
 
-        <Button
-          variant="fab"
-          mini={true}
-          style={{ float: "right", backgroundColor: bgcolor }}
-          onClick={this.handleClickDisable}
-        >
-          {user.userCredentials.disabled === true ? <CheckIcon /> : <CancelIcon />}
-        </Button>
+        {user.id !== this.props.me.id && (
+          <Fragment>
+            <Button
+              variant="fab"
+              mini={true}
+              style={{ float: "right", backgroundColor: bgcolor }}
+              onClick={this.handleClickDisable}
+            >
+              {user.userCredentials.disabled === true ? <CheckIcon /> : <CancelIcon />}
+            </Button>
 
-        <Button
-          variant="fab"
-          mini={true}
-          style={{ float: "right" }}
-          onClick={this.handleClickEdit}
-        >
-          <EditIcon />
-        </Button>
-
+            <Button
+              variant="fab"
+              mini={true}
+              style={{ float: "right" }}
+              onClick={this.handleClickEdit}
+            >
+              <EditIcon />
+            </Button>
+          </Fragment>
+        )}
         <p>
           <EmailIcon />
           {user.email}
@@ -70,4 +75,10 @@ class UserCell extends React.Component {
   }
 }
 
-export default UserCell;
+const mapStateToProps = state => {
+  return {
+    me: state.core.me,
+  };
+};
+
+export default connect(mapStateToProps)(UserCell);
