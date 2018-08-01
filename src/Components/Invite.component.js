@@ -110,18 +110,22 @@ class Invite extends Component {
         return new RegExp(ut.groupFilter, "i").test(ug.name);
       });
     });
+    const myTypes = this.getMyTypes(myStreams);
 
     // Make sure they have at least one relevant userGroup stream
-    if (!core.me.hasRole("Superuser ALL authorities") || myStreams.length <= 0) {
+    if (core.me.hasAllAuthority() || myStreams.length > 0) {
+      hideProcessing();
+      this.setState({
+        myStreams: myStreams,
+        myTypes: myTypes,
+      });
+    } else {
       hideProcessing();
       denyAccess(
         "Your user account does not seem to have access to any of the data streams."
       );
       console.warn("No valid streams. I have access to ", userGroups);
-      return;
     }
-
-    hideProcessing();
   }
 
   // Get all user groups with (DATIM) in their name
@@ -132,6 +136,22 @@ class Invite extends Component {
       fields: "id,name,users[id,name]",
     });
     return list;
+  };
+
+  // get the userTypes this user can select from
+  getMyTypes = streams => {
+    streams = streams || [];
+    let myTypes = [];
+    streams.forEach(s => {
+      if (s.canCreate) {
+        s.canCreate.forEach(c => {
+          if (myTypes.indexOf(c) === -1) {
+            myTypes.push(c);
+          }
+        });
+      }
+    });
+    return myTypes;
   };
 
   // merge together userGroups based upon their cogs ID (for agencies and partners)
@@ -402,6 +422,7 @@ class Invite extends Component {
     this.setState({ email: event.target.value });
   };
 
+  // the User Manager checkbox
   handleCheckUserManager = () => {
     let um = !this.state.userManager;
     let userType = this.state.userType;
@@ -446,7 +467,7 @@ class Invite extends Component {
     this.setState({ actions: actions });
   };
 
-  // the big todo
+  // the big todo for inviting someone
   handleInviteUser = () => {
     const { d2, core, showProcessing, hideProcessing } = this.props;
     const cfg = core.config[this.state.userType];
@@ -482,6 +503,17 @@ class Invite extends Component {
     Object.keys(this.state.actions).forEach(roleUID => {
       user.userCredentials.userRoles.push({ id: roleUID });
     });
+
+    // should the new person be a UAdmin?
+    if (this.state.userManager === true) {
+      // in order to even be here the current user needs to be a uadmin
+      const uadminUID = core.me.userCredentials.userRoles.filter(
+        f => f.name === "User Administrator"
+      );
+      if (uadminUID.length > 0) {
+        user.userCredentials.userRoles.push({ id: uadminUID[0].id });
+      }
+    }
 
     const api = d2.Api.getApi();
     const locale = this.state.locale;
@@ -566,30 +598,41 @@ class Invite extends Component {
 
   render() {
     const { core } = this.props;
-    const myOUs = core.me.organisationUnits.map(ou => ou.id);
+    const myOUs = (core.me.organisationUnits || []).map(ou => ou.id);
+    const myTypes = this.getMyTypes(this.state.myStreams);
 
     let uts = [];
     let countries = [];
     let locales = [];
-    let isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) < 0;
+    let isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) >= 0;
 
+    // adjust the menues based upon user roles and such
     if (core) {
       // determine what countries they can see
       if (core.countries) {
-        countries = core.countries;
-        // toss "Global" onto the front of the OU list
-        if (countries && countries[0] && countries[0].id !== core.config.Global.ouUID) {
-          countries.unshift({ id: core.config.Global.ouUID, name: "Global" });
-        }
-        // filter out all countries this user does not have access to
-        // if they have Global access, let them see everything
-        if (isGlobalUser) {
-          countries = countries.filter(c => myOUs.indexOf(c.id) < 0);
+        if (core.me && core.me.hasAllAuthority && core.me.hasAllAuthority()) {
+          // beast mode for sysops
+          if (countries && countries[0] && countries[0].id !== core.config.Global.ouUID) {
+            countries = core.countries;
+            countries.unshift({ id: core.config.Global.ouUID, name: "Global" });
+          }
+        } else if (isGlobalUser) {
+          // global users can only invite global users
+          countries = [{ id: core.config.Global.ouUID, name: "Global" }];
+        } else {
+          // display only their country
+          countries = core.countries.filter(c => myOUs.indexOf(c.id) >= 0);
         }
       }
 
       // determine what userTypes they can see
-      uts = core.userTypes;
+      if (core.me && core.me.hasAllAuthority && core.me.hasAllAuthority()) {
+        // Sysadmins can do everything. other people are not as lucky
+        uts = core.userTypes || [];
+      } else {
+        // Otherwise only what you can see/do
+        uts = core.userTypes.filter(f => myTypes.indexOf(f) >= 0);
+      }
 
       // get the dhis2 ui locales to pick from
       if (core.locales) {
