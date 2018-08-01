@@ -604,16 +604,17 @@ class Invite extends Component {
     let uts = [];
     let countries = [];
     let locales = [];
-    let isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) >= 0;
+    const isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) >= 0;
+    const isSuperUser = core.me && core.me.hasAllAuthority && core.me.hasAllAuthority();
 
     // adjust the menues based upon user roles and such
     if (core) {
       // determine what countries they can see
       if (core.countries) {
-        if (core.me && core.me.hasAllAuthority && core.me.hasAllAuthority()) {
+        if (isSuperUser) {
           // beast mode for sysops
+          countries = core.countries;
           if (countries && countries[0] && countries[0].id !== core.config.Global.ouUID) {
-            countries = core.countries;
             countries.unshift({ id: core.config.Global.ouUID, name: "Global" });
           }
         } else if (isGlobalUser) {
@@ -626,7 +627,7 @@ class Invite extends Component {
       }
 
       // determine what userTypes they can see
-      if (core.me && core.me.hasAllAuthority && core.me.hasAllAuthority()) {
+      if (isSuperUser) {
         // Sysadmins can do everything. other people are not as lucky
         uts = core.userTypes || [];
       } else {
@@ -841,7 +842,7 @@ class Invite extends Component {
               <Checkbox
                 checked={this.state.userManager || false}
                 onChange={this.handleCheckUserManager}
-                disabled={!this.state.userType}
+                disabled={!this.state.userType || (isGlobalUser && !isSuperUser)}
                 value="checkedA"
               />
             }
