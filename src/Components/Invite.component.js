@@ -49,6 +49,9 @@ class Invite extends Component {
       partner: false,
       streams: {},
       actions: {},
+      myStreams: [],
+      myTypes: [],
+      myCountries: [],
       userManager: false,
       accessDenied: false,
     };
@@ -84,8 +87,12 @@ class Invite extends Component {
 
   secCheck() {
     const { core, hideProcessing, denyAccess } = this.props;
+    const myOUs = (core.me.organisationUnits || []).map(ou => ou.id);
+    const isSuperUser = core.me && core.me.hasAllAuthority && core.me.hasAllAuthority();
+    const isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) >= 0;
+
     // access check super user
-    if (!core.me.hasAllAuthority() && !core.me.isUserAdministrator()) {
+    if (!isSuperUser && !core.me.isUserAdministrator()) {
       hideProcessing();
       denyAccess(
         "Your user account does not seem to have the authorities to access this functionality."
@@ -112,12 +119,41 @@ class Invite extends Component {
     });
     const myTypes = this.getMyTypes(myStreams);
 
-    // Make sure they have at least one relevant userGroup stream
-    if (core.me.hasAllAuthority() || myStreams.length > 0) {
+    if (isSuperUser || myStreams.length > 0) {
+      //
+      // Find the countries they have access to and auto-select if only one
+      let countries = [];
+      let country = false;
+      let userType = false;
+      // determine what countries they can see
+      if (core.countries) {
+        if (isSuperUser) {
+          // beast mode for sysops
+          countries = core.countries;
+          if (countries && countries[0] && countries[0].id !== core.config.Global.ouUID) {
+            countries.unshift({ id: core.config.Global.ouUID, name: "Global" });
+          }
+        } else if (isGlobalUser) {
+          // global users can only invite global users
+          countries = [{ id: core.config.Global.ouUID, name: "Global" }];
+          country = core.config.Global.ouUID;
+          userType = "Global";
+        } else {
+          // display only their country
+          countries = core.countries.filter(c => myOUs.indexOf(c.id) >= 0);
+        }
+      }
+      if (countries.length === 1) {
+        country = countries[0].id;
+      }
+
       hideProcessing();
       this.setState({
         myStreams: myStreams,
         myTypes: myTypes,
+        myCountries: countries,
+        country: country,
+        userType: userType,
       });
     } else {
       hideProcessing();
@@ -609,23 +645,6 @@ class Invite extends Component {
 
     // adjust the menues based upon user roles and such
     if (core) {
-      // determine what countries they can see
-      if (core.countries) {
-        if (isSuperUser) {
-          // beast mode for sysops
-          countries = core.countries;
-          if (countries && countries[0] && countries[0].id !== core.config.Global.ouUID) {
-            countries.unshift({ id: core.config.Global.ouUID, name: "Global" });
-          }
-        } else if (isGlobalUser) {
-          // global users can only invite global users
-          countries = [{ id: core.config.Global.ouUID, name: "Global" }];
-        } else {
-          // display only their country
-          countries = core.countries.filter(c => myOUs.indexOf(c.id) >= 0);
-        }
-      }
-
       // determine what userTypes they can see
       if (isSuperUser) {
         // Sysadmins can do everything. other people are not as lucky
@@ -665,7 +684,7 @@ class Invite extends Component {
     });
 
     // Build the select menus
-    const countryMenus = countries.map(v => (
+    const countryMenus = this.state.myCountries.map(v => (
       <MenuItem key={v.id} value={v.id}>
         {v.name}
       </MenuItem>
