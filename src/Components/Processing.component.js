@@ -1,18 +1,19 @@
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
-
+import Dialog from "@material-ui/core/Dialog";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
-class Processing extends React.Component {
+class Processing extends Component {
   render() {
     return (
-      <div>
-        {this.props.processing.processing ? (
-          <div className="progressWrapper">
-            <CircularProgress size={4} />
-          </div>
-        ) : null}
-      </div>
+      <Dialog open={this.props.processing.processing}>
+        <CircularProgress
+          size={40}
+          color="primary"
+          thickness={7}
+          style={{ padding: "1em" }}
+        />
+      </Dialog>
     );
   }
 }
