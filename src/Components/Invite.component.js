@@ -587,6 +587,16 @@ class Invite extends Component {
             });
         }
         break;
+      case "Global":
+        // Global all mechanisms: TOOIJWRzJ3g
+        user.userGroups.push({ id: "TOOIJWRzJ3g" });
+        // Global Users: gh9tn4QBbKZ
+        user.userGroups.push({ id: "gh9tn4QBbKZ" });
+        // Global User Administrators
+        if (this.state.userManager) {
+          user.userGroups.push({ id: "ghYxzrKHldx" });
+        }
+        break;
       default:
         break;
     }
