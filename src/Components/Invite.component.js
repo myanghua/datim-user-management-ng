@@ -70,26 +70,27 @@ class Invite extends Component {
     // make sure my auth properties have been loaded.
     // Probably haven't yet, so we check in componentDidUpdate as well
     if (this.props.core.me.hasAllAuthority || false) {
-      this.secCheck();
+      if (this.secCheck() === true) {
+        this.resetFields();
+      }
     }
   }
 
   componentDidUpdate(prevProps) {
     // make sure my auth properties have been loaded
     if (this.props.core.me !== prevProps.core.me) {
-      this.secCheck();
-      // preselect the user's first country
-      // console.log('My country:',this.props.core.me.organisationUnits[0].id);
-      // this.setState({country: this.props.core.me.organisationUnits[0].id})
-      // preselect the user type
+      // and that they can see things
+      if (this.secCheck() === true) {
+        // looks good, prefill form as mch as possible
+        this.resetFields();
+      }
     }
   }
 
+  // perform some security checks to make sure they can access things
   secCheck() {
     const { core, hideProcessing, denyAccess } = this.props;
-    const myOUs = (core.me.organisationUnits || []).map(ou => ou.id);
     const isSuperUser = core.me && core.me.hasAllAuthority && core.me.hasAllAuthority();
-    const isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) >= 0;
 
     // access check super user
     if (!isSuperUser && !core.me.isUserAdministrator()) {
@@ -102,10 +103,10 @@ class Invite extends Component {
         core.me.hasAllAuthority(),
         core.me.isUserAdministrator()
       );
-      return;
+      return false;
     }
 
-    // Figure out this user's relevant userGroups
+    // Find out if they have access to any streams (groups)
     const userGroups = core.me.userGroups || [];
     const userTypesArr = Object.keys(core.config).map(function(key) {
       let obj = core.config[key];
@@ -117,50 +118,17 @@ class Invite extends Component {
         return new RegExp(ut.groupFilter, "i").test(ug.name);
       });
     });
-    const myTypes = this.getMyTypes(myStreams);
 
     if (isSuperUser || myStreams.length > 0) {
-      //
-      // Find the countries they have access to and auto-select if only one
-      let countries = [];
-      let country = false;
-      let userType = false;
-      // determine what countries they can see
-      if (core.countries) {
-        if (isSuperUser) {
-          // beast mode for sysops
-          countries = core.countries;
-          if (countries && countries[0] && countries[0].id !== core.config.Global.ouUID) {
-            countries.unshift({ id: core.config.Global.ouUID, name: "Global" });
-          }
-        } else if (isGlobalUser) {
-          // global users can only invite global users
-          countries = [{ id: core.config.Global.ouUID, name: "Global" }];
-          country = core.config.Global.ouUID;
-          userType = "Global";
-        } else {
-          // display only their country
-          countries = core.countries.filter(c => myOUs.indexOf(c.id) >= 0);
-        }
-      }
-      if (countries.length === 1) {
-        country = countries[0].id;
-      }
-
       hideProcessing();
-      this.setState({
-        myStreams: myStreams,
-        myTypes: myTypes,
-        myCountries: countries,
-        country: country,
-        userType: userType,
-      });
+      return true;
     } else {
-      hideProcessing();
       denyAccess(
         "Your user account does not seem to have access to any of the data streams."
       );
       console.warn("No valid streams. I have access to ", userGroups);
+      hideProcessing();
+      return false;
     }
   }
 
@@ -611,6 +579,8 @@ class Invite extends Component {
                   console.error("Error setting locale", e);
                   hideProcessing();
                 });
+              // invite was successful enough, clear the fields
+              this.resetFields();
             } else {
               actions.showSnackbarMessage(
                 "Invitation error: Bad user creation: code 500"
@@ -632,13 +602,67 @@ class Invite extends Component {
       });
   };
 
+  // clear the state fields back to their defaults
+  resetFields = () => {
+    const { core } = this.props;
+    const myOUs = (core.me.organisationUnits || []).map(ou => ou.id);
+    const isSuperUser = core.me && core.me.hasAllAuthority && core.me.hasAllAuthority();
+    const isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) >= 0;
+    // Figure out this user's relevant userGroups
+    const userGroups = core.me.userGroups || [];
+    const userTypesArr = Object.keys(core.config).map(function(key) {
+      let obj = core.config[key];
+      obj.name = key;
+      return obj;
+    });
+    const myStreams = userTypesArr.filter(ut => {
+      return userGroups.some(ug => {
+        return new RegExp(ut.groupFilter, "i").test(ug.name);
+      });
+    });
+
+    const myTypes = this.getMyTypes(myStreams);
+    // Find the countries they have access to and auto-select if only one
+    let countries = [];
+    let country = false;
+    let userType = false;
+    // determine what countries they can see
+    if (core.countries) {
+      if (isSuperUser) {
+        // beast mode for sysops
+        countries = core.countries;
+        if (countries && countries[0] && countries[0].id !== core.config.Global.ouUID) {
+          countries.unshift({ id: core.config.Global.ouUID, name: "Global" });
+        }
+      } else if (isGlobalUser) {
+        // global users can only invite global users
+        countries = [{ id: core.config.Global.ouUID, name: "Global" }];
+        country = core.config.Global.ouUID;
+        userType = "Global";
+      } else {
+        // display only their country
+        countries = core.countries.filter(c => myOUs.indexOf(c.id) >= 0);
+      }
+    }
+    if (countries.length === 1) {
+      country = countries[0].id;
+    }
+
+    this.setState({
+      myStreams: myStreams,
+      myTypes: myTypes,
+      myCountries: countries,
+      country: country,
+      userType: userType,
+    });
+  };
+
   render() {
     const { core } = this.props;
     const myOUs = (core.me.organisationUnits || []).map(ou => ou.id);
     const myTypes = this.getMyTypes(this.state.myStreams);
 
     let uts = [];
-    let countries = [];
     let locales = [];
     const isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) >= 0;
     const isSuperUser = core.me && core.me.hasAllAuthority && core.me.hasAllAuthority();
