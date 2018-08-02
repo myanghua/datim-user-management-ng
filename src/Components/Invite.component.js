@@ -54,6 +54,7 @@ class Invite extends Component {
       myCountries: [],
       userManager: false,
       accessDenied: false,
+      countryUserGroups: [],
     };
     this.handleChangeType = this.handleChangeType.bind(this);
     this.handleChangeCountry = this.handleChangeCountry.bind(this);
@@ -133,6 +134,7 @@ class Invite extends Component {
   }
 
   // Get all user groups with (DATIM) in their name
+  // UNUSED ...
   getDatimUserGroups = async () => {
     const d2 = this.props.d2;
     let list = await d2.models.userGroups.list({
@@ -344,82 +346,114 @@ class Invite extends Component {
     return actions;
   };
 
+  // get userGroups that reference the current country (as a preload)
+  loadOuUserGroups = country => {
+    const { d2 } = this.props;
+    d2.models.userGroups
+      .list({
+        filter: "name:ilike:OU " + country,
+        fields: "id,name",
+        paging: false,
+      })
+      .then(list => {
+        let oug = [];
+        list.forEach(l => {
+          oug.push({ id: l.id, name: l.name });
+        });
+        this.setState({ countryUserGroups: oug });
+      });
+  };
+
   handleChangeCountry = event => {
-    const { core } = this.props;
-    this.setState({ [event.target.name]: event.target.value });
-    //   this.setState({ country: value, streams: [], actions: [] });
-    if (event.target.value === core.config.Global.ouUID) {
-      this.handleChangeType(event, 0, "Global");
-      this.setState({
-        userType: "Global",
-        agency: false,
-        partner: false,
-        streams: this.getStreamDefaults("Global", this.state.userManager),
-        actions: this.getActionDefaults("Global", this.state.userManager),
-      });
-    } else {
-      this.setState({
-        userType: false,
-        agency: false,
-        partner: false,
-        streams: {},
-        actions: {},
-      });
+    // did it actually change?
+    if (event.target.value !== this.state.country) {
+      const { core } = this.props;
+      this.setState({ [event.target.name]: event.target.value });
+      //   this.setState({ country: value, streams: [], actions: [] });
+      if (event.target.value === core.config.Global.ouUID) {
+        this.handleChangeType(event, 0, "Global");
+        this.setState({
+          userType: "Global",
+          agency: false,
+          partner: false,
+          streams: this.getStreamDefaults("Global", this.state.userManager),
+          actions: this.getActionDefaults("Global", this.state.userManager),
+        });
+      } else {
+        this.loadOuUserGroups(
+          core.countries.filter(f => f.id === event.target.value)[0].name
+        );
+        this.setState({
+          userType: false,
+          agency: false,
+          partner: false,
+          streams: {},
+          actions: {},
+        });
+      }
     }
   };
 
   handleChangeType = event => {
-    if (this.state.country !== false) {
-      switch (event.target.value) {
-        case "Agency":
-          this.getAgenciesInOrg(this.state.country);
-          break;
-        case "Partner":
-          this.getPartnersInOrg(this.state.country);
-          break;
-        case "Partner DoD":
-          // @TODO
-          break;
-        case "Global":
-        case "Inter-Agency":
-        case "MOH":
-        default:
-          break;
+    if (event.target.value !== this.state.userType) {
+      if (this.state.country !== false) {
+        switch (event.target.value) {
+          case "Agency":
+            this.getAgenciesInOrg(this.state.country);
+            break;
+          case "Partner":
+            this.getPartnersInOrg(this.state.country);
+            break;
+          case "Partner DoD":
+            // @TODO
+            break;
+          case "Global":
+          case "Inter-Agency":
+          case "MOH":
+          default:
+            break;
+        }
       }
+      this.setState({
+        userType: event.target.value,
+        agency: false,
+        partner: false,
+        streams: this.getStreamDefaults(event.target.value, this.state.userManager),
+        actions: this.getActionDefaults(event.target.value, this.state.userManager),
+      });
     }
-    this.setState({
-      userType: event.target.value,
-      agency: false,
-      partner: false,
-      streams: this.getStreamDefaults(event.target.value, this.state.userManager),
-      actions: this.getActionDefaults(event.target.value, this.state.userManager),
-    });
   };
 
   handleChangeLocale = event => {
-    this.setState({ [event.target.name]: event.target.value });
+    if (event.target.value !== this.state.locale) {
+      this.setState({ locale: event.target.value });
+    }
   };
 
   handleChangeAgency = event => {
-    this.setState({ [event.target.name]: event.target.value });
+    if (event.target.value !== this.state.agency) {
+      this.setState({ agency: event.target.value });
+    }
   };
 
   handleChangePartner = event => {
-    // check if we need to add DoD objects to view
-    let userType = "Partner";
-    if (event.target.value !== false) {
-      const partner = this.state.partners.filter(f => f.id === event.target.value);
-      if (partner.length === 0) {
-        console.error("Invalid partner selection");
-      } else if (partner[0].normalEntry === false) {
-        userType = "Partner DoD";
+    if (event.target.value !== this.state.partner) {
+      // check if we need to add DoD objects to view
+      let userType = "Partner";
+      if (event.target.value !== false) {
+        const partner = this.state.partners.filter(f => f.id === event.target.value);
+        if (partner.length === 0) {
+          console.error("Invalid partner selection");
+        } else if (partner[0].normalEntry === false) {
+          userType = "Partner DoD";
+        }
       }
-    }
 
-    this.setState({
-      [event.target.name]: event.target.value,
-      streams: this.getStreamDefaults(userType, this.state.userManager),
-    });
+      this.setState({
+        partner: event.target.value,
+        streams: this.getStreamDefaults(userType, this.state.userManager),
+      });
+    }
   };
 
   handleChangeEmail = event => {
@@ -491,7 +525,7 @@ class Invite extends Component {
     user.userGroups = []; //Global users
     user.dataViewOrganisationUnits = [{ id: ouUID }];
 
-    // streams / groups
+    // basic streams / groups
     Object.keys(this.state.streams).forEach(stream => {
       const s = cfg.streams[stream].accessLevels[this.state.streams[stream]];
       user.userGroups.push({ id: s.groupUID });
@@ -502,6 +536,79 @@ class Invite extends Component {
         });
       }
     });
+
+    // complex user groups
+    // @TODO:: ideally this would come from the config, but there are too many edge cases
+    const countryName = core.countries.filter(f => f.id === this.state.country)[0].name;
+    let filteredOuGroups = [];
+    switch (this.state.userType) {
+      case "Agency":
+        const agencyName = this.state.agencies.filter(f => f.id === this.state.agency)[0]
+          .name;
+        filteredOuGroups = this.state.countryUserGroups.filter(
+          f => f.name.indexOf(" Agency " + agencyName) >= 0
+        );
+        break;
+      case "Partner":
+        const partnerName = this.state.partners.filter(
+          f => f.id === this.state.partner
+        )[0].name;
+        filteredOuGroups = this.state.countryUserGroups.filter(
+          f => f.name.indexOf(partnerName) >= 0
+        );
+        break;
+      case "MOH":
+        filteredOuGroups = this.state.countryUserGroups.filter(
+          f => f.name.indexOf("OU " + countryName + " MOH User") >= 0
+        );
+        break;
+      case "Inter-Agency":
+        // all IA logic goes here since it doesn't follow the other conventions
+        this.state.countryUserGroups
+          .filter(
+            f =>
+              f.name === "OU " + countryName + " All mechanisms" ||
+              f.name === "OU " + countryName + " Country team"
+          )
+          .forEach(g => {
+            user.userGroups.push({ id: g.id });
+          });
+        if (this.state.userManager) {
+          this.state.countryUserGroups
+            .filter(
+              f =>
+                f.name === "OU " + countryName + " MOH User administrators" ||
+                f.name === "OU " + countryName + " MOH Users" ||
+                f.name === "OU " + countryName + " User Administrators"
+            )
+            .forEach(g => {
+              user.userGroups.push({ id: g.id });
+            });
+        }
+        break;
+      default:
+        break;
+    }
+    // filter further to just the "all mechanisms" and "users"
+    filteredOuGroups
+      .filter(
+        f => f.name.indexOf(" all mechanisms") >= 0 || f.name.indexOf(" users") >= 0
+      )
+      .forEach(g => {
+        user.userGroups.push({ id: g.id });
+      });
+    // user managers get a couple more rights
+    if (this.state.userManager) {
+      filteredOuGroups
+        .filter(
+          f =>
+            f.name.indexOf(" user administrators") >= 0 ||
+            f.name.indexOf(" User administrators") >= 0
+        )
+        .forEach(g => {
+          user.userGroups.push({ id: g.id });
+        });
+    }
 
     // actions / roles checkboxes
     Object.keys(this.state.actions).forEach(roleUID => {
@@ -646,6 +753,10 @@ class Invite extends Component {
     }
     if (countries.length === 1) {
       country = countries[0].id;
+      if (this.state.country !== country) {
+        // if the country has changed, reload the usergroup cache
+        this.loadOuUserGroups(core.countries.filter(f => f.id === country)[0].name);
+      }
     }
 
     this.setState({
