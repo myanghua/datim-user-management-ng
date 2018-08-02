@@ -101,6 +101,120 @@ const configuration = {
     },
     canCreate: ["Agency", "Partner"],
   },
+  "Agency HQ": {
+    userTypePriority: 2,
+    groupFilter: "^Global Agency ",
+    actions: [
+      {
+        hidden: 0,
+        locked: 0,
+        name: "Approvals: Accept Data",
+        preSelected: 0,
+        roleUID: "QbxXEPw9xlf",
+        selectWhenUA: 1,
+        sortOrder: 0,
+      },
+      {
+        hidden: 0,
+        locked: 0,
+        name: "Approvals: Submit Data",
+        preSelected: 0,
+        roleUID: "n777lf1THwQ",
+        selectWhenUA: 1,
+        sortOrder: 2,
+      },
+      {
+        hidden: 0,
+        locked: 1,
+        name: "View Unapproved Data",
+        preSelected: 1,
+        roleUID: "R74PQmVFl6R",
+        selectWhenUA: 1,
+        sortOrder: 3,
+      },
+      {
+        hidden: 1,
+        locked: 0,
+        name: "Data Entry Aggregate",
+        preSelected: 0,
+        roleUID: "k7BWFXkG6zt",
+        selectWhenUA: 1,
+        sortOrder: -1,
+      },
+      {
+        hidden: 1,
+        locked: 1,
+        name: "Read Only",
+        preSelected: 1,
+        roleUID: "b2uHwX9YLhu",
+        selectWhenUA: 1,
+        sortOrder: -1,
+      },
+    ],
+    streams: {
+      Expenditure: {
+        accessLevels: {
+          "Enter Data": {
+            groupName: "Data Expenditure entry",
+            groupUID: "XgctRYBpSiR",
+            impliedRoles: [
+              {
+                name: "Data Entry Aggregate",
+                roleUID: "k7BWFXkG6zt",
+              },
+            ],
+            locked: 0,
+            preSelected: 0,
+            selectWhenUA: 1,
+          },
+          "View Data": {
+            groupName: "Data Expenditure access",
+            groupUID: "M9Uer9SioL7",
+            locked: 0,
+            preSelected: 0,
+            selectWhenUA: 0,
+          },
+        },
+        sortOrder: 1,
+      },
+      MER: {
+        accessLevels: {
+          "View Data": {
+            groupName: "Data PRIME access",
+            groupUID: "c6hGi8GEZot",
+            locked: 0,
+            preSelected: 0,
+            selectWhenUA: 1,
+          },
+        },
+        sortOrder: 0,
+      },
+      MOH: {
+        accessLevels: {
+          "View Data": {
+            groupName: "Data MOH access",
+            groupUID: "OoiLAfMTyMx",
+            locked: 0,
+            preSelected: 0,
+            selectWhenUA: 1,
+          },
+        },
+        sortOrder: 2,
+      },
+      SIMS: {
+        accessLevels: {
+          "View Data": {
+            groupName: "Data SIMS access",
+            groupUID: "iuD8wUFz95X",
+            locked: 0,
+            preSelected: 0,
+            selectWhenUA: 1,
+          },
+        },
+        sortOrder: 3,
+      },
+    },
+  },
   Global: {
     ouUID: "ybg3MO3hcf4",
     userTypePriority: 1,
