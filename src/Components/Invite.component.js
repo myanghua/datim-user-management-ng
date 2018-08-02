@@ -529,7 +529,15 @@ class Invite extends Component {
     // basic streams / groups
     Object.keys(this.state.streams).forEach(stream => {
       const s = cfg.streams[stream].accessLevels[this.state.streams[stream]];
-      user.userGroups.push({ id: s.groupUID });
+      if (this.state.streams[stream] === "Enter Data") {
+        user.userGroups.push({ id: s.groupUID });
+        // add in view data as well since group rights do not propogate
+        const v = cfg.streams[stream].accessLevels["View Data"];
+        user.userGroups.push({ id: v.groupUID });
+      } else {
+        // just a View Data user
+        user.userGroups.push({ id: s.groupUID });
+      }
       // some groups have necessary roles
       if (s.impliedRoles) {
         s.impliedRoles.forEach(r => {
