@@ -49,8 +49,12 @@ class Invite extends Component {
       partner: false,
       streams: {},
       actions: {},
+      myStreams: [],
+      myTypes: [],
+      myCountries: [],
       userManager: false,
       accessDenied: false,
+      countryUserGroups: [],
     };
     this.handleChangeType = this.handleChangeType.bind(this);
     this.handleChangeCountry = this.handleChangeCountry.bind(this);
@@ -67,25 +71,30 @@ class Invite extends Component {
     // make sure my auth properties have been loaded.
     // Probably haven't yet, so we check in componentDidUpdate as well
     if (this.props.core.me.hasAllAuthority || false) {
-      this.secCheck();
+      if (this.secCheck() === true) {
+        this.resetFields();
+      }
     }
   }
 
   componentDidUpdate(prevProps) {
     // make sure my auth properties have been loaded
     if (this.props.core.me !== prevProps.core.me) {
-      this.secCheck();
-      // preselect the user's first country
-      // console.log('My country:',this.props.core.me.organisationUnits[0].id);
-      // this.setState({country: this.props.core.me.organisationUnits[0].id})
-      // preselect the user type
+      // and that they can see things
+      if (this.secCheck() === true) {
+        // looks good, prefill form as mch as possible
+        this.resetFields();
+      }
     }
   }
 
+  // perform some security checks to make sure they can access things
   secCheck() {
     const { core, hideProcessing, denyAccess } = this.props;
+    const isSuperUser = core.me && core.me.hasAllAuthority && core.me.hasAllAuthority();
+
     // access check super user
-    if (!core.me.hasAllAuthority() && !core.me.isUserAdministrator()) {
+    if (!isSuperUser && !core.me.isUserAdministrator()) {
       hideProcessing();
       denyAccess(
         "Your user account does not seem to have the authorities to access this functionality."
@@ -95,10 +104,10 @@ class Invite extends Component {
         core.me.hasAllAuthority(),
         core.me.isUserAdministrator()
       );
-      return;
+      return false;
     }
 
-    // Figure out this user's relevant userGroups
+    // Find out if they have access to any streams (groups)
     const userGroups = core.me.userGroups || [];
     const userTypesArr = Object.keys(core.config).map(function(key) {
       let obj = core.config[key];
@@ -111,20 +120,21 @@ class Invite extends Component {
       });
     });
 
-    // Make sure they have at least one relevant userGroup stream
-    if (!core.me.hasRole("Superuser ALL authorities") || myStreams.length <= 0) {
+    if (isSuperUser || myStreams.length > 0) {
       hideProcessing();
+      return true;
+    } else {
       denyAccess(
         "Your user account does not seem to have access to any of the data streams."
       );
       console.warn("No valid streams. I have access to ", userGroups);
-      return;
+      hideProcessing();
+      return false;
     }
-
-    hideProcessing();
   }
 
   // Get all user groups with (DATIM) in their name
+  // UNUSED ...
   getDatimUserGroups = async () => {
     const d2 = this.props.d2;
     let list = await d2.models.userGroups.list({
@@ -132,6 +142,22 @@ class Invite extends Component {
       fields: "id,name,users[id,name]",
     });
     return list;
+  };
+
+  // get the userTypes this user can select from
+  getMyTypes = streams => {
+    streams = streams || [];
+    let myTypes = [];
+    streams.forEach(s => {
+      if (s.canCreate) {
+        s.canCreate.forEach(c => {
+          if (myTypes.indexOf(c) === -1) {
+            myTypes.push(c);
+          }
+        });
+      }
+    });
+    return myTypes;
   };
 
   // merge together userGroups based upon their cogs ID (for agencies and partners)
@@ -320,88 +346,121 @@ class Invite extends Component {
     return actions;
   };
 
+  // get userGroups that reference the current country (as a preload)
+  loadOuUserGroups = country => {
+    const { d2 } = this.props;
+    d2.models.userGroups
+      .list({
+        filter: "name:ilike:OU " + country,
+        fields: "id,name",
+        paging: false,
+      })
+      .then(list => {
+        let oug = [];
+        list.forEach(l => {
+          oug.push({ id: l.id, name: l.name });
+        });
+        this.setState({ countryUserGroups: oug });
+      });
+  };
+
   handleChangeCountry = event => {
-    const { core } = this.props;
-    this.setState({ [event.target.name]: event.target.value });
-    //   this.setState({ country: value, streams: [], actions: [] });
-    if (event.target.value === core.config.Global.ouUID) {
-      this.handleChangeType(event, 0, "Global");
-      this.setState({
-        userType: "Global",
-        agency: false,
-        partner: false,
-        streams: this.getStreamDefaults("Global", this.state.userManager),
-        actions: this.getActionDefaults("Global", this.state.userManager),
-      });
-    } else {
-      this.setState({
-        userType: false,
-        agency: false,
-        partner: false,
-        streams: {},
-        actions: {},
-      });
+    // did it actually change?
+    if (event.target.value !== this.state.country) {
+      const { core } = this.props;
+      this.setState({ [event.target.name]: event.target.value });
+      //   this.setState({ country: value, streams: [], actions: [] });
+      if (event.target.value === core.config.Global.ouUID) {
+        this.handleChangeType(event, 0, "Global");
+        this.setState({
+          userType: "Global",
+          agency: false,
+          partner: false,
+          streams: this.getStreamDefaults("Global", this.state.userManager),
+          actions: this.getActionDefaults("Global", this.state.userManager),
+        });
+      } else {
+        this.loadOuUserGroups(
+          core.countries.filter(f => f.id === event.target.value)[0].name
+        );
+        this.setState({
+          userType: false,
+          agency: false,
+          partner: false,
+          streams: {},
+          actions: {},
+        });
+      }
     }
   };
 
   handleChangeType = event => {
-    if (this.state.country !== false) {
-      switch (event.target.value) {
-        case "Agency":
-          this.getAgenciesInOrg(this.state.country);
-          break;
-        case "Partner":
-          this.getPartnersInOrg(this.state.country);
-          break;
-        case "Partner DoD":
-          // @TODO
-          break;
-        case "Global":
-        case "Inter-Agency":
-        case "MOH":
-        default:
-          break;
+    if (event.target.value !== this.state.userType) {
+      if (this.state.country !== false) {
+        switch (event.target.value) {
+          case "Agency":
+            this.getAgenciesInOrg(this.state.country);
+            break;
+          case "Partner":
+            this.getPartnersInOrg(this.state.country);
+            break;
+          case "Partner DoD":
+            // @TODO
+            break;
+          case "Global":
+          case "Inter-Agency":
+          case "MOH":
+          default:
+            break;
+        }
       }
+      this.setState({
+        userType: event.target.value,
+        agency: false,
+        partner: false,
+        streams: this.getStreamDefaults(event.target.value, this.state.userManager),
+        actions: this.getActionDefaults(event.target.value, this.state.userManager),
+      });
     }
-    this.setState({
-      userType: event.target.value,
-      agency: false,
-      partner: false,
-      streams: this.getStreamDefaults(event.target.value, this.state.userManager),
-      actions: this.getActionDefaults(event.target.value, this.state.userManager),
-    });
   };
 
   handleChangeLocale = event => {
-    this.setState({ [event.target.name]: event.target.value });
+    if (event.target.value !== this.state.locale) {
+      this.setState({ locale: event.target.value });
+    }
   };
 
   handleChangeAgency = event => {
-    this.setState({ [event.target.name]: event.target.value });
+    if (event.target.value !== this.state.agency) {
+      this.setState({ agency: event.target.value });
+    }
   };
 
   handleChangePartner = event => {
-    // check if we need to add DoD objects to view
-    let userType = "Partner";
-    if (event.target.value !== false) {
-      const partner = this.state.partners.filter(f => f.id === event.target.value);
-      if (partner.length === 0) {
-        console.error("Invalid partner selection");
-      } else if (partner[0].normalEntry === false) {
-        userType = "Partner DoD";
+    if (event.target.value !== this.state.partner) {
+      // check if we need to add DoD objects to view
+      let userType = "Partner";
+      if (event.target.value !== false) {
+        const partner = this.state.partners.filter(f => f.id === event.target.value);
+        if (partner.length === 0) {
+          console.error("Invalid partner selection");
+        } else if (partner[0].normalEntry === false) {
+          userType = "Partner DoD";
+        }
       }
-    }
 
-    this.setState({
-      [event.target.name]: event.target.value,
-      streams: this.getStreamDefaults(userType, this.state.userManager),
-    });
+      this.setState({
+        partner: event.target.value,
+        streams: this.getStreamDefaults(userType, this.state.userManager),
+      });
+    }
   };
 
   handleChangeEmail = event => {
     this.setState({ email: event.target.value });
   };
 
+  // the User Manager checkbox
   handleCheckUserManager = () => {
     let um = !this.state.userManager;
     let userType = this.state.userType;
@@ -446,7 +505,7 @@ class Invite extends Component {
     this.setState({ actions: actions });
   };
 
-  // the big todo
+  // the big todo for inviting someone
   handleInviteUser = () => {
     const { d2, core, showProcessing, hideProcessing } = this.props;
     const cfg = core.config[this.state.userType];
@@ -466,7 +525,7 @@ class Invite extends Component {
     user.userGroups = []; //Global users
     user.dataViewOrganisationUnits = [{ id: ouUID }];
 
-    // streams / groups
+    // basic streams / groups
     Object.keys(this.state.streams).forEach(stream => {
       const s = cfg.streams[stream].accessLevels[this.state.streams[stream]];
       user.userGroups.push({ id: s.groupUID });
@@ -478,10 +537,94 @@ class Invite extends Component {
       }
     });
 
+    // complex user groups
+    // @TODO:: ideally this would come from the config, but there are too many edge cases
+    const countryName = core.countries.filter(f => f.id === this.state.country)[0].name;
+    let filteredOuGroups = [];
+    switch (this.state.userType) {
+      case "Agency":
+        const agencyName = this.state.agencies.filter(f => f.id === this.state.agency)[0]
+          .name;
+        filteredOuGroups = this.state.countryUserGroups.filter(
+          f => f.name.indexOf(" Agency " + agencyName) >= 0
+        );
+        break;
+      case "Partner":
+        const partnerName = this.state.partners.filter(
+          f => f.id === this.state.partner
+        )[0].name;
+        filteredOuGroups = this.state.countryUserGroups.filter(
+          f => f.name.indexOf(partnerName) >= 0
+        );
+        break;
+      case "MOH":
+        filteredOuGroups = this.state.countryUserGroups.filter(
+          f => f.name.indexOf("OU " + countryName + " MOH User") >= 0
+        );
+        break;
+      case "Inter-Agency":
+        // all IA logic goes here since it doesn't follow the other conventions
+        this.state.countryUserGroups
+          .filter(
+            f =>
+              f.name === "OU " + countryName + " All mechanisms" ||
+              f.name === "OU " + countryName + " Country team"
+          )
+          .forEach(g => {
+            user.userGroups.push({ id: g.id });
+          });
+        if (this.state.userManager) {
+          this.state.countryUserGroups
+            .filter(
+              f =>
+                f.name === "OU " + countryName + " MOH User administrators" ||
+                f.name === "OU " + countryName + " MOH Users" ||
+                f.name === "OU " + countryName + " User Administrators"
+            )
+            .forEach(g => {
+              user.userGroups.push({ id: g.id });
+            });
+        }
+        break;
+      default:
+        break;
+    }
+    // filter further to just the "all mechanisms" and "users"
+    filteredOuGroups
+      .filter(
+        f => f.name.indexOf(" all mechanisms") >= 0 || f.name.indexOf(" users") >= 0
+      )
+      .forEach(g => {
+        user.userGroups.push({ id: g.id });
+      });
+    // user managers get a couple more rights
+    if (this.state.userManager) {
+      filteredOuGroups
+        .filter(
+          f =>
+            f.name.indexOf(" user administrators") >= 0 ||
+            f.name.indexOf(" User administrators") >= 0
+        )
+        .forEach(g => {
+          user.userGroups.push({ id: g.id });
+        });
+    }
+
     // actions / roles checkboxes
     Object.keys(this.state.actions).forEach(roleUID => {
       user.userCredentials.userRoles.push({ id: roleUID });
     });
+
+    // should the new person be a UAdmin?
+    if (this.state.userManager === true) {
+      // in order to even be here the current user needs to be a uadmin
+      const uadminUID = core.me.userCredentials.userRoles.filter(
+        f => f.name === "User Administrator"
+      );
+      if (uadminUID.length > 0) {
+        user.userCredentials.userRoles.push({ id: uadminUID[0].id });
+      }
+    }
 
     const api = d2.Api.getApi();
     const locale = this.state.locale;
@@ -543,6 +686,8 @@ class Invite extends Component {
                   console.error("Error setting locale", e);
                   hideProcessing();
                 });
+              // invite was successful enough, clear the fields
+              this.resetFields();
             } else {
               actions.showSnackbarMessage(
                 "Invitation error: Bad user creation: code 500"
@@ -564,32 +709,85 @@ class Invite extends Component {
       });
   };
 
-  render() {
+  // clear the state fields back to their defaults
+  resetFields = () => {
     const { core } = this.props;
-    const myOUs = core.me.organisationUnits.map(ou => ou.id);
+    const myOUs = (core.me.organisationUnits || []).map(ou => ou.id);
+    const isSuperUser = core.me && core.me.hasAllAuthority && core.me.hasAllAuthority();
+    const isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) >= 0;
+    // Figure out this user's relevant userGroups
+    const userGroups = core.me.userGroups || [];
+    const userTypesArr = Object.keys(core.config).map(function(key) {
+      let obj = core.config[key];
+      obj.name = key;
+      return obj;
+    });
+    const myStreams = userTypesArr.filter(ut => {
+      return userGroups.some(ug => {
+        return new RegExp(ut.groupFilter, "i").test(ug.name);
+      });
+    });
 
-    let uts = [];
+    const myTypes = this.getMyTypes(myStreams);
+    // Find the countries they have access to and auto-select if only one
     let countries = [];
-    let locales = [];
-    let isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) < 0;
-
-    if (core) {
-      // determine what countries they can see
-      if (core.countries) {
+    let country = false;
+    let userType = false;
+    // determine what countries they can see
+    if (core.countries) {
+      if (isSuperUser) {
+        // beast mode for sysops
         countries = core.countries;
-        // toss "Global" onto the front of the OU list
         if (countries && countries[0] && countries[0].id !== core.config.Global.ouUID) {
           countries.unshift({ id: core.config.Global.ouUID, name: "Global" });
         }
-        // filter out all countries this user does not have access to
-        // if they have Global access, let them see everything
-        if (isGlobalUser) {
-          countries = countries.filter(c => myOUs.indexOf(c.id) < 0);
-        }
+      } else if (isGlobalUser) {
+        // global users can only invite global users
+        countries = [{ id: core.config.Global.ouUID, name: "Global" }];
+        country = core.config.Global.ouUID;
+        userType = "Global";
+      } else {
+        // display only their country
+        countries = core.countries.filter(c => myOUs.indexOf(c.id) >= 0);
       }
+    }
+    if (countries.length === 1) {
+      country = countries[0].id;
+      if (this.state.country !== country) {
+        // if the country has changed, reload the usergroup cache
+        this.loadOuUserGroups(core.countries.filter(f => f.id === country)[0].name);
+      }
+    }
 
+    this.setState({
+      myStreams: myStreams,
+      myTypes: myTypes,
+      myCountries: countries,
+      country: country,
+      userType: userType,
+    });
+  };
+
+  render() {
+    const { core } = this.props;
+    const myOUs = (core.me.organisationUnits || []).map(ou => ou.id);
+    const myTypes = this.getMyTypes(this.state.myStreams);
+
+    let uts = [];
+    let locales = [];
+    const isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) >= 0;
+    const isSuperUser = core.me && core.me.hasAllAuthority && core.me.hasAllAuthority();
+
+    // adjust the menues based upon user roles and such
+    if (core) {
       // determine what userTypes they can see
-      uts = core.userTypes;
+      if (isSuperUser) {
+        // Sysadmins can do everything. other people are not as lucky
+        uts = core.userTypes || [];
+      } else {
+        // Otherwise only what you can see/do
+        uts = core.userTypes.filter(f => myTypes.indexOf(f) >= 0);
+      }
 
       // get the dhis2 ui locales to pick from
       if (core.locales) {
@@ -621,7 +819,7 @@ class Invite extends Component {
     });
 
     // Build the select menus
-    const countryMenus = countries.map(v => (
+    const countryMenus = this.state.myCountries.map(v => (
       <MenuItem key={v.id} value={v.id}>
         {v.name}
       </MenuItem>
@@ -798,7 +996,7 @@ class Invite extends Component {
               <Checkbox
                 checked={this.state.userManager || false}
                 onChange={this.handleCheckUserManager}
-                disabled={!this.state.userType}
+                disabled={!this.state.userType || (isGlobalUser && !isSuperUser)}
                 value="checkedA"
               />
             }

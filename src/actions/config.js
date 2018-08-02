@@ -99,6 +99,7 @@ const configuration = {
         sortOrder: 3,
       },
     },
+    canCreate: ["Agency", "Partner"],
   },
   Global: {
     ouUID: "ybg3MO3hcf4",
@@ -177,6 +178,7 @@ const configuration = {
         sortOrder: 4,
       },
     },
+    canCreate: ["Global"],
   },
   "Inter-Agency": {
     userTypePriority: 4,
@@ -300,6 +302,7 @@ const configuration = {
         sortOrder: 3,
       },
     },
+    canCreate: ["Inter-Agency"],
   },
   MOH: {
     userTypePriority: 8,
@@ -329,6 +332,7 @@ const configuration = {
         sortOrder: 1,
       },
     },
+    canCreate: ["MOH"],
   },
   Partner: {
     userTypePriority: 7,
@@ -414,6 +418,7 @@ const configuration = {
         sortOrder: 0,
       },
     },
+    canCreate: ["Partner"],
   },
   "Partner DoD": {
     userTypePriority: 6,
@@ -500,6 +505,7 @@ const configuration = {
         sortOrder: 0,
       },
     },
+    canCreate: ["Partner DoD"],
   },
 };
 
