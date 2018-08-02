@@ -676,7 +676,6 @@ class Invite extends Component {
                       "Invitation sent but there was an error setting their locale"
                     );
                     console.error("Error setting locale", response.body);
-                    hideProcessing();
                   }
                 })
                 .catch(e => {
@@ -684,10 +683,10 @@ class Invite extends Component {
                     "Invitation sent but there was an error setting their locale"
                   );
                   console.error("Error setting locale", e);
-                  hideProcessing();
                 });
               // invite was successful enough, clear the fields
               this.resetFields();
+              hideProcessing();
             } else {
               actions.showSnackbarMessage(
                 "Invitation error: Bad user creation: code 500"
