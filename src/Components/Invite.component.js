@@ -171,6 +171,7 @@ class Invite extends Component {
 
   // get a list of relevant Partners based upon the selected "country"
   // for some reason "Partners" are both userGroups and categoryOptionGroups
+  // warning: this is mostly voodoo ported from the previous app
   getPartnersInOrg(ouUID) {
     const { core, d2 } = this.props;
     const countryName = core.countries.filter(r => r.id === ouUID)[0].name;
@@ -624,6 +625,11 @@ class Invite extends Component {
       if (uadminUID.length > 0) {
         user.userCredentials.userRoles.push({ id: uadminUID[0].id });
       }
+    }
+
+    // additional dimension constraints aka "Funding Mechanism" category
+    if (this.state.userType !== "Inter-Agency") {
+      user.userCredentials.catDimensionConstraints = [{ id: "SH885jaRe0o" }];
     }
 
     const api = d2.Api.getApi();
