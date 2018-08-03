@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import getUser from "../models/user";
 import CancelIcon from "@material-ui/icons/Cancel";
 import IconButton from "@material-ui/core/IconButton";
@@ -51,7 +52,7 @@ const Actions = ({ actions }) => {
 
 class UserDetails extends Component {
   render() {
-    const user = getUser(this.props.user);
+    const user = getUser(this.props.user, this.props.agencies, this.props.partners);
 
     return (
       <div style={{ position: "relative" }}>
@@ -67,9 +68,11 @@ class UserDetails extends Component {
           <strong>User Type:</strong>
           <span>{user.type}</span>
         </p>
-        <p>
-          <strong>Organization:</strong> {user.employer}
-        </p>
+        {["Agency", "Partner", "Partner DoD"].indexOf(user.type) !== -1 && (
+          <p>
+            <strong>Organization:</strong> {user.employer}
+          </p>
+        )}
         <p>
           <strong>Country:</strong> {user.country}
         </p>
@@ -86,4 +89,11 @@ class UserDetails extends Component {
   }
 }
 
-export default UserDetails;
+const mapStateToProps = state => {
+  return {
+    agencies: state.core.agencies,
+    partners: state.core.partners,
+  };
+};
+
+export default connect(mapStateToProps)(UserDetails);

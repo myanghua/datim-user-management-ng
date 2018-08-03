@@ -2,6 +2,7 @@ const configuration = {
   Agency: {
     userTypePriority: 5,
     groupFilter: "^OU .+? Agency ",
+    groupSpecifics: [" users$", " user administrators$", " all mechanisms$"],
     actions: [
       {
         hidden: 0,
@@ -451,6 +452,11 @@ const configuration = {
   Partner: {
     userTypePriority: 7,
     groupFilter: "^OU .+? Partner ",
+    groupSpecifics: [
+      "^[0-9]* users -",
+      "^[0-9]* user administrators -",
+      "^[0-9]* all mechanisms -",
+    ],
     actions: [
       {
         hidden: 0,
@@ -537,6 +543,11 @@ const configuration = {
   "Partner DoD": {
     userTypePriority: 6,
     groupFilter: " DoD ",
+    groupSpecifics: [
+      "^[0-9]* users -",
+      "^[0-9]* user administrators -",
+      "^[0-9]* all mechanisms -",
+    ],
     isDoD: true,
     actions: [
       {

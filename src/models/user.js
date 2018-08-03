@@ -11,9 +11,28 @@ const getUserType = rawUser => {
   }, [])[0]; //hack, returning the first one - replace with usertype pri
 };
 
-const getUserCountry = rawUser => {
+export const getUserCountry = rawUser => {
   const userCountry = rawUser.organisationUnits.toArray().find(c => c.level === 3);
   return userCountry ? userCountry.name : "Global";
+};
+
+export const getUserOrganization = (rawUser, type, organizations) => {
+  const groupFilterRegex = new RegExp(config[type].groupFilter);
+  const ugs = rawUser.userGroups.toArray().filter(ug => groupFilterRegex.test(ug.name));
+
+  if (ugs.length) {
+    return ugs
+      .map(ug => {
+        return [config[type].groupFilter]
+          .concat(config[type].groupSpecifics)
+          .reduce((orgName, regex) => {
+            const rgx = new RegExp(regex);
+            return orgName.replace(rgx, "");
+          }, ug.name);
+      })[0]
+      .trim();
+  }
+  return "";
 };
 
 const getUserActions = (rawUser, type) => {
@@ -52,14 +71,20 @@ const getDataStreams = (rawUser, type) => {
     .sort((a, b) => a.sortOrder - b.sortOrder);
 };
 
-const getUser = rawUser => {
+const getUser = (rawUser, agencies, partners) => {
   const user = {};
   user.type = getUserType(rawUser);
   user.dataStreams = getDataStreams(rawUser, user.type);
   user.actions = getUserActions(rawUser, user.type);
-  user.employer = rawUser.employer;
-  user.displayName = rawUser.displayName;
   user.country = getUserCountry(rawUser);
+  if (["Agency", "Partner", "Partner DoD"].indexOf(user.type) !== -1) {
+    user.employer = getUserOrganization(
+      rawUser,
+      user.type,
+      user.type === "Agency" ? agencies : partners
+    );
+  }
+  user.displayName = rawUser.displayName;
 
   return user;
 };

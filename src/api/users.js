@@ -28,7 +28,7 @@ export const apiFetchUsers = customParams => {
         canManage: true,
         paging: true,
         fields:
-          "id,firstName,surname,email,organisationUnits[name,displayName,id],userCredentials[username,disabled,userRoles[id,name,displayName]],userGroups[name,displayName,id]",
+          "id,firstName,surname,displayName,employer,email,organisationUnits[name,displayName,id,level],userCredentials[username,disabled,userRoles[id,name,displayName]],userGroups[name,displayName,id]",
       };
       const params = Object.assign({}, defaultParams, customParams);
       return d2.models.users.list(params);
