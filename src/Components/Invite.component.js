@@ -1030,7 +1030,7 @@ class Invite extends Component {
         <Button
           variant="contained"
           color="primary"
-          style={{ display: "block", padding: "0 18em" }}
+          style={{ display: "block", padding: "0 18em", margin: "1em" }}
           disabled={!this.state.country || !this.state.userType || !this.state.email}
           onClick={this.handleInviteUser}
         >
