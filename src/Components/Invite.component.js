@@ -171,6 +171,7 @@ class Invite extends Component {
 
   // get a list of relevant Partners based upon the selected "country"
   // for some reason "Partners" are both userGroups and categoryOptionGroups
+  // warning: this is mostly voodoo ported from the previous app
   getPartnersInOrg(ouUID) {
     const { core, d2 } = this.props;
     const countryName = core.countries.filter(r => r.id === ouUID)[0].name;
@@ -528,7 +529,15 @@ class Invite extends Component {
     // basic streams / groups
     Object.keys(this.state.streams).forEach(stream => {
       const s = cfg.streams[stream].accessLevels[this.state.streams[stream]];
-      user.userGroups.push({ id: s.groupUID });
+      if (this.state.streams[stream] === "Enter Data") {
+        user.userGroups.push({ id: s.groupUID });
+        // add in view data as well since group rights do not propogate
+        const v = cfg.streams[stream].accessLevels["View Data"];
+        user.userGroups.push({ id: v.groupUID });
+      } else {
+        // just a View Data user
+        user.userGroups.push({ id: s.groupUID });
+      }
       // some groups have necessary roles
       if (s.impliedRoles) {
         s.impliedRoles.forEach(r => {
@@ -586,6 +595,16 @@ class Invite extends Component {
             });
         }
         break;
+      case "Global":
+        // Global all mechanisms: TOOIJWRzJ3g
+        user.userGroups.push({ id: "TOOIJWRzJ3g" });
+        // Global Users: gh9tn4QBbKZ
+        user.userGroups.push({ id: "gh9tn4QBbKZ" });
+        // Global User Administrators
+        if (this.state.userManager) {
+          user.userGroups.push({ id: "ghYxzrKHldx" });
+        }
+        break;
       default:
         break;
     }
@@ -624,6 +643,11 @@ class Invite extends Component {
       if (uadminUID.length > 0) {
         user.userCredentials.userRoles.push({ id: uadminUID[0].id });
       }
+    }
+
+    // additional dimension constraints aka "Funding Mechanism" category
+    if (this.state.userType !== "Inter-Agency") {
+      user.userCredentials.catDimensionConstraints = [{ id: "SH885jaRe0o" }];
     }
 
     const api = d2.Api.getApi();
@@ -676,7 +700,6 @@ class Invite extends Component {
                       "Invitation sent but there was an error setting their locale"
                     );
                     console.error("Error setting locale", response.body);
-                    hideProcessing();
                   }
                 })
                 .catch(e => {
@@ -684,10 +707,10 @@ class Invite extends Component {
                     "Invitation sent but there was an error setting their locale"
                   );
                   console.error("Error setting locale", e);
-                  hideProcessing();
                 });
               // invite was successful enough, clear the fields
               this.resetFields();
+              hideProcessing();
             } else {
               actions.showSnackbarMessage(
                 "Invitation error: Bad user creation: code 500"
