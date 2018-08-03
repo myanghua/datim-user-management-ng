@@ -53,7 +53,6 @@ const Actions = ({ actions }) => {
 class UserDetails extends Component {
   render() {
     const user = getUser(this.props.user, this.props.agencies, this.props.partners);
-    console.log("user", user);
 
     return (
       <div style={{ position: "relative" }}>
@@ -69,9 +68,11 @@ class UserDetails extends Component {
           <strong>User Type:</strong>
           <span>{user.type}</span>
         </p>
-        <p>
-          <strong>Organization:</strong> {user.employer}
-        </p>
+        {["Agency", "Partner", "Partner DoD"].indexOf(user.type) !== -1 && (
+          <p>
+            <strong>Organization:</strong> {user.employer}
+          </p>
+        )}
         <p>
           <strong>Country:</strong> {user.country}
         </p>

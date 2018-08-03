@@ -12,6 +12,9 @@ const ugAgencyUser = `OU Angola Agency ${orgAgency} users`;
 const ugAgencyAdminUser = `OU Angola Agency ${orgAgency} user administrators`;
 const ugAgencyAllMech = `OU Angola Agency ${orgAgency} all mechanisms`;
 
+const agencies = [{ name: orgAgency }, { name: "Secret agency" }];
+const partners = [{ name: orgPartner }, { name: "Secret partner" }];
+
 describe("user model", () => {
   describe.only("getUserOrganisation", () => {
     it("gets the organization for partner user", () => {
@@ -28,7 +31,7 @@ describe("user model", () => {
         },
       };
 
-      expect(getUserOrganization(rawUser, "Partner")).toEqual(orgPartner);
+      expect(getUserOrganization(rawUser, "Partner", partners)).toEqual(orgPartner);
     });
 
     it("gets the organization for partner admin", () => {
@@ -45,7 +48,7 @@ describe("user model", () => {
         },
       };
 
-      expect(getUserOrganization(rawUser, "Partner")).toEqual(orgPartner);
+      expect(getUserOrganization(rawUser, "Partner", partners)).toEqual(orgPartner);
     });
 
     it("gets the organization for partner all mech", () => {
@@ -62,10 +65,10 @@ describe("user model", () => {
         },
       };
 
-      expect(getUserOrganization(rawUser, "Partner")).toEqual(orgPartner);
+      expect(getUserOrganization(rawUser, "Partner", partners)).toEqual(orgPartner);
     });
 
-    it.only("gets the organization for agency user", () => {
+    it("gets the organization for agency user", () => {
       const ugArray = [
         { id: 1, name: ugAgencyUser },
         { id: 2, name: "Data Access Entry" },
@@ -79,7 +82,7 @@ describe("user model", () => {
         },
       };
 
-      expect(getUserOrganization(rawUser, "Agency")).toEqual(orgAgency);
+      expect(getUserOrganization(rawUser, "Agency", agencies)).toEqual(orgAgency);
     });
   });
 
