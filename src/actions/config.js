@@ -2,6 +2,11 @@ const configuration = {
   Agency: {
     userTypePriority: 5,
     groupFilter: "^OU .+? Agency ",
+    organisationRegex: [
+      "^OU .+? Agency .+? users$",
+      "^OU .+? Agency .+? user administrators$",
+      "^OU .+? Agency .+? all mechanisms$",
+    ],
     actions: [
       {
         hidden: 0,
@@ -337,6 +342,11 @@ const configuration = {
   Partner: {
     userTypePriority: 7,
     groupFilter: "^OU .+? Partner ",
+    organisationRegex: [
+      "^OU .+? Partner [0-9]* users -",
+      "^OU .+? Partner [0-9]* user administrators -",
+      "^OU .+? Partner [0-9]* all mechanisms -",
+    ],
     actions: [
       {
         hidden: 0,
