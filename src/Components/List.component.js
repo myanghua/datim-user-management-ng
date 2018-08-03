@@ -40,6 +40,9 @@ const getPageNumber = url => {
  * Main user listing screen
  */
 class List extends Component {
+  state = {
+    detailsOffsetTop: 0,
+  };
   constructor(props) {
     super(props);
     this.props.getUserListing();
@@ -50,6 +53,11 @@ class List extends Component {
   };
 
   handleUserSelect = (e, userId) => {
+    const ot =
+      document.querySelector(`.row-${userId}`).offsetTop +
+      document.querySelector(".user-list-table").offsetTop;
+
+    this.setState({ detailsOffsetTop: ot });
     this.props.setSelectedUser(this.props.users[userId]);
   };
 
@@ -106,14 +114,14 @@ class List extends Component {
 
           <h2>{pager.total} Users found</h2>
 
-          <Table>
+          <Table className="user-list-table">
             <TableBody>
               {Object.values(users).map((user, index) => (
                 <TableRow
                   hover
                   onClick={event => this.handleUserSelect(event, user.id)}
                   key={index}
-                  className="listingRow"
+                  className={`listingRow row-${user.id}`}
                 >
                   <TableCell>
                     <UserCell
@@ -154,7 +162,7 @@ class List extends Component {
         </Paper>
 
         {!selectedUser ? null : (
-          <Paper className="card details">
+          <Paper className="card details" style={{ top: this.state.detailsOffsetTop }}>
             <UserDetails
               user={selectedUser}
               onCloseDetails={this.handleCloseUserDetails}

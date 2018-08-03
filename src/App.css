@@ -91,7 +91,6 @@ p {
 .card {
   padding: 1.5em;
   margin: 0.5em;
-  float: left;
 }
 
 .card.filters {
@@ -122,6 +121,8 @@ p {
 
 .card.details {
   width: 30%;
+  position: absolute;
+  right: 0;
 }
 
 .card.details p {
