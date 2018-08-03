@@ -20,7 +20,7 @@ class MainMenu extends Component {
   render() {
     return (
       <div className="menu">
-        <Button color="primary" onClick={this.handleListAction}>
+        <Button color="primary" onClick={this.handleListAction} variant="outlined">
           <PeopleIcon />
           List
         </Button>
@@ -28,6 +28,7 @@ class MainMenu extends Component {
           color="primary"
           style={{ marginLeft: "1em" }}
           onClick={this.handleInviteAction}
+          variant="outlined"
         >
           <PersonAddIcon />
           Invite
