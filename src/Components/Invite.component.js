@@ -800,7 +800,6 @@ class Invite extends Component {
     const myTypes = this.getMyTypes(this.state.myStreams);
 
     let uts = [];
-    let locales = [];
     const isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) >= 0;
     const isSuperUser = core.me && core.me.hasAllAuthority && core.me.hasAllAuthority();
 
@@ -842,12 +841,6 @@ class Invite extends Component {
     // Build the select menus
     const countryMenus = this.state.myCountries.map(v => (
       <MenuItem key={v.id} value={v.id}>
-        {v.name}
-      </MenuItem>
-    ));
-
-    const localeMenus = locales.map(v => (
-      <MenuItem key={v.locale} value={v.locale}>
         {v.name}
       </MenuItem>
     ));
