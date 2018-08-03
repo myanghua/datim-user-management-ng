@@ -17,6 +17,8 @@ import GridListTile from "@material-ui/core/GridListTile";
 // import AccessDenied from "./AccessDenied.component";
 import DataStream from "./DataStream.component";
 import DataAction from "./DataAction.component";
+import SelectLocale from "./SelectLocale.component";
+
 // import AppTheme from "../colortheme";
 import actions from "../actions";
 
@@ -85,6 +87,7 @@ class Invite extends Component {
         // looks good, prefill form as mch as possible
         this.resetFields();
       }
+      this.setState({ locale: this.props.core.me.settings.keyUiLocale || "en" });
     }
   }
 
@@ -811,11 +814,6 @@ class Invite extends Component {
         // Otherwise only what you can see/do
         uts = core.userTypes.filter(f => myTypes.indexOf(f) >= 0);
       }
-
-      // get the dhis2 ui locales to pick from
-      if (core.locales) {
-        locales = core.locales;
-      }
     } else {
       //BAD CORE CONFIG @TODO:: redirect with warning
     }
@@ -998,20 +996,11 @@ class Invite extends Component {
             />
           </FormControl>
 
-          <FormControl required style={{ width: "100%", marginTop: "1em" }}>
-            <InputLabel htmlFor="locale">Language</InputLabel>
-            <Select
-              value={this.state.locale || ""}
-              onChange={this.handleChangeLocale}
-              inputProps={{
-                name: "locale",
-                id: "locale",
-              }}
-            >
-              {localeMenus}
-            </Select>
-            <FormHelperText>Select a language</FormHelperText>
-          </FormControl>
+          <SelectLocale
+            value={this.state.locale || "en"}
+            onChange={this.handleChangeLocale}
+            locales={core.locales}
+          />
 
           <FormControlLabel
             style={{ marginTop: "1em" }}
