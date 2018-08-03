@@ -5,7 +5,6 @@ import { bindActionCreators } from "redux";
 import { JssProvider } from "react-jss";
 import HeaderBar from "@dhis2/d2-ui-header-bar";
 import Snackbar from "@material-ui/core/Snackbar";
-import injectTapEventPlugin from "react-tap-event-plugin";
 
 import AppTheme from "./colortheme";
 import actions from "./actions";
@@ -17,8 +16,6 @@ import Invite from "./containers/InvitePage.js";
 import List from "./containers/ListPage.js";
 
 import "./App.css";
-
-injectTapEventPlugin();
 
 class App extends Component {
   getChildContext = () => ({
