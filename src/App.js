@@ -5,11 +5,11 @@ import { bindActionCreators } from "redux";
 import { JssProvider } from "react-jss";
 import HeaderBar from "@dhis2/d2-ui-header-bar";
 import Snackbar from "@material-ui/core/Snackbar";
+import { HashRouter as Router, Route, Switch } from "react-router-dom";
 
 import AppTheme from "./colortheme";
 import actions from "./actions";
 import * as coreActions from "./actions/core";
-import MainMenu from "./containers/MainMenu.js";
 import AccessDenied from "./Components/AccessDenied.component.js";
 import Processing from "./Components/Processing.component.js";
 import Invite from "./containers/InvitePage.js";
@@ -91,9 +91,12 @@ class App extends Component {
           <AccessDenied />
           <HeaderBar d2={d2} />
           <Processing />
-          <div className="menuwrapper">
-            <MainMenu d2={d2} />
-          </div>
+          <Router>
+            <Switch>
+              <Route exact path="/" render={props => <List d2={d2} />} />
+              <Route exact path="/invite" render={props => <Invite d2={d2} />} />
+            </Switch>
+          </Router>
           <Snackbar
             className="snackbar"
             message={this.state.snackbar || ""}
@@ -101,7 +104,6 @@ class App extends Component {
             onRequestClose={this.closeSnackbar}
             open={!!this.state.snackbar}
           />
-          <div className="content-area">{this.renderSection(this.props.section)}</div>
         </div>
       </JssProvider>
     );

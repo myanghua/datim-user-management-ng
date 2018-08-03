@@ -1,34 +1,34 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 
 import Button from "@material-ui/core/Button";
 import PeopleIcon from "@material-ui/icons/People";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
+import { Link, withRouter } from "react-router-dom";
 
 // import AppTheme from "../colortheme";
 
 class MainMenu extends Component {
-  handleListAction = () => {
-    this.props.setPage("list");
-  };
-
-  handleInviteAction = () => {
-    this.props.setPage("invite");
-  };
-
   // DISPLAY THE BUTTONS
   render() {
     return (
-      <div className="menu">
-        <Button color="primary" onClick={this.handleListAction} variant="outlined">
+      <div className="menuwrapper">
+        <Button
+          color="primary"
+          variant="outlined"
+          component={Link}
+          to="/"
+          disabled={this.props.location && this.props.location.pathname === "/"}
+        >
           <PeopleIcon />
           List
         </Button>
         <Button
           color="primary"
           style={{ marginLeft: "1em" }}
-          onClick={this.handleInviteAction}
           variant="outlined"
+          component={Link}
+          to="/invite"
+          disabled={this.props.location && this.props.location.pathname === "/invite"}
         >
           <PersonAddIcon />
           Invite
@@ -38,8 +38,4 @@ class MainMenu extends Component {
   }
 }
 
-MainMenu.propTypes = {
-  setPage: PropTypes.func.isRequired,
-};
-
-export default MainMenu;
+export default withRouter(MainMenu);

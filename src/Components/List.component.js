@@ -15,6 +15,7 @@ import Tab from "@material-ui/core/Tab";
 // import AppTheme from "../colortheme";
 // import actions from "../actions";
 
+import MainMenu from "../containers/MainMenu.js";
 import UserCell from "./UserCell.component";
 import UserDetails from "./UserDetails.component";
 import FilterManager from "./filter/FilterManager.component";
@@ -97,6 +98,8 @@ class List extends Component {
 
     return (
       <div className="wrapper">
+        <MainMenu />
+
         <h2 className="title">Manage Users</h2>
         <h3 className="subTitle">User management</h3>
 

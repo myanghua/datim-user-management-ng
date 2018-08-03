@@ -14,6 +14,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import GridList from "@material-ui/core/GridList";
 import GridListTile from "@material-ui/core/GridListTile";
 
+import MainMenu from "../containers/MainMenu.js";
 // import AccessDenied from "./AccessDenied.component";
 import DataStream from "./DataStream.component";
 import DataAction from "./DataAction.component";
@@ -912,6 +913,8 @@ class Invite extends Component {
 
     return (
       <div className="wrapper">
+        <MainMenu />
+
         <h2 className="title">Invite</h2>
         <h3 className="subTitle">User Management</h3>
 
