@@ -36,29 +36,28 @@ class UserCell extends React.Component {
       user.userCredentials.disabled === true ? styles.activeColor : styles.disabledColor;
 
     return (
-      <div>
+      <div style={{ position: "relative" }}>
         <h4>
           {user.surname}, {user.firstName}
         </h4>
 
         {user.id !== this.props.me.id && (
-          <Fragment>
+          <div style={{ position: "absolute", top: 0, right: 0 }}>
             <IconButton
-              style={{ float: "right", color: bgcolor }}
-              onClick={this.handleClickDisable}
-              aria-label="Change user enabled state"
-            >
-              {user.userCredentials.disabled === true ? <CheckIcon /> : <CancelIcon />}
-            </IconButton>
-
-            <IconButton
-              style={{ float: "right" }}
+              style={{ height: 32, width: 32 }}
               onClick={this.handleClickEdit}
               aria-label="Edit user"
             >
               <EditIcon />
             </IconButton>
-          </Fragment>
+            <IconButton
+              style={{ color: bgcolor, height: 32, width: 32 }}
+              onClick={this.handleClickDisable}
+              aria-label="Change user enabled state"
+            >
+              {user.userCredentials.disabled === true ? <CheckIcon /> : <CancelIcon />}
+            </IconButton>
+          </div>
         )}
         <p>
           <EmailIcon />
