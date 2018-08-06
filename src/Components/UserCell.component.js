@@ -5,7 +5,7 @@ import CancelIcon from "@material-ui/icons/Cancel";
 import CheckIcon from "@material-ui/icons/Check";
 import EmailIcon from "@material-ui/icons/Email";
 import PersonIcon from "@material-ui/icons/Person";
-import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
 
 // import AppTheme from "../colortheme";
 // import actions from "../actions";
@@ -43,23 +43,21 @@ class UserCell extends React.Component {
 
         {user.id !== this.props.me.id && (
           <Fragment>
-            <Button
-              variant="fab"
-              mini={true}
-              style={{ float: "right", backgroundColor: bgcolor }}
+            <IconButton
+              style={{ float: "right", color: bgcolor }}
               onClick={this.handleClickDisable}
+              aria-label="Change user enabled state"
             >
               {user.userCredentials.disabled === true ? <CheckIcon /> : <CancelIcon />}
-            </Button>
+            </IconButton>
 
-            <Button
-              variant="fab"
-              mini={true}
+            <IconButton
               style={{ float: "right" }}
               onClick={this.handleClickEdit}
+              aria-label="Edit user"
             >
               <EditIcon />
-            </Button>
+            </IconButton>
           </Fragment>
         )}
         <p>
