@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import EditIcon from "@material-ui/icons/EditSharp";
 import CancelIcon from "@material-ui/icons/Cancel";
@@ -40,6 +40,14 @@ class UserCell extends React.Component {
         <h4>
           {user.surname}, {user.firstName}
         </h4>
+        <p>
+          <EmailIcon />
+          {user.email}
+        </p>
+        <p>
+          <PersonIcon />
+          {user.userCredentials.username}
+        </p>
 
         {user.id !== this.props.me.id && (
           <div style={{ position: "absolute", top: 0, right: 0 }}>
@@ -59,14 +67,6 @@ class UserCell extends React.Component {
             </IconButton>
           </div>
         )}
-        <p>
-          <EmailIcon />
-          {user.email}
-        </p>
-        <p>
-          <PersonIcon />
-          {user.userCredentials.username}
-        </p>
       </div>
     );
   }
