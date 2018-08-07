@@ -1,11 +1,11 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import EditIcon from "@material-ui/icons/EditSharp";
 import CancelIcon from "@material-ui/icons/Cancel";
 import CheckIcon from "@material-ui/icons/Check";
 import EmailIcon from "@material-ui/icons/Email";
 import PersonIcon from "@material-ui/icons/Person";
-import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
 
 // import AppTheme from "../colortheme";
 // import actions from "../actions";
@@ -36,32 +36,10 @@ class UserCell extends React.Component {
       user.userCredentials.disabled === true ? styles.activeColor : styles.disabledColor;
 
     return (
-      <div>
+      <div style={{ position: "relative" }}>
         <h4>
           {user.surname}, {user.firstName}
         </h4>
-
-        {user.id !== this.props.me.id && (
-          <Fragment>
-            <Button
-              variant="fab"
-              mini={true}
-              style={{ float: "right", backgroundColor: bgcolor }}
-              onClick={this.handleClickDisable}
-            >
-              {user.userCredentials.disabled === true ? <CheckIcon /> : <CancelIcon />}
-            </Button>
-
-            <Button
-              variant="fab"
-              mini={true}
-              style={{ float: "right" }}
-              onClick={this.handleClickEdit}
-            >
-              <EditIcon />
-            </Button>
-          </Fragment>
-        )}
         <p>
           <EmailIcon />
           {user.email}
@@ -70,6 +48,25 @@ class UserCell extends React.Component {
           <PersonIcon />
           {user.userCredentials.username}
         </p>
+
+        {user.id !== this.props.me.id && (
+          <div style={{ position: "absolute", top: 0, right: 0 }}>
+            <IconButton
+              style={{ height: 32, width: 32 }}
+              onClick={this.handleClickEdit}
+              aria-label="Edit user"
+            >
+              <EditIcon />
+            </IconButton>
+            <IconButton
+              style={{ color: bgcolor, height: 32, width: 32 }}
+              onClick={this.handleClickDisable}
+              aria-label="Change user enabled state"
+            >
+              {user.userCredentials.disabled === true ? <CheckIcon /> : <CancelIcon />}
+            </IconButton>
+          </div>
+        )}
       </div>
     );
   }
