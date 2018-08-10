@@ -440,12 +440,25 @@ class Edit extends Component {
       .map(([key, value]) => ({ key, value }))
       .sort((a, b) => a.value.sortOrder > b.value.sortOrder);
     s.forEach(stream => {
+      // figure out if anything was selected
+      const v = stream.value.accessLevels["View Data"] || {};
+      const e = stream.value.accessLevels["Enter Data"] || {};
+      const x = this.state.user.userGroups.toArray().filter(ug => {
+        return ug.id === v.groupUID || ug.id === e.groupUID;
+      });
+      let selected = "noaccess";
+      // Enter data takes precedence
+      if (e.groupUID && x[0] && x[0].id === e.groupUID) {
+        selected = "Enter Data";
+      } else if (v.groupUID && x[0] && x[0].id === v.groupUID) {
+        selected = "View Data";
+      }
       // add each stream/group to the view
       streams.push(
         <GridListTile key={stream.key}>
           <DataStream
             stream={stream}
-            selected="noaccess"
+            selected={selected}
             onChangeStream={this.handleChangeStream}
             userManager={this.state.userManager}
           />
@@ -457,11 +470,16 @@ class Edit extends Component {
       .filter(a => a.hidden === 0)
       .sort((a, b) => a.sortOrder > b.sortOrder);
     act.forEach(action => {
+      // see if they have this role
+      const x = this.state.user.userCredentials.userRoles.filter(
+        r => r.id === action.roleUID
+      );
+      const checked = x.length > 0;
       actions.push(
         <DataAction
           key={action.roleUID}
           action={action}
-          checked={false}
+          checked={checked}
           onChangeAction={this.handleChangeActions}
           userManager={this.state.userManager}
         />
