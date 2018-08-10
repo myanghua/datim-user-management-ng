@@ -121,6 +121,135 @@ class Edit extends Component {
     }
   }
 
+  // merge together userGroups based upon their cogs ID (for agencies and partners)
+  extendObj = (obj, userGroup, name, groupType) => {
+    return (function() {
+      obj[name] = obj[name] || {};
+      obj[name][groupType] = userGroup;
+      return obj;
+    })();
+  };
+
+  // get a list of relevant Partners based upon the selected "country"
+  // for some reason "Partners" are both userGroups and categoryOptionGroups
+  // warning: this is mostly voodoo ported from the previous app
+  getPartnersInOrg(ouUID) {
+    const { core, d2 } = this.props;
+    const countryName = core.countries.filter(r => r.id === ouUID)[0].name;
+    const params = {
+      paging: false,
+      fields: "id,name,code",
+      filter: "name:ilike:" + countryName + " Partner",
+    };
+
+    return d2.models.userGroups
+      .list(params)
+      .then(res => {
+        // these two functions are copied from the original stores.json
+        // extract the partner code in  format of categoryOptionGroups "Partner_XXXX"
+        let getPartnerCode = userGroup => {
+          return (/Partner \d+?(?= )/i.exec(userGroup.name) || "")
+            .toString()
+            .replace("Partner ", "Partner_");
+        };
+        // figure out the user group type based on the naming convention
+        let getType = userGroup => {
+          return / all mechanisms - /i.test(userGroup.name)
+            ? "mechUserGroup"
+            : / user administrators - /i.test(userGroup.name)
+              ? "userAdminUserGroup"
+              : "userUserGroup";
+        };
+
+        // take the userGroups that have a name like our OU, group and index them by their partner_code
+        const merged = res.toArray().reduce((obj, ug) => {
+          return this.extendObj(obj, ug.toJSON(), getPartnerCode(ug), getType(ug));
+        }, {});
+        // shove that data into the main partners object
+        const mapped = core.partners.map(p => {
+          return Object.assign({}, p, merged[p.code]);
+        });
+        // remove any that didn't get mapped and sort
+        let filtered = mapped
+          .filter(
+            p =>
+              p.mechUserGroup &&
+              p.mechUserGroup.id &&
+              p.userUserGroup &&
+              p.userUserGroup.id
+          )
+          .sort((a, b) => {
+            return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
+          });
+        // check for DoD silliness
+        filtered.forEach(p => {
+          p.dodEntry = (core.dod[ouUID] || {})[p.id] || false; // will be false, 0, or 1
+          p.normalEntry = p.dodEntry === false; // no DoD information
+        });
+        return filtered;
+      })
+      .catch(e => {
+        console.error(e);
+        return false;
+      });
+  }
+
+  // get a list of relevant Agencies for this OU/Country
+  getAgenciesInOrg(ouUID) {
+    const { core, d2 } = this.props;
+    const countryName = core.countries.filter(r => r.id === ouUID)[0].name;
+    const params = {
+      paging: false,
+      fields: "id,name,code",
+      filter: "name:ilike:" + countryName + " Agency",
+    };
+    return d2.models.userGroups
+      .list(params)
+      .then(res => {
+        // these two functions are copied from the original stores.json
+        // extract the agency code in  format of categoryOptionGroups "Agency_XXXX"
+        let getAgencyCode = userGroup => {
+          return (/Agency .+?(?= all| user)/i.exec(userGroup.name) || "")
+            .toString()
+            .replace("Agency ", "Agency_");
+        };
+        // figure out the user group type based on the naming convention
+        let getType = userGroup => {
+          return /all mechanisms$/i.test(userGroup.name)
+            ? "mechUserGroup"
+            : /user administrators$/i.test(userGroup.name)
+              ? "userAdminUserGroup"
+              : "userUserGroup";
+        };
+
+        // take the userGroups that have a name like our OU, group and index them by their partner_code
+        const merged = res.toArray().reduce((obj, ug) => {
+          return this.extendObj(obj, ug.toJSON(), getAgencyCode(ug), getType(ug));
+        }, {});
+        // shove that data into the main partners object
+        const mapped = core.agencies.map(a => {
+          return Object.assign({}, a, merged[a.code]);
+        });
+        // remove any that didn't get mapped and sort
+        let filtered = mapped
+          .filter(
+            a =>
+              a.mechUserGroup &&
+              a.mechUserGroup.id &&
+              a.userUserGroup &&
+              a.userUserGroup.id
+          )
+          .sort((a, b) => {
+            return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
+          });
+        return filtered;
+      })
+      .catch(e => {
+        console.error(e);
+        return false;
+      });
+  }
+
   // find out who this person is
   getUserDetails = uid => {
     const {
@@ -179,11 +308,41 @@ class Edit extends Component {
           });
         });
         const userType = ((types || [])[0] || {}).name || "";
-        const cfg = core.config[userType] || {};
-        const filter = cfg.groupFilter || false;
+        const coreType = core.config[userType] || {};
+        const filter = coreType.groupFilter || false;
 
         // Get the "Organisation" which is actually a parse of userGroups
         // original app assumed user would have only one OU (at the country level)
+        // might be in partners, agencies, or interagency, start with partners
+        this.getPartnersInOrg(ous.id).then(partners => {
+          userGroups.forEach(ug => {
+            let found = partners.filter(p => {
+              return (
+                p.mechUserGroup.name === ug.name ||
+                p.userAdminUserGroup.name === ug.name ||
+                p.userUserGroup.name === ug.name
+              );
+            });
+            if (found[0]) {
+              this.setState({ org: found[0].name });
+            }
+          });
+        });
+        this.getAgenciesInOrg(ous.id).then(agencies => {
+          console.log("AGENCIES", agencies);
+          userGroups.forEach(ug => {
+            let found = agencies.filter(a => {
+              return (
+                a.mechUserGroup.name === ug.name ||
+                a.userAdminUserGroup.name === ug.name ||
+                a.userUserGroup.name === ug.name
+              );
+            });
+            if (found[0]) {
+              this.setState({ org: found[0].name });
+            }
+          });
+        });
 
         // get the data stream (groups)
         // get the user actions (roles)
