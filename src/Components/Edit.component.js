@@ -133,6 +133,7 @@ class Edit extends Component {
   // get a list of relevant Partners based upon the selected "country"
   // for some reason "Partners" are both userGroups and categoryOptionGroups
   // warning: this is mostly voodoo ported from the previous app
+  // @TODO:: move somewhere else
   getPartnersInOrg(ouUID) {
     const { core, d2 } = this.props;
     const countryName = core.countries.filter(r => r.id === ouUID)[0].name;
@@ -195,6 +196,7 @@ class Edit extends Component {
   }
 
   // get a list of relevant Agencies for this OU/Country
+  // @TODO:: move somewhere else
   getAgenciesInOrg(ouUID) {
     const { core, d2 } = this.props;
     const countryName = core.countries.filter(r => r.id === ouUID)[0].name;
@@ -248,6 +250,18 @@ class Edit extends Component {
         console.error(e);
         return false;
       });
+  }
+
+  // @TODO:: build, original is convoluted because IA is spread over 3 user group patterns
+  // @TODO:: move somewhere else
+  getInteragencyGroups(ouUID) {
+    // userUserGroup
+    // "name:ilike:OU ${organisationUnit.name} Country team"
+    // userAdminUserGroup
+    // "name:ilike:OU ${organisationUnit.name} user administrators"
+    // mechUserGroup
+    // "name:ilike:OU ${organisationUnit.name} all mechanisms"
+    return false;
   }
 
   // find out who this person is
@@ -308,8 +322,7 @@ class Edit extends Component {
           });
         });
         const userType = ((types || [])[0] || {}).name || "";
-        const coreType = core.config[userType] || {};
-        const filter = coreType.groupFilter || false;
+        const cfg = core.config[userType] || {};
 
         // Get the "Organisation" which is actually a parse of userGroups
         // original app assumed user would have only one OU (at the country level)
@@ -329,7 +342,6 @@ class Edit extends Component {
           });
         });
         this.getAgenciesInOrg(ous.id).then(agencies => {
-          console.log("AGENCIES", agencies);
           userGroups.forEach(ug => {
             let found = agencies.filter(a => {
               return (
@@ -343,6 +355,8 @@ class Edit extends Component {
             }
           });
         });
+        // @TODO:: interagency lookup
+        // this.getInteragencyGroups(ous.id)...
 
         // get the data stream (groups)
         // get the user actions (roles)
@@ -407,6 +421,52 @@ class Edit extends Component {
     const isSuperUser = false;
     const streams = [];
     const actions = [];
+
+    let cfg = core.config[this.state.userType] || {};
+    // Check for DoD awareness
+    if (this.state.userType === "Partner" && this.state.partner) {
+      // does the selected partner have DoD info
+      const partner =
+        this.state.partners.filter(p => {
+          return p.id === this.state.partner;
+        })[0] || {};
+
+      if (partner.hasOwnProperty("normalEntry") && partner.normalEntry !== true) {
+        cfg = core.config["Partner DoD"];
+      }
+    }
+    //convert streams to array for easier sorting
+    const s = Object.entries(cfg.streams)
+      .map(([key, value]) => ({ key, value }))
+      .sort((a, b) => a.value.sortOrder > b.value.sortOrder);
+    s.forEach(stream => {
+      // add each stream/group to the view
+      streams.push(
+        <GridListTile key={stream.key}>
+          <DataStream
+            stream={stream}
+            selected="noaccess"
+            onChangeStream={this.handleChangeStream}
+            userManager={this.state.userManager}
+          />
+        </GridListTile>
+      );
+    });
+    //get only the visible actions for checkbox display
+    const act = cfg.actions
+      .filter(a => a.hidden === 0)
+      .sort((a, b) => a.sortOrder > b.sortOrder);
+    act.forEach(action => {
+      actions.push(
+        <DataAction
+          key={action.roleUID}
+          action={action}
+          checked={false}
+          onChangeAction={this.handleChangeActions}
+          userManager={this.state.userManager}
+        />
+      );
+    });
 
     return (
       <div className="wrapper">
