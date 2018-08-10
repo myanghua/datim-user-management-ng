@@ -14,6 +14,7 @@ import AccessDenied from "./Components/AccessDenied.component.js";
 import Processing from "./Components/Processing.component.js";
 import Invite from "./containers/InvitePage.js";
 import List from "./containers/ListPage.js";
+import Edit from "./containers/EditPage.js";
 
 import "./App.css";
 
@@ -25,7 +26,7 @@ class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { snackbar: "", mainMenu: { page: "list" } };
+    this.state = { snackbar: "" };
 
     //bootstrap some items
     props.setD2(props.d2);
@@ -69,20 +70,6 @@ class App extends Component {
     this.setState({ snackbar: message });
   }
 
-  renderSection(key) {
-    const d2 = this.props.d2;
-    switch (key) {
-      case "invite":
-        return <Invite d2={d2} />;
-      // case "edit":
-      //     return (<Edit d2={d2}/>);
-
-      // The landing page
-      default:
-        return <List d2={d2} />;
-    }
-  }
-
   render() {
     const d2 = this.props.d2;
     return (
@@ -95,6 +82,11 @@ class App extends Component {
             <Switch>
               <Route exact path="/" render={props => <List d2={d2} />} />
               <Route exact path="/invite" render={props => <Invite d2={d2} />} />
+              <Route
+                exact
+                path="/edit/:id"
+                render={props => <Edit d2={d2} {...props} />}
+              />
             </Switch>
           </Router>
           <Snackbar
@@ -119,7 +111,7 @@ App.propTypes = {
   d2: PropTypes.object.isRequired,
 };
 
-const mapStateToProps = state => ({ section: state.mainMenu.page });
+const mapStateToProps = state => ({});
 const mapDispatchToProps = dispatch => bindActionCreators(coreActions, dispatch);
 
 export default connect(

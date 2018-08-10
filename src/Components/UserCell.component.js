@@ -1,5 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+
 import EditIcon from "@material-ui/icons/EditSharp";
 import CancelIcon from "@material-ui/icons/Cancel";
 import CheckIcon from "@material-ui/icons/Check";
@@ -20,11 +22,6 @@ const styles = {
 };
 
 class UserCell extends React.Component {
-  handleClickEdit = e => {
-    e.stopPropagation();
-    this.props.onClickEdit(this.props.user);
-  };
-
   handleClickDisable = e => {
     e.stopPropagation();
     this.props.onClickDisable(this.props.user);
@@ -35,6 +32,8 @@ class UserCell extends React.Component {
     const bgcolor =
       user.userCredentials.disabled === true ? styles.activeColor : styles.disabledColor;
 
+    //construct the react-router-dom link
+    const link = "/edit/" + user.id;
     return (
       <div style={{ position: "relative" }}>
         <h4>
@@ -53,8 +52,9 @@ class UserCell extends React.Component {
           <div style={{ position: "absolute", top: 0, right: 0 }}>
             <IconButton
               style={{ height: 32, width: 32 }}
-              onClick={this.handleClickEdit}
               aria-label="Edit user"
+              component={Link}
+              to={link}
             >
               <EditIcon />
             </IconButton>
