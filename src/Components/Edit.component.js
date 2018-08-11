@@ -444,10 +444,22 @@ class Edit extends Component {
     if (streamState === "View Data" || streamState === "Enter Data") {
       streams[theChosenStream["accessLevels"]["View Data"].groupUID] =
         theChosenStream["accessLevels"]["View Data"].groupName;
+      // add implied roles
+      if (theChosenStream["accessLevels"]["View Data"].impliedRoles) {
+        theChosenStream["accessLevels"]["View Data"].impliedRoles.forEach(r => {
+          actions.push({ name: r.name, id: r.roleUID });
+        });
+      }
     }
     if (streamState === "Enter Data") {
       streams[theChosenStream["accessLevels"]["Enter Data"].groupUID] =
         theChosenStream["accessLevels"]["Enter Data"].groupName;
+      // add implied roles
+      if (theChosenStream["accessLevels"]["Enter Data"].impliedRoles) {
+        theChosenStream["accessLevels"]["Enter Data"].impliedRoles.forEach(r => {
+          actions.push({ name: r.name, id: r.roleUID });
+        });
+      }
     }
     this.setState({ streams: streams, actions: actions });
   };
