@@ -52,6 +52,8 @@ class Edit extends Component {
 
     this.handleChangeLocale = this.handleChangeLocale.bind(this);
     this.handleCheckUserManager = this.handleCheckUserManager.bind(this);
+    this.handleChangeStream = this.handleChangeStream.bind(this);
+    this.handleChangeActions = this.handleChangeActions.bind(this);
   }
 
   componentDidMount() {
@@ -266,15 +268,7 @@ class Edit extends Component {
 
   // find out who this person is
   getUserDetails = uid => {
-    const {
-      d2,
-      core,
-      showProcessing,
-      hideProcessing,
-      getUser,
-      getUserLocale,
-      match,
-    } = this.props;
+    const { d2, core, showProcessing, hideProcessing, getUserLocale, match } = this.props;
 
     showProcessing();
 
@@ -306,8 +300,12 @@ class Edit extends Component {
 
         // original app assumed user would have only one OU (at the country level)
         const ous = user.organisationUnits.toArray()[0];
-        const countries = core.countries.filter(c => ous.id === c.id);
-        const country = countries[0].name;
+        let countries = core.countries;
+        // Don't forget to add in the Global "country"
+        if (core.countries[0].id !== core.config.Global.ouUID) {
+          countries.unshift({ id: core.config.Global.ouUID, name: "Global" });
+        }
+        const country = countries.filter(c => ous.id === c.id)[0].name;
 
         // need to use that country name to determine other data...
         const userGroups = user.userGroups.toArray() || [];
@@ -359,21 +357,30 @@ class Edit extends Component {
         // this.getInteragencyGroups(ous.id)...
 
         // get the data stream (groups)
+        let streams = {};
+        userGroups.forEach(ug => {
+          streams[ug.id] = ug.name;
+        });
+        console.log("STREAMS", streams);
         // get the user actions (roles)
         const userRoles = user.userCredentials.userRoles;
 
+        // are they a user admin?
+        const uadmin = user.userCredentials.userRoles.filter(
+          f => f.name === "User Administrator"
+        );
         this.setState({
           user: user,
           userType: userType,
           country: country,
+          streams: streams,
+          actions: userRoles,
+          userManager: uadmin.length > 0,
         });
         // agency: false,
         // partner: false,
-        // streams: {},
-        // actions: {},
         // myStreams: [],
         // myTypes: [],
-        // userManager: false,
         // accessDenied: false,
         // countryUserGroups: [],
         hideProcessing();
@@ -400,6 +407,49 @@ class Edit extends Component {
     });
   };
 
+  // what to do when a stream radio button is clicked
+  handleChangeStream = (streamName, streamState) => {
+    const { core } = this.props;
+    let streams = this.state.streams;
+    const theChosenStream = core.config[this.state.userType]["streams"][streamName];
+
+    // delete streams from this streamName, then reconsititute as necessary
+    // stream rights cascade down (Enter implies View)
+    if (
+      (streamState === "noaccess" || streamState === "View Data") &&
+      (streams[theChosenStream["accessLevels"]["Enter Data"].groupUID] || false)
+    ) {
+      delete streams[theChosenStream["accessLevels"]["Enter Data"].groupUID];
+    }
+    if (
+      streamState === "noaccess" &&
+      (streams[theChosenStream["accessLevels"]["View Data"].groupUID] || false)
+    ) {
+      delete streams[theChosenStream["accessLevels"]["View Data"].groupUID];
+    }
+    // Add the streams/groups
+    if (streamState === "View Data" || streamState === "Enter Data") {
+      streams[theChosenStream["accessLevels"]["View Data"].groupUID] =
+        theChosenStream["accessLevels"]["View Data"].groupName;
+    }
+    if (streamState === "Enter Data") {
+      streams[theChosenStream["accessLevels"]["Enter Data"].groupUID] =
+        theChosenStream["accessLevels"]["Enter Data"].groupName;
+    }
+    this.setState({ streams: streams });
+  };
+
+  // what to do when a User Actions checkbox is clicked
+  handleChangeActions = (roleUID, value) => {
+    let actions = this.state.actions;
+    if (actions[roleUID] && value === true) {
+      delete actions[roleUID];
+    } else {
+      actions[roleUID] = value;
+    }
+    this.setState({ actions: actions });
+  };
+
   render() {
     const { core } = this.props;
 
@@ -414,11 +464,11 @@ class Edit extends Component {
       );
     }
 
-    // <UserDetails user={this.state.user.id || {}} />: null)
-    // const ous = this.state.user.organisationUnits.toArray().map(o => o.id);
+    // Am I awesome and can do anything?
+    const myOUs = (core.me.organisationUnits || []).map(ou => ou.id);
+    const isSuperUser = core.me && core.me.hasAllAuthority && core.me.hasAllAuthority();
+    const isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) >= 0;
 
-    const isGlobalUser = false;
-    const isSuperUser = false;
     const streams = [];
     const actions = [];
 
@@ -440,17 +490,13 @@ class Edit extends Component {
       .map(([key, value]) => ({ key, value }))
       .sort((a, b) => a.value.sortOrder > b.value.sortOrder);
     s.forEach(stream => {
-      // figure out if anything was selected
+      // figure out if anything was previously selected
       const v = stream.value.accessLevels["View Data"] || {};
       const e = stream.value.accessLevels["Enter Data"] || {};
-      const x = this.state.user.userGroups.toArray().filter(ug => {
-        return ug.id === v.groupUID || ug.id === e.groupUID;
-      });
       let selected = "noaccess";
-      // Enter data takes precedence
-      if (e.groupUID && x[0] && x[0].id === e.groupUID) {
+      if (this.state.streams[e.groupUID]) {
         selected = "Enter Data";
-      } else if (v.groupUID && x[0] && x[0].id === v.groupUID) {
+      } else if (this.state.streams[v.groupUID]) {
         selected = "View Data";
       }
       // add each stream/group to the view
@@ -510,13 +556,17 @@ class Edit extends Component {
             <Grid item xs={9}>
               {this.state.userType}
             </Grid>
-            <Grid item xs={3}>
-              <GroupIcon color="secondary" style={{ verticalAlign: "middle" }} />
-              Organisation:
-            </Grid>
-            <Grid item xs={9}>
-              {this.state.org}
-            </Grid>
+            {this.state.userType === "Global" ? null : (
+              <Grid item xs={3}>
+                <GroupIcon color="secondary" style={{ verticalAlign: "middle" }} />
+                Organisation:
+              </Grid>
+            )}
+            {this.state.userType === "Global" ? null : (
+              <Grid item xs={9}>
+                {this.state.org}
+              </Grid>
+            )}
             <Grid item xs={3}>
               <PersonOutlineIcon color="secondary" style={{ verticalAlign: "middle" }} />
               Username:
@@ -550,21 +600,23 @@ class Edit extends Component {
             label="User Manager"
           />
         </Paper>
-
-        <Paper className="card streams">
-          <h3>Data Streams</h3>
-          <GridList
-            style={{ display: "flex", flexWrap: "nowrap", overflowX: "auto" }}
-            cols={streams.length}
-          >
-            {streams.length > 0 ? streams : <p>None</p>}
-          </GridList>
-        </Paper>
-        <Paper className="card actions">
-          <h3>User Actions</h3>
-          {actions.length > 0 ? actions : <p>None</p>}
-        </Paper>
-
+        {this.state.userType === "Global" ? null : (
+          <div>
+            <Paper className="card streams">
+              <h3>Data Streams</h3>
+              <GridList
+                style={{ display: "flex", flexWrap: "nowrap", overflowX: "auto" }}
+                cols={streams.length}
+              >
+                {streams.length > 0 ? streams : <p>None</p>}
+              </GridList>
+            </Paper>
+            <Paper className="card actions">
+              <h3>User Actions</h3>
+              {actions.length > 0 ? actions : <p>None</p>}
+            </Paper>
+          </div>
+        )}
         {this.state && this.state.user && this.state.user.id ? (
           <Button
             variant="contained"
