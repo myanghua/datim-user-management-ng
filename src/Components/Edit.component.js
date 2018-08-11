@@ -418,7 +418,8 @@ class Edit extends Component {
     // stream rights cascade down (Enter implies View)
     if (
       (streamState === "noaccess" || streamState === "View Data") &&
-      (streams[theChosenStream["accessLevels"]] || false) &&
+      (theChosenStream["accessLevels"] || false) &&
+      (theChosenStream["accessLevels"]["Enter Data"] || false) &&
       (streams[theChosenStream["accessLevels"]["Enter Data"].groupUID] || false)
     ) {
       delete streams[theChosenStream["accessLevels"]["Enter Data"].groupUID];
@@ -431,6 +432,8 @@ class Edit extends Component {
     }
     if (
       streamState === "noaccess" &&
+      (theChosenStream["accessLevels"] || false) &&
+      (theChosenStream["accessLevels"]["View Data"] || false) &&
       (streams[theChosenStream["accessLevels"]["View Data"].groupUID] || false)
     ) {
       delete streams[theChosenStream["accessLevels"]["View Data"].groupUID];
