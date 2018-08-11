@@ -418,6 +418,7 @@ class Edit extends Component {
     // stream rights cascade down (Enter implies View)
     if (
       (streamState === "noaccess" || streamState === "View Data") &&
+      (streams[theChosenStream["accessLevels"]] || false) &&
       (streams[theChosenStream["accessLevels"]["Enter Data"].groupUID] || false)
     ) {
       delete streams[theChosenStream["accessLevels"]["Enter Data"].groupUID];
@@ -467,17 +468,13 @@ class Edit extends Component {
   // what to do when a User Actions checkbox is clicked
   handleChangeActions = (roleUID, value) => {
     let actions = this.state.actions;
-    console.log("ACTIONS", actions, roleUID, value);
     // they are removing an action
     if (value === false) {
       actions = actions.filter(a => a.id !== roleUID);
+    } else {
+      // adding an action, name is irrelevant
+      actions.push({ id: roleUID, name: "x" });
     }
-    // if (actions[roleUID] && value === true) {
-    //   delete actions[roleUID];
-    // } else {
-    //   actions[roleUID] = value;
-    // }
-    console.log("RESULT", actions);
     this.setState({ actions: actions });
   };
 
@@ -548,9 +545,7 @@ class Edit extends Component {
       .sort((a, b) => a.sortOrder > b.sortOrder);
     act.forEach(action => {
       // see if they have this role
-      const x = this.state.user.userCredentials.userRoles.filter(
-        r => r.id === action.roleUID
-      );
+      const x = this.state.actions.filter(a => a.id === action.roleUID);
       const checked = x.length > 0;
       actions.push(
         <DataAction
@@ -604,6 +599,13 @@ class Edit extends Component {
             </Grid>
             <Grid item xs={9}>
               {this.state.user.userCredentials.username}
+            </Grid>
+            <Grid item xs={3}>
+              <WorkOutlineIcon color="secondary" style={{ verticalAlign: "middle" }} />
+              E-mail:
+            </Grid>
+            <Grid item xs={9}>
+              {this.state.user.email}
             </Grid>
             <Grid item xs={3}>
               <OutlinedFlagIcon color="secondary" style={{ verticalAlign: "middle" }} />
