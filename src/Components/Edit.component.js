@@ -411,6 +411,7 @@ class Edit extends Component {
   handleChangeStream = (streamName, streamState) => {
     const { core } = this.props;
     let streams = this.state.streams;
+    let actions = this.state.actions;
     const theChosenStream = core.config[this.state.userType]["streams"][streamName];
 
     // delete streams from this streamName, then reconsititute as necessary
@@ -420,12 +421,24 @@ class Edit extends Component {
       (streams[theChosenStream["accessLevels"]["Enter Data"].groupUID] || false)
     ) {
       delete streams[theChosenStream["accessLevels"]["Enter Data"].groupUID];
+      //delete implied roles
+      if (theChosenStream["accessLevels"]["Enter Data"].impliedRoles) {
+        theChosenStream["accessLevels"]["Enter Data"].impliedRoles.forEach(r => {
+          actions = actions.filter(a => a.id !== r.roleUID);
+        });
+      }
     }
     if (
       streamState === "noaccess" &&
       (streams[theChosenStream["accessLevels"]["View Data"].groupUID] || false)
     ) {
       delete streams[theChosenStream["accessLevels"]["View Data"].groupUID];
+      //delete implied roles
+      if (theChosenStream["accessLevels"]["View Data"].impliedRoles) {
+        theChosenStream["accessLevels"]["View Data"].impliedRoles.forEach(r => {
+          actions = actions.filter(a => a.id !== r.roleUID);
+        });
+      }
     }
     // Add the streams/groups
     if (streamState === "View Data" || streamState === "Enter Data") {
@@ -436,17 +449,23 @@ class Edit extends Component {
       streams[theChosenStream["accessLevels"]["Enter Data"].groupUID] =
         theChosenStream["accessLevels"]["Enter Data"].groupName;
     }
-    this.setState({ streams: streams });
+    this.setState({ streams: streams, actions: actions });
   };
 
   // what to do when a User Actions checkbox is clicked
   handleChangeActions = (roleUID, value) => {
     let actions = this.state.actions;
-    if (actions[roleUID] && value === true) {
-      delete actions[roleUID];
-    } else {
-      actions[roleUID] = value;
+    console.log("ACTIONS", actions, roleUID, value);
+    // they are removing an action
+    if (value === false) {
+      actions = actions.filter(a => a.id !== roleUID);
     }
+    // if (actions[roleUID] && value === true) {
+    //   delete actions[roleUID];
+    // } else {
+    //   actions[roleUID] = value;
+    // }
+    console.log("RESULT", actions);
     this.setState({ actions: actions });
   };
 
