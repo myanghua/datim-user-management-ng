@@ -47,6 +47,7 @@ class Edit extends Component {
         uid: match.params.id,
         userType: "-",
         org: "-",
+        userManager: false,
       };
     }
 
@@ -364,6 +365,10 @@ class Edit extends Component {
         console.log("STREAMS", streams);
         // get the user actions (roles)
         const userRoles = user.userCredentials.userRoles;
+        let actions = {};
+        userRoles.forEach(ur => {
+          actions[ur.id] = true;
+        });
 
         // are they a user admin?
         const uadmin = user.userCredentials.userRoles.filter(
@@ -374,7 +379,7 @@ class Edit extends Component {
           userType: userType,
           country: country,
           streams: streams,
-          actions: userRoles,
+          actions: actions,
           userManager: uadmin.length > 0,
         });
         // agency: false,
@@ -394,6 +399,66 @@ class Edit extends Component {
     this.setState({ userType: "xxx" });
   };
 
+  // figure out which streams should be pre-selected
+  // slightly different from Invite::getStreamDefaults
+  getUserManagerStreams = (userType, isUserAdmin) => {
+    // get the streams for this userType
+    if (!userType) {
+      return;
+    }
+    const { core } = this.props;
+    const cfg = core.config;
+    if (!cfg[userType]) {
+      return;
+    }
+
+    const cfgStreams = cfg[userType].streams;
+    // placeholder for the results
+    let streams = this.state.streams;
+    // figure out which permission is the default
+    Object.keys(cfgStreams).forEach(key => {
+      const access = cfgStreams[key].accessLevels || {};
+      const view = access["View Data"] || false;
+      const enter = access["Enter Data"] || false;
+      if (view) {
+        if (isUserAdmin && view.selectWhenUA === 1) {
+          streams[view.groupUID] = view.groupName;
+        }
+      }
+      if (enter) {
+        if (isUserAdmin && enter.selectWhenUA === 1) {
+          streams[enter.groupUID] = enter.groupName;
+        }
+      }
+    });
+    return streams;
+  };
+
+  // determine preselected User Actions
+  // slightly different from Invite::getActionDefaults
+  getUserManagerActions = (userType, isUserAdmin) => {
+    // get the streams for this userType
+    if (!userType) {
+      return;
+    }
+    const { core } = this.props;
+    const cfg = core.config;
+    if (!cfg[userType]) {
+      return;
+    }
+
+    const cfgActions = cfg[userType].actions;
+    // placeholder for the results
+    let actions = this.state.actions;
+    cfgActions.forEach(action => {
+      if (isUserAdmin && action.selectWhenUA === 1) {
+        actions[action.roleUID] = true;
+      }
+    });
+    console.log("a", actions);
+    return actions;
+  };
+
   handleChangeLocale = event => {
     if (event.target.value !== this.state.locale) {
       this.setState({ locale: event.target.value });
@@ -402,8 +467,11 @@ class Edit extends Component {
 
   // the User Manager checkbox
   handleCheckUserManager = () => {
+    const um = !this.state.userManager;
     this.setState({
-      userManager: !this.state.userManager,
+      userManager: um,
+      streams: this.getUserManagerStreams(this.state.userType, um),
+      actions: this.getUserManagerActions(this.state.userType, um),
     });
   };
 
@@ -471,12 +539,10 @@ class Edit extends Component {
   // what to do when a User Actions checkbox is clicked
   handleChangeActions = (roleUID, value) => {
     let actions = this.state.actions;
-    // they are removing an action
-    if (value === false) {
-      actions = actions.filter(a => a.id !== roleUID);
+    if (actions[roleUID] && value === true) {
+      delete actions[roleUID];
     } else {
-      // adding an action, name is irrelevant
-      actions.push({ id: roleUID, name: "x" });
+      actions[roleUID] = value;
     }
     this.setState({ actions: actions });
   };
@@ -548,8 +614,7 @@ class Edit extends Component {
       .sort((a, b) => a.sortOrder > b.sortOrder);
     act.forEach(action => {
       // see if they have this role
-      const x = this.state.actions.filter(a => a.id === action.roleUID);
-      const checked = x.length > 0;
+      const checked = this.state.actions[action.roleUID] || false;
       actions.push(
         <DataAction
           key={action.roleUID}
