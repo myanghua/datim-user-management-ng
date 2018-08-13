@@ -1,14 +1,18 @@
 import config from "../actions/config";
 
-const getUserType = rawUser => {
+export const UNKNOWN_USER_TYPE = "Unknown type";
+
+export const getUserType = rawUser => {
   const ug = rawUser.userGroups.toArray();
 
-  return Object.keys(config).reduce((acc, type) => {
+  const type = Object.keys(config).reduce((acc, type) => {
     if (ug.find(g => RegExp(config[type].groupFilter).test(g.name))) {
       acc.push(type);
     }
     return acc;
   }, [])[0]; //hack, returning the first one - replace with usertype pri
+
+  return type ? type : UNKNOWN_USER_TYPE;
 };
 
 export const getUserCountry = rawUser => {
@@ -16,15 +20,15 @@ export const getUserCountry = rawUser => {
   return userCountry ? userCountry.name : "Global";
 };
 
-export const getUserOrganization = (rawUser, type) => {
-  const groupFilterRegex = new RegExp(config[type].groupFilter);
+export const getUserOrganization = rawUser => {
+  const groupFilterRegex = new RegExp(config[rawUser.type].groupFilter);
   const ugs = rawUser.userGroups.toArray().filter(ug => groupFilterRegex.test(ug.name));
 
   if (ugs.length) {
     return ugs
       .map(ug => {
-        return [config[type].groupFilter]
-          .concat(config[type].groupSpecifics)
+        return [config[rawUser.type].groupFilter]
+          .concat(config[rawUser.type].groupSpecifics)
           .reduce((orgName, regex) => {
             const rgx = new RegExp(regex);
             return orgName.replace(rgx, "");
@@ -35,9 +39,9 @@ export const getUserOrganization = (rawUser, type) => {
   return "";
 };
 
-const getUserActions = (rawUser, type) => {
-  if (config[type]) {
-    const visibleActions = config[type].actions; //.filter(a => a.hidden === 0);
+const getUserActions = rawUser => {
+  if (config[rawUser.type]) {
+    const visibleActions = config[rawUser.type].actions; //.filter(a => a.hidden === 0);
     const userRoleIds = rawUser.userCredentials.userRoles.map(r => r.id);
 
     return visibleActions
@@ -60,9 +64,9 @@ const getStreamAccesses = (groups, stream) => {
   }, {});
 };
 
-const getDataStreams = (rawUser, type) => {
-  if (config[type]) {
-    const allTypeStreams = config[type].streams;
+const getDataStreams = rawUser => {
+  if (config[rawUser.type]) {
+    const allTypeStreams = config[rawUser.type].streams;
     const groups = rawUser.userGroups.toArray();
     return Object.keys(allTypeStreams)
       .map(name => {
@@ -79,12 +83,12 @@ const getDataStreams = (rawUser, type) => {
 
 const getUser = (rawUser, agencies, partners) => {
   const user = {};
-  user.type = getUserType(rawUser);
-  user.dataStreams = getDataStreams(rawUser, user.type);
-  user.actions = getUserActions(rawUser, user.type);
+  user.type = rawUser.type;
+  user.dataStreams = getDataStreams(rawUser);
+  user.actions = getUserActions(rawUser);
   user.country = getUserCountry(rawUser);
-  if (["Agency", "Partner", "Partner DoD"].indexOf(user.type) !== -1) {
-    user.employer = getUserOrganization(rawUser, user.type);
+  if (["Agency", "Partner", "Partner DoD"].indexOf(rawUser.type) !== -1) {
+    user.employer = getUserOrganization(rawUser);
   }
   user.displayName = rawUser.displayName;
 

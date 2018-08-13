@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import getUser from "../models/user";
 import CancelIcon from "@material-ui/icons/Cancel";
 import IconButton from "@material-ui/core/IconButton";
+import getUser, { UNKNOWN_USER_TYPE } from "../models/user";
 
 import "./UserDetails.component.css";
 
@@ -52,7 +52,7 @@ const Actions = ({ actions }) => {
 class UserDetails extends Component {
   render() {
     const user = getUser(this.props.user);
-    const userType = user.type || "Unknown type";
+    const userType = user.type || UNKNOWN_USER_TYPE;
 
     return (
       <div style={{ position: "relative" }}>

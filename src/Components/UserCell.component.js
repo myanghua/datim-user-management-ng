@@ -8,6 +8,7 @@ import CheckIcon from "@material-ui/icons/Check";
 import EmailIcon from "@material-ui/icons/Email";
 import PersonIcon from "@material-ui/icons/Person";
 import IconButton from "@material-ui/core/IconButton";
+import { UNKNOWN_USER_TYPE } from "../models/user";
 
 // import AppTheme from "../colortheme";
 // import actions from "../actions";
@@ -32,6 +33,8 @@ class UserCell extends React.Component {
     const bgcolor =
       user.userCredentials.disabled === true ? styles.activeColor : styles.disabledColor;
 
+    const userEditable = user.id !== this.props.me.id && user.type !== UNKNOWN_USER_TYPE;
+
     //construct the react-router-dom link
     const link = "/edit/" + user.id;
     return (
@@ -48,7 +51,7 @@ class UserCell extends React.Component {
           {user.userCredentials.username}
         </p>
 
-        {user.id !== this.props.me.id && (
+        {userEditable && (
           <div style={{ position: "absolute", top: 0, right: 0 }}>
             <IconButton
               style={{ height: 32, width: 32 }}

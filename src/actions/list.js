@@ -2,6 +2,7 @@ import * as actions from "../constants/ActionTypes";
 import filterCategories from "../Components/filter/filterCategories";
 import { tabs } from "../Components/filter/tabCategories";
 import { apiPatchUserDisabledState, apiFetchUser, apiFetchUsers } from "../api/users";
+import { getUserType } from "../models/user";
 
 const filterString = (category, value) => {
   const filterParam = filterCategories[category].param;
@@ -46,9 +47,13 @@ export const getUserListing = () => (dispatch, getState) => {
 
   apiFetchUsers(params)
     .then(u => {
+      const users = u.toArray().map(user => {
+        const type = getUserType(user);
+        return Object.assign({}, user, { type });
+      });
       dispatch({
         type: actions.SET_USERS,
-        data: arrayToIdMap(u.toArray()),
+        data: arrayToIdMap(users),
       });
       dispatch({
         type: actions.SET_PAGER,
