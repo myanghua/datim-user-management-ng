@@ -10,19 +10,13 @@ import OutlinedFlagIcon from "@material-ui/icons/OutlinedFlag";
 import GroupIcon from "@material-ui/icons/Group";
 import Grid from "@material-ui/core/Grid";
 
-import FormHelperText from "@material-ui/core/FormHelperText";
-import FormControl from "@material-ui/core/FormControl";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
 import Checkbox from "@material-ui/core/Checkbox";
 import GridList from "@material-ui/core/GridList";
 import GridListTile from "@material-ui/core/GridListTile";
 
 import MainMenu from "../containers/MainMenu.js";
-import UserDetails from "./UserDetails.component";
 import SelectLocale from "./SelectLocale.component";
 import DataStream from "./DataStream.component";
 import DataAction from "./DataAction.component";
@@ -48,6 +42,8 @@ class Edit extends Component {
         userType: "-",
         org: "-",
         userManager: false,
+        locale: "en",
+        baseLocale: "en",
       };
     }
 
@@ -286,11 +282,13 @@ class Edit extends Component {
             }
             this.setState({
               locale: locale,
+              baseLocale: locale,
             });
           })
           .catch(error => {
             this.setState({
               locale: "en",
+              baseLocale: "en",
             });
             console.error(error);
           });
@@ -362,7 +360,6 @@ class Edit extends Component {
         userGroups.forEach(ug => {
           streams[ug.id] = ug.name;
         });
-        console.log("STREAMS", streams);
         // get the user actions (roles)
         const userRoles = user.userCredentials.userRoles;
         let actions = {};
@@ -382,12 +379,6 @@ class Edit extends Component {
           actions: actions,
           userManager: uadmin.length > 0,
         });
-        // agency: false,
-        // partner: false,
-        // myStreams: [],
-        // myTypes: [],
-        // accessDenied: false,
-        // countryUserGroups: [],
         hideProcessing();
       })
       .catch(error => {
@@ -547,6 +538,47 @@ class Edit extends Component {
     this.setState({ actions: actions });
   };
 
+  // the grand poobah
+  handleEditUser = () => {
+    //if streams or actions changed, save
+    console.log("ROLES", this.state.user.userCredentials.userRoles, this.state.actions);
+    console.log("GROUPS", this.state.user.userGroups.toArray(), this.state.streams);
+    this.state.user.userGroups.forEach(ug => {
+      // hi
+    });
+
+    // if locale changed, save
+    if (this.state.locale !== this.state.baseLocale) {
+      console.log("SAVE LOCALE CHANGE");
+      // @TODO:: pull this from here and Invite into single location
+      const url =
+        //api.api.baseUrl +
+        "/api/29/userSettings/keyUiLocale?user=" +
+        this.state.user.userCredentials.username;
+      // POST userSettings/keyUiLocale
+      fetch(url, {
+        method: "POST",
+        cache: "no-cache",
+        credentials: "same-origin",
+        headers: { "Content-Type": "text/plain" },
+        redirect: "follow",
+        body: this.state.locale,
+      })
+        .then(response => {
+          if (response.ok && response.ok === true) {
+            actions.showSnackbarMessage("Locale saved");
+          } else {
+            actions.showSnackbarMessage("Error setting locale");
+            console.error("Error setting locale", response.body);
+          }
+        })
+        .catch(e => {
+          actions.showSnackbarMessage("Error setting locale");
+          console.error("Error setting locale", e);
+        });
+    }
+  };
+
   render() {
     const { core } = this.props;
 
@@ -569,7 +601,7 @@ class Edit extends Component {
     const streams = [];
     const actions = [];
 
-    let cfg = core.config[this.state.userType] || {};
+    let cfg = core.config[this.state.userType] || false;
     // Check for DoD awareness
     if (this.state.userType === "Partner" && this.state.partner) {
       // does the selected partner have DoD info
@@ -582,49 +614,51 @@ class Edit extends Component {
         cfg = core.config["Partner DoD"];
       }
     }
-    //convert streams to array for easier sorting
-    const s = Object.entries(cfg.streams)
-      .map(([key, value]) => ({ key, value }))
-      .sort((a, b) => a.value.sortOrder > b.value.sortOrder);
-    s.forEach(stream => {
-      // figure out if anything was previously selected
-      const v = stream.value.accessLevels["View Data"] || {};
-      const e = stream.value.accessLevels["Enter Data"] || {};
-      let selected = "noaccess";
-      if (this.state.streams[e.groupUID]) {
-        selected = "Enter Data";
-      } else if (this.state.streams[v.groupUID]) {
-        selected = "View Data";
-      }
-      // add each stream/group to the view
-      streams.push(
-        <GridListTile key={stream.key}>
-          <DataStream
-            stream={stream}
-            selected={selected}
-            onChangeStream={this.handleChangeStream}
+    if (cfg) {
+      //convert streams to array for easier sorting
+      const s = Object.entries(cfg.streams)
+        .map(([key, value]) => ({ key, value }))
+        .sort((a, b) => a.value.sortOrder > b.value.sortOrder);
+      s.forEach(stream => {
+        // figure out if anything was previously selected
+        const v = stream.value.accessLevels["View Data"] || {};
+        const e = stream.value.accessLevels["Enter Data"] || {};
+        let selected = "noaccess";
+        if (this.state.streams[e.groupUID]) {
+          selected = "Enter Data";
+        } else if (this.state.streams[v.groupUID]) {
+          selected = "View Data";
+        }
+        // add each stream/group to the view
+        streams.push(
+          <GridListTile key={stream.key}>
+            <DataStream
+              stream={stream}
+              selected={selected}
+              onChangeStream={this.handleChangeStream}
+              userManager={this.state.userManager}
+            />
+          </GridListTile>
+        );
+      });
+      //get only the visible actions for checkbox display
+      const act = cfg.actions
+        .filter(a => a.hidden === 0)
+        .sort((a, b) => a.sortOrder > b.sortOrder);
+      act.forEach(action => {
+        // see if they have this role
+        const checked = this.state.actions[action.roleUID] || false;
+        actions.push(
+          <DataAction
+            key={action.roleUID}
+            action={action}
+            checked={checked}
+            onChangeAction={this.handleChangeActions}
             userManager={this.state.userManager}
           />
-        </GridListTile>
-      );
-    });
-    //get only the visible actions for checkbox display
-    const act = cfg.actions
-      .filter(a => a.hidden === 0)
-      .sort((a, b) => a.sortOrder > b.sortOrder);
-    act.forEach(action => {
-      // see if they have this role
-      const checked = this.state.actions[action.roleUID] || false;
-      actions.push(
-        <DataAction
-          key={action.roleUID}
-          action={action}
-          checked={checked}
-          onChangeAction={this.handleChangeActions}
-          userManager={this.state.userManager}
-        />
-      );
-    });
+        );
+      });
+    }
 
     return (
       <div className="wrapper">
