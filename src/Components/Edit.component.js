@@ -44,6 +44,10 @@ class Edit extends Component {
         userManager: false,
         locale: "en",
         baseLocale: "en",
+        actions: {},
+        streams: {},
+        baseActions: {},
+        baseStreams: {},
       };
     }
 
@@ -375,8 +379,10 @@ class Edit extends Component {
           user: user,
           userType: userType,
           country: country,
-          streams: streams,
           actions: actions,
+          streams: streams,
+          baseActions: { ...actions },
+          baseStreams: { ...streams },
           userManager: uadmin.length > 0,
         });
         hideProcessing();
@@ -524,13 +530,34 @@ class Edit extends Component {
         });
       }
     }
+    // reconstitute implied roles that a different stream might have borked
+    const otherStreamNames = Object.keys(
+      core.config[this.state.userType]["streams"]
+    ).filter(k => k !== streamName);
+    otherStreamNames.forEach(osn => {
+      // s0
+      console.log("OSN", osn);
+      const lvls = core.config[this.state.userType]["streams"][osn].accessLevels;
+      let e = lvls["Enter Data"] || false;
+      let v = lvls["View Data"] || false;
+      if (e && streams[e.groupUID] && e.impliedRoles) {
+        lvls["Enter Data"].impliedRoles.forEach(r => {
+          actions[r.roleUID] = r.name;
+        });
+      }
+      if (v && streams[v.groupUID] && v.impliedRoles) {
+        lvls["Enter Data"].impliedRoles.forEach(r => {
+          actions[r.roleUID] = r.name;
+        });
+      }
+    });
     this.setState({ streams: streams, actions: actions });
   };
 
   // what to do when a User Actions checkbox is clicked
   handleChangeActions = (roleUID, value) => {
     let actions = this.state.actions;
-    if (actions[roleUID] && value === true) {
+    if (actions[roleUID] && value === false) {
       delete actions[roleUID];
     } else {
       actions[roleUID] = value;
@@ -540,16 +567,34 @@ class Edit extends Component {
 
   // the grand poobah
   handleEditUser = () => {
+    const { d2, showProcessing, hideProcessing } = this.props;
     //if streams or actions changed, save
-    console.log("ROLES", this.state.user.userCredentials.userRoles, this.state.actions);
-    console.log("GROUPS", this.state.user.userGroups.toArray(), this.state.streams);
-    this.state.user.userGroups.forEach(ug => {
-      // hi
-    });
+    let userUID = this.state.user.id;
+    showProcessing();
+    d2.models.users
+      .get(userUID)
+      .then(u => {
+        let groups = Object.keys(this.state.streams).map(s => {
+          return { id: s };
+        });
+        let roles = Object.keys(this.state.actions).map(s => {
+          return { id: s };
+        });
+        u.userGroups = groups;
+        u.userCredentials.userRoles = roles;
+        u.save();
+        hideProcessing();
+        actions.showSnackbarMessage("User updated");
+      })
+      .catch(e => {
+        hideProcessing();
+        actions.showSnackbarMessage("Error updating user");
+        console.error(e);
+      });
 
     // if locale changed, save
     if (this.state.locale !== this.state.baseLocale) {
-      console.log("SAVE LOCALE CHANGE");
+      showProcessing();
       // @TODO:: pull this from here and Invite into single location
       const url =
         //api.api.baseUrl +
@@ -571,9 +616,11 @@ class Edit extends Component {
             actions.showSnackbarMessage("Error setting locale");
             console.error("Error setting locale", response.body);
           }
+          hideProcessing();
         })
         .catch(e => {
           actions.showSnackbarMessage("Error setting locale");
+          hideProcessing();
           console.error("Error setting locale", e);
         });
     }
@@ -658,6 +705,24 @@ class Edit extends Component {
           />
         );
       });
+    }
+
+    // Did anything actually change? If so, enable the save button.
+    let disableSave = true;
+    let s = Object.keys(this.state.streams)
+      .sort()
+      .join();
+    let bs = Object.keys(this.state.baseStreams)
+      .sort()
+      .join();
+    let a = Object.keys(this.state.actions)
+      .sort()
+      .join();
+    let ba = Object.keys(this.state.baseActions)
+      .sort()
+      .join();
+    if (s !== bs || a !== ba) {
+      disableSave = false;
     }
 
     return (
@@ -758,6 +823,7 @@ class Edit extends Component {
             color="primary"
             style={{ display: "block", padding: "0 18em" }}
             onClick={this.handleEditUser}
+            disabled={disableSave}
           >
             Save changes
           </Button>

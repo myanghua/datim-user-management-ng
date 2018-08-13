@@ -95,14 +95,14 @@ p {
 }
 
 .card.streams {
-  width: 68%;
+  width: 67%;
   float: left;
   min-height: 15em;
   min-width: 40em;
 }
 
 .card.actions {
-  width: 22%;
+  width: 21%;
   min-height: 15em;
   min-width: 13em;
   float: left;
