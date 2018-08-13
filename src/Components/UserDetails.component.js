@@ -52,6 +52,7 @@ const Actions = ({ actions }) => {
 class UserDetails extends Component {
   render() {
     const user = getUser(this.props.user);
+    const userType = user.type || "Unknown type";
 
     return (
       <div style={{ position: "relative" }}>
@@ -65,7 +66,7 @@ class UserDetails extends Component {
         </IconButton>
         <p>
           <strong>User Type:</strong>
-          <span>{user.type}</span>
+          <span>{userType}</span>
         </p>
         {["Agency", "Partner", "Partner DoD"].indexOf(user.type) !== -1 && (
           <p>

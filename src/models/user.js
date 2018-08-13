@@ -36,13 +36,16 @@ export const getUserOrganization = (rawUser, type) => {
 };
 
 const getUserActions = (rawUser, type) => {
-  const visibleActions = config[type].actions; //.filter(a => a.hidden === 0);
-  const userRoleIds = rawUser.userCredentials.userRoles.map(r => r.id);
+  if (config[type]) {
+    const visibleActions = config[type].actions; //.filter(a => a.hidden === 0);
+    const userRoleIds = rawUser.userCredentials.userRoles.map(r => r.id);
 
-  return visibleActions
-    .filter(va => userRoleIds.indexOf(va.roleUID) !== -1)
-    .sort((a, b) => a.sortOrder - b.sortOrder)
-    .map(va => va.name);
+    return visibleActions
+      .filter(va => userRoleIds.indexOf(va.roleUID) !== -1)
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map(va => va.name);
+  }
+  return [];
 };
 
 const getStreamAccesses = (groups, stream) => {
@@ -58,17 +61,20 @@ const getStreamAccesses = (groups, stream) => {
 };
 
 const getDataStreams = (rawUser, type) => {
-  const allTypeStreams = config[type].streams;
-  const groups = rawUser.userGroups.toArray();
-  return Object.keys(allTypeStreams)
-    .map(name => {
-      return {
-        name,
-        accesses: getStreamAccesses(groups, allTypeStreams[name]),
-        sortOrder: allTypeStreams[name].sortOrder,
-      };
-    })
-    .sort((a, b) => a.sortOrder - b.sortOrder);
+  if (config[type]) {
+    const allTypeStreams = config[type].streams;
+    const groups = rawUser.userGroups.toArray();
+    return Object.keys(allTypeStreams)
+      .map(name => {
+        return {
+          name,
+          accesses: getStreamAccesses(groups, allTypeStreams[name]),
+          sortOrder: allTypeStreams[name].sortOrder,
+        };
+      })
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+  }
+  return [];
 };
 
 const getUser = (rawUser, agencies, partners) => {
