@@ -494,7 +494,7 @@ class Edit extends Component {
       //delete implied roles
       if (theChosenStream["accessLevels"]["Enter Data"].impliedRoles) {
         theChosenStream["accessLevels"]["Enter Data"].impliedRoles.forEach(r => {
-          actions = actions.filter(a => a.id !== r.roleUID);
+          delete actions[r.roleUID];
         });
       }
     }
@@ -508,7 +508,7 @@ class Edit extends Component {
       //delete implied roles
       if (theChosenStream["accessLevels"]["View Data"].impliedRoles) {
         theChosenStream["accessLevels"]["View Data"].impliedRoles.forEach(r => {
-          actions = actions.filter(a => a.id !== r.roleUID);
+          delete actions[r.roleUID];
         });
       }
     }
@@ -519,7 +519,7 @@ class Edit extends Component {
       // add implied roles
       if (theChosenStream["accessLevels"]["View Data"].impliedRoles) {
         theChosenStream["accessLevels"]["View Data"].impliedRoles.forEach(r => {
-          actions.push({ name: r.name, id: r.roleUID });
+          actions[r.roleUID] = r.name;
         });
       }
     }
@@ -529,7 +529,7 @@ class Edit extends Component {
       // add implied roles
       if (theChosenStream["accessLevels"]["Enter Data"].impliedRoles) {
         theChosenStream["accessLevels"]["Enter Data"].impliedRoles.forEach(r => {
-          actions.push({ name: r.name, id: r.roleUID });
+          actions[r.roleUID] = r.name;
         });
       }
     }
