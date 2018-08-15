@@ -68,7 +68,6 @@ export function getCountries(d2) {
 
     if (countries) {
       dispatch({ type: actions.SET_COUNTRIES, data: JSON.parse(countries) });
-      console.log("COUNTRIES: pulling from cache");
     } else {
       let params = {
         paging: false,
@@ -98,7 +97,6 @@ export function getLocales(d2) {
 
     if (locales) {
       dispatch({ type: actions.SET_LOCALES, data: JSON.parse(locales) });
-      console.log("LOCALES: pulling from cache");
     } else {
       d2.Api.getApi()
         .get("/locales/ui")
