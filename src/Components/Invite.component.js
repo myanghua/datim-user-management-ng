@@ -466,8 +466,7 @@ class Invite extends Component {
   };
 
   // the User Manager checkbox
-  handleCheckUserManager = () => {
-    let um = !this.state.userManager;
+  handleCheckUserManager = (key, value) => {
     let userType = this.state.userType;
 
     // check if we need to add DoD objects to view
@@ -481,9 +480,9 @@ class Invite extends Component {
     }
 
     this.setState({
-      userManager: um,
-      streams: this.getStreamDefaults(userType, um),
-      actions: this.getActionDefaults(userType, um),
+      userManager: value,
+      streams: this.getStreamDefaults(userType, value),
+      actions: this.getActionDefaults(userType, value),
     });
   };
 
