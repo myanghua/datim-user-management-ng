@@ -15,6 +15,7 @@ import Button from "@material-ui/core/Button";
 import Checkbox from "@material-ui/core/Checkbox";
 import GridList from "@material-ui/core/GridList";
 import GridListTile from "@material-ui/core/GridListTile";
+import Chip from "@material-ui/core/Chip";
 
 import MainMenu from "../containers/MainMenu.js";
 import SelectLocale from "./SelectLocale.component";
@@ -35,7 +36,7 @@ class Edit extends Component {
     showProcessing();
 
     if (!match || !match.params || !match.params.id) {
-      this.state = { error: "No user specified" };
+      this.state = { error: "No user specified", chip: false };
     } else {
       this.state = {
         uid: match.params.id,
@@ -462,7 +463,7 @@ class Edit extends Component {
 
   handleChangeLocale = event => {
     if (event.target.value !== this.state.locale) {
-      this.setState({ locale: event.target.value });
+      this.setState({ locale: event.target.value, chip: false });
     }
   };
 
@@ -472,6 +473,7 @@ class Edit extends Component {
       userManager: value,
       streams: this.getUserManagerStreams(this.state.userType, value),
       actions: this.getUserManagerActions(this.state.userType, value),
+      chip: false,
     });
   };
 
@@ -552,7 +554,7 @@ class Edit extends Component {
         });
       }
     });
-    this.setState({ streams: streams, actions: actions });
+    this.setState({ streams: streams, actions: actions, chip: false });
   };
 
   // what to do when a User Actions checkbox is clicked
@@ -563,7 +565,7 @@ class Edit extends Component {
     } else {
       actions[roleUID] = value;
     }
-    this.setState({ actions: actions });
+    this.setState({ actions: actions, chip: false });
   };
 
   // the grand poobah
@@ -668,20 +670,29 @@ class Edit extends Component {
         .then(res => {
           if (res.status && res.status === "OK") {
             // Success!
-            actions.showSnackbarMessage("Saved!");
+            // actions.showSnackbarMessage("Saved!");
             // set the base config to these new values
             this.setState({
               baseActions: this.state.actions,
               baseStreams: this.state.streams,
+              chip: "Saved",
             });
+            hideProcessing();
           } else {
             actions.showSnackbarMessage("Save incomplete");
             console.error("Save failure:", res.typeReports[0].objectReports[0]);
+            this.setState({
+              chip: "Error",
+            });
+            hideProcessing();
           }
         })
         .catch(e => {
           actions.showSnackbarMessage("Network Error");
           console.error("Network error while saving.", e);
+          this.setState({
+            chip: "Error",
+          });
           hideProcessing();
         });
     }
@@ -834,6 +845,21 @@ class Edit extends Component {
             <CancelIcon />
           </IconButton>
 
+          {this.state.chip ? (
+            <Chip
+              label={this.state.chip}
+              color="primary"
+              style={{
+                float: "right",
+                marginRight: "3em",
+                backgroundColor: this.state.error
+                  ? "#ab003c"
+                  : this.state.chip
+                    ? "#4caf50"
+                    : "#e0e0e0",
+              }}
+            />
+          ) : null}
           <h2>{this.state.user.name}</h2>
           <Grid container spacing={8}>
             <Grid item xs={3}>
