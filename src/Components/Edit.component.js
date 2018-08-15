@@ -673,8 +673,8 @@ class Edit extends Component {
             // actions.showSnackbarMessage("Saved!");
             // set the base config to these new values
             this.setState({
-              baseActions: this.state.actions,
-              baseStreams: this.state.streams,
+              baseActions: { ...this.state.actions },
+              baseStreams: { ...this.state.streams },
               chip: "Saved",
             });
             hideProcessing();
