@@ -28,6 +28,11 @@ class UserCell extends React.Component {
     this.props.onClickDisable(this.props.user);
   };
 
+  handleClickEdit = e => {
+    e.stopPropagation();
+    this.props.onClickEdit();
+  };
+
   render() {
     const user = this.props.user;
     const bgcolor =
@@ -57,6 +62,7 @@ class UserCell extends React.Component {
               style={{ height: 32, width: 32 }}
               aria-label="Edit user"
               component={Link}
+              onClick={this.handleClickEdit}
               to={link}
             >
               <EditIcon />

@@ -47,12 +47,8 @@ class List extends Component {
     this.props.setSelectedUser(this.props.users[userId]);
   };
 
-  handleUserEdit = user => {
-    if (user === undefined) {
-      return false;
-    }
-    // @TODO redux this user and send to edit page
-    console.log("edit user", user.displayName);
+  handleUserEdit = () => {
+    this.props.clearSelectedUser();
   };
 
   handleUserDisable = user => {
