@@ -323,7 +323,6 @@ class Edit extends Component {
           });
         });
         const userType = ((types || [])[0] || {}).name || "";
-        const cfg = core.config[userType] || {};
 
         // Get the "Organisation" which is actually a parse of userGroups
         // original app assumed user would have only one OU (at the country level)
@@ -411,7 +410,7 @@ class Edit extends Component {
 
     const cfgStreams = cfg[userType].streams;
     // placeholder for the results
-    let streams = this.state.streams;
+    let streams = { ...this.state.streams };
     // figure out which permission is the default
     Object.keys(cfgStreams).forEach(key => {
       const access = cfgStreams[key].accessLevels || {};
@@ -420,11 +419,15 @@ class Edit extends Component {
       if (view) {
         if (isUserAdmin && view.selectWhenUA === 1) {
           streams[view.groupUID] = view.groupName;
+        } else if (!isUserAdmin && view.selectWhenUA === 1 && streams[view.groupUID]) {
+          delete streams[view.groupUID];
         }
       }
       if (enter) {
         if (isUserAdmin && enter.selectWhenUA === 1) {
           streams[enter.groupUID] = enter.groupName;
+        } else if (!isUserAdmin && enter.selectWhenUA === 1 && streams[enter.groupUID]) {
+          delete streams[enter.groupUID];
         }
       }
     });
@@ -450,9 +453,10 @@ class Edit extends Component {
     cfgActions.forEach(action => {
       if (isUserAdmin && action.selectWhenUA === 1) {
         actions[action.roleUID] = true;
+      } else if (!isUserAdmin && action.selectWhenUA === 1 && actions[action.roleUID]) {
+        delete actions[action.roleUID];
       }
     });
-    console.log("a", actions);
     return actions;
   };
 
@@ -463,12 +467,11 @@ class Edit extends Component {
   };
 
   // the User Manager checkbox
-  handleCheckUserManager = () => {
-    const um = !this.state.userManager;
+  handleCheckUserManager = (key, value) => {
     this.setState({
-      userManager: um,
-      streams: this.getUserManagerStreams(this.state.userType, um),
-      actions: this.getUserManagerActions(this.state.userType, um),
+      userManager: value,
+      streams: this.getUserManagerStreams(this.state.userType, value),
+      actions: this.getUserManagerActions(this.state.userType, value),
     });
   };
 
@@ -535,8 +538,6 @@ class Edit extends Component {
       core.config[this.state.userType]["streams"]
     ).filter(k => k !== streamName);
     otherStreamNames.forEach(osn => {
-      // s0
-      console.log("OSN", osn);
       const lvls = core.config[this.state.userType]["streams"][osn].accessLevels;
       let e = lvls["Enter Data"] || false;
       let v = lvls["View Data"] || false;
@@ -568,29 +569,122 @@ class Edit extends Component {
   // the grand poobah
   handleEditUser = () => {
     const { d2, showProcessing, hideProcessing } = this.props;
-    //if streams or actions changed, save
-    let userUID = this.state.user.id;
     showProcessing();
-    d2.models.users
-      .get(userUID)
-      .then(u => {
-        let groups = Object.keys(this.state.streams).map(s => {
-          return { id: s };
-        });
-        let roles = Object.keys(this.state.actions).map(s => {
-          return { id: s };
-        });
-        u.userGroups = groups;
-        u.userCredentials.userRoles = roles;
-        u.save();
-        hideProcessing();
-        actions.showSnackbarMessage("User updated");
-      })
-      .catch(e => {
-        hideProcessing();
-        actions.showSnackbarMessage("Error updating user");
-        console.error(e);
+
+    //if streams or actions changed, save
+    let s = Object.keys(this.state.streams)
+      .sort()
+      .join();
+    let bs = Object.keys(this.state.baseStreams)
+      .sort()
+      .join();
+    let a = Object.keys(this.state.actions)
+      .sort()
+      .join();
+    let ba = Object.keys(this.state.baseActions)
+      .sort()
+      .join();
+
+    if (s !== bs || a !== ba) {
+      let userUID = this.state.user.id;
+      const groups = Object.keys(this.state.streams).map(m => {
+        return { id: m };
       });
+      const roles = Object.keys(this.state.actions).map(m => {
+        return { id: m };
+      });
+
+      // // @FIXME Alas the following should work if DHIS2 worked... https://jira.dhis2.org/browse/DHIS2-4405
+      // const url = `/users/${userUID}`;
+      // const data = {
+      //   userGroups: groups,
+      //   userCredentials: { userRoles: roles },
+      // };
+      // d2.Api.getApi()
+      //   .patch(url, data)
+      //   .then(res => {
+      //     hideProcessing();
+      //   })
+      //   .catch(e => {
+      //     console.error("E", e);
+      //   });
+
+      // // So we have to rely on a full PUT instead. *sigh*
+
+      // simplify the code a bit and break any potential reference issues
+      const tsu = { ...this.state.user };
+      // restore OUs
+      const ous = tsu.organisationUnits.toArray();
+      const ouMap = ous.map(o => {
+        return { id: o.id };
+      });
+      // restore OUs
+      const dvous = tsu.dataViewOrganisationUnits.toArray();
+      const dvouMap = dvous.map(o => {
+        return { id: o.id };
+      });
+      // restore TEI
+      const teis = tsu.teiSearchOrganisationUnits.toArray();
+      const teiMap = teis.map(o => {
+        return { id: o.id };
+      });
+
+      // make a clean user for submission
+      let user = {
+        // lastUpdated: tsu.lastUpdated,
+        id: tsu.id,
+        // created: tsu.created,
+        name: tsu.name,
+        displayName: tsu.displayName,
+        externalAccess: tsu.externalAccess || false,
+        surname: tsu.surname,
+        employer: tsu.employer || "",
+        firstName: tsu.firstName,
+        favorite: tsu.favorite || false,
+        access: tsu.access,
+        userCredentials: {
+          id: tsu.userCredentials.id,
+          disabled: tsu.userCredentials.disabled,
+          username: tsu.userCredentials.username,
+          userRoles: roles,
+          cogsDimensionConstraints: tsu.userCredentials.cogsDimensionConstraints,
+          catDimensionConstraints: tsu.userCredentials.catDimensionConstraints,
+        },
+        favorites: tsu.favorites || [],
+        teiSearchOrganisationUnits: teiMap,
+        translations: tsu.translations || [],
+        organisationUnits: ouMap,
+        dataViewOrganisationUnits: dvouMap || [],
+        userGroupAccesses: tsu.userGroupAccesses || [],
+        attributeValues: tsu.attributeValues || [],
+        userGroups: groups || [],
+        userAccesses: tsu.userAccesses || [],
+      };
+
+      // And finally update the user!
+      const url = `/users/${userUID}`;
+      d2.Api.getApi()
+        .update(url, user)
+        .then(res => {
+          if (res.status && res.status === "OK") {
+            // Success!
+            actions.showSnackbarMessage("Saved!");
+            // set the base config to these new values
+            this.setState({
+              baseActions: this.state.actions,
+              baseStreams: this.state.streams,
+            });
+          } else {
+            actions.showSnackbarMessage("Save incomplete");
+            console.error("Save failure:", res.typeReports[0].objectReports[0]);
+          }
+        })
+        .catch(e => {
+          actions.showSnackbarMessage("Network Error");
+          console.error("Network error while saving.", e);
+          hideProcessing();
+        });
+    }
 
     // if locale changed, save
     if (this.state.locale !== this.state.baseLocale) {
@@ -721,7 +815,7 @@ class Edit extends Component {
     let ba = Object.keys(this.state.baseActions)
       .sort()
       .join();
-    if (s !== bs || a !== ba) {
+    if (s !== bs || a !== ba || this.state.baseLocale !== this.state.locale) {
       disableSave = false;
     }
 
