@@ -137,13 +137,13 @@ const configuration = {
           },
           "View Data": {
             groupName: "Data SaS access",
-            groupUID: "CwFniyubXbx",,
+            groupUID: "CwFniyubXbx",
             impliedRoles: [
               {
                 name: "Data Entry Tracker",
                 roleUID: "NsYYVxduOTM",
               },
-            ]
+            ],
             locked: 0,
             preSelected: 0,
             selectWhenUA: 0,
@@ -309,13 +309,13 @@ const configuration = {
         accessLevels: {
           "View Data": {
             groupName: "Data SaS access",
-            groupUID: "CwFniyubXbx",,
+            groupUID: "CwFniyubXbx",
             impliedRoles: [
               {
                 name: "Data Entry Tracker",
                 roleUID: "NsYYVxduOTM",
               },
-            ]
+            ],
             locked: 0,
             preSelected: 0,
             selectWhenUA: 1,
@@ -454,7 +454,7 @@ const configuration = {
                 name: "Data Entry Tracker",
                 roleUID: "NsYYVxduOTM",
               },
-            ]
+            ],
             locked: 0,
             preSelected: 0,
             selectWhenUA: 1,
