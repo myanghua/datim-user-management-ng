@@ -2,20 +2,13 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 
 import Paper from "@material-ui/core/Paper";
-// import TextField from "@material-ui/core/text-field";
-// import RaisedButton from "@material-ui/core/raised-button";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
-import TableFooter from "@material-ui/core/TableFooter";
-// import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
+import TableFooter from "@material-ui/core/TableFooter";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-
-// import AppTheme from "../colortheme";
-// import actions from "../actions";
-
 import MainMenu from "../containers/MainMenu.js";
 import UserCell from "./UserCell.component";
 import UserDetails from "./UserDetails.component";
@@ -32,9 +25,6 @@ const styles = {
   },
 };
 
-/**
- * Main user listing screen
- */
 class List extends Component {
   state = {
     detailsOffsetTop: 0,
@@ -49,11 +39,11 @@ class List extends Component {
   };
 
   handleUserSelect = (e, userId) => {
-    const ot =
+    const detailsOffsetTop =
       document.querySelector(`.row-${userId}`).offsetTop +
       document.querySelector(".user-list-table").offsetTop;
 
-    this.setState({ detailsOffsetTop: ot });
+    this.setState({ detailsOffsetTop });
     this.props.setSelectedUser(this.props.users[userId]);
   };
 
@@ -80,6 +70,10 @@ class List extends Component {
   // DISPLAY THE INFO
   render() {
     let { users, selectedUser, pager, tab } = this.props;
+
+    if (!pager.page) {
+      return <div />;
+    }
 
     const tabComponents = Object.values(tabs).map(t => {
       return <Tab key={t.id} label={t.displayName} value={t.id} />;
@@ -147,7 +141,7 @@ class List extends Component {
             </TableBody>
             <TableFooter>
               <TableRow>
-                <Pager pager={pager} />
+                <Pager pager={pager} onPageChange={this.handlePageChange} />
               </TableRow>
             </TableFooter>
           </Table>
