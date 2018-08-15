@@ -38,7 +38,12 @@ class List extends Component {
     this.props.setTab(value);
   };
 
-  handleUserSelect = (e, userId) => {
+  toggleUserSelect = (e, userId) => {
+    if (this.props.selectedUser && this.props.selectedUser.id === userId) {
+      this.props.clearSelectedUser();
+      return;
+    }
+
     const detailsOffsetTop =
       document.querySelector(`.row-${userId}`).offsetTop +
       document.querySelector(".user-list-table").offsetTop;
@@ -57,10 +62,6 @@ class List extends Component {
     }
 
     this.props.setUserDisabledState(user.id, !user.userCredentials.disabled);
-  };
-
-  handleCloseUserDetails = () => {
-    this.props.clearSelectedUser();
   };
 
   // DISPLAY THE INFO
@@ -103,7 +104,7 @@ class List extends Component {
               {Object.values(users).map((user, index) => (
                 <TableRow
                   hover
-                  onClick={event => this.handleUserSelect(event, user.id)}
+                  onClick={event => this.toggleUserSelect(event, user.id)}
                   key={index}
                   className={`listingRow row-${user.id}`}
                 >
@@ -147,7 +148,7 @@ class List extends Component {
           <Paper className="card details" style={{ top: this.state.detailsOffsetTop }}>
             <UserDetails
               user={selectedUser}
-              onCloseDetails={this.handleCloseUserDetails}
+              onCloseDetails={this.props.clearSelectedUser}
             />
           </Paper>
         )}
