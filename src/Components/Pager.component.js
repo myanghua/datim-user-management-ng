@@ -1,98 +1,121 @@
-import React from "react";
+import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import TablePagination from "@material-ui/core/TablePagination";
+import { withStyles } from "@material-ui/core/styles";
+import IconButton from "@material-ui/core/IconButton";
+import FirstPageIcon from "@material-ui/icons/FirstPage";
+import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
+import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
+import LastPageIcon from "@material-ui/icons/LastPage";
 import { setCurrentPage } from "../actions/list";
-
-//This is just a placeholder for now. Will be replaced with a real
-//pagination object when upgrading to material-ui 1.0
-
-const style = {
-  container: {
-    float: "right",
-    margin: "10px",
-  },
-  button: {
-    padding: "5px",
-  },
-  disabled: {
-    color: "light-grey",
-  },
-  enabled: {
-    color: "black",
-  },
-  status: {
-    display: "inline-block",
-  },
-};
-
-const backArrow = "<";
-const forwardArrow = ">";
-const endArrow = ">>";
-const startArrow = "<<";
 
 const PAGE_SIZE = 50;
 
-const getStartPos = page => {
-  return (page - 1) * PAGE_SIZE + 1;
+const actionsStyles = theme => ({
+  root: {
+    flexShrink: 0,
+    color: theme.palette.text.secondary,
+    marginLeft: theme.spacing.unit * 2.5,
+  },
+});
+
+class TablePaginationActions extends Component {
+  handleFirstPageButtonClick = event => {
+    this.props.onChangePage(event, 0);
+  };
+
+  handleBackButtonClick = event => {
+    this.props.onChangePage(event, this.props.page - 1);
+  };
+
+  handleNextButtonClick = event => {
+    this.props.onChangePage(event, this.props.page + 1);
+  };
+
+  handleLastPageButtonClick = event => {
+    this.props.onChangePage(
+      event,
+      Math.max(0, Math.ceil(this.props.count / this.props.rowsPerPage) - 1)
+    );
+  };
+
+  render() {
+    const { classes, count, page, rowsPerPage, theme } = this.props;
+
+    return (
+      <div className={classes.root}>
+        <IconButton
+          onClick={this.handleFirstPageButtonClick}
+          disabled={page === 0}
+          aria-label="First Page"
+        >
+          {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
+        </IconButton>
+        <IconButton
+          onClick={this.handleBackButtonClick}
+          disabled={page === 0}
+          aria-label="Previous Page"
+        >
+          {theme.direction === "rtl" ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+        </IconButton>
+        <IconButton
+          onClick={this.handleNextButtonClick}
+          disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+          aria-label="Next Page"
+        >
+          {theme.direction === "rtl" ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+        </IconButton>
+        <IconButton
+          onClick={this.handleLastPageButtonClick}
+          disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+          aria-label="Last Page"
+        >
+          {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
+        </IconButton>
+      </div>
+    );
+  }
+}
+
+TablePaginationActions.propTypes = {
+  classes: PropTypes.object.isRequired,
+  count: PropTypes.number.isRequired,
+  onChangePage: PropTypes.func.isRequired,
+  page: PropTypes.number.isRequired,
+  rowsPerPage: PropTypes.number.isRequired,
+  theme: PropTypes.object.isRequired,
 };
 
-export const Pager = ({ pager, setCurrentPage, nextPage, prevPage }) => {
-  const { page, pageCount, total } = pager;
+const TablePaginationActionsWrapped = withStyles(actionsStyles, { withTheme: true })(
+  TablePaginationActions
+);
 
-  if (!total) {
-    return <div />;
-  }
-  const startPos = getStartPos(page);
-  let endPos = startPos + PAGE_SIZE - 1;
-  if (endPos > total) {
-    endPos = total;
-  }
-  const status = `${startPos} - ${endPos} of ${total}`;
-  const backArrowStyle = startPos === 1 ? style.disabled : style.enabled;
-  const forwardArrowStyle = endPos === total ? style.disabled : style.enabled;
+export const Pager = ({ pager, setCurrentPage }) => {
+  const { page, total } = pager;
 
-  const backStyle = Object.assign({}, style.button, backArrowStyle);
-  const nextStyle = Object.assign({}, style.button, forwardArrowStyle);
-
-  const onNextPage = () => {
-    if (nextPage) {
-      setCurrentPage(nextPage);
-    }
+  const handleChangePage = (event, page) => {
+    setCurrentPage(page + 1);
   };
 
-  const onPreviousPage = () => {
-    if (prevPage) {
-      setCurrentPage(prevPage);
-    }
-  };
-
-  const onLastPage = () => {
-    if (page < pageCount) {
-      setCurrentPage(pageCount);
-    }
-  };
-
-  const onFirstPage = () => {
-    if (page !== 0) {
-      setCurrentPage(0);
-    }
-  };
+  const rowOptions = [];
+  const currentPage = page - 1;
 
   return (
-    <div className="pager" style={style.container}>
-      <div style={style.status}>{status}</div>
-      <button onClick={onFirstPage} style={backStyle}>
-        {startArrow}
-      </button>
-      <button onClick={onPreviousPage} style={backStyle}>
-        {backArrow}
-      </button>
-      <button onClick={onNextPage} style={nextStyle}>
-        {forwardArrow}
-      </button>
-      <button onClick={onLastPage} style={nextStyle}>
-        {endArrow}
-      </button>
-    </div>
+    <TablePagination
+      count={total}
+      rowsPerPage={PAGE_SIZE}
+      page={currentPage}
+      backIconButtonProps={{
+        "aria-label": "Previous Page",
+      }}
+      nextIconButtonProps={{
+        "aria-label": "Next Page",
+      }}
+      onChangePage={handleChangePage}
+      rowsPerPageOptions={rowOptions}
+      ActionsComponent={TablePaginationActionsWrapped}
+    />
   );
 };
 
