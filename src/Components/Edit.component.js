@@ -69,8 +69,14 @@ class Edit extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    const { core, hideProcessing } = this.props;
     // make sure my auth properties have been loaded
-    if (this.props.core.me !== prevProps.core.me) {
+    if (core.me !== prevProps.core.me) {
+      if (core.me.id === this.state.uid) {
+        this.setState({ error: "Self-editing is not allowed", user: false });
+        hideProcessing();
+        return;
+      }
       // and that they can see things
       if (this.secCheck() === true) {
         // looks good, prefill form as mch as possible
@@ -812,22 +818,25 @@ class Edit extends Component {
       });
     }
 
-    // Did anything actually change? If so, enable the save button.
     let disableSave = true;
-    let s = Object.keys(this.state.streams)
-      .sort()
-      .join();
-    let bs = Object.keys(this.state.baseStreams)
-      .sort()
-      .join();
-    let a = Object.keys(this.state.actions)
-      .sort()
-      .join();
-    let ba = Object.keys(this.state.baseActions)
-      .sort()
-      .join();
-    if (s !== bs || a !== ba || this.state.baseLocale !== this.state.locale) {
-      disableSave = false;
+    // don't allow for self-editing
+    if (core.me.id !== this.state.uid) {
+      // Did anything actually change? If so, enable the save button.
+      let s = Object.keys(this.state.streams)
+        .sort()
+        .join();
+      let bs = Object.keys(this.state.baseStreams)
+        .sort()
+        .join();
+      let a = Object.keys(this.state.actions)
+        .sort()
+        .join();
+      let ba = Object.keys(this.state.baseActions)
+        .sort()
+        .join();
+      if (s !== bs || a !== ba || this.state.baseLocale !== this.state.locale) {
+        disableSave = false;
+      }
     }
 
     return (
