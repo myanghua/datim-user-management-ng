@@ -42,6 +42,15 @@ const configuration = {
       },
       {
         hidden: 1,
+        locked: 0,
+        name: "Data Entry Tracker",
+        preSelected: 0,
+        roleUID: "NsYYVxduOTM",
+        selectWhenUA: 1,
+        sortOrder: -1,
+      },
+      {
+        hidden: 1,
         locked: 1,
         name: "Read Only",
         preSelected: 1,
@@ -51,17 +60,29 @@ const configuration = {
       },
     ],
     streams: {
-      Expenditure: {
+      ER: {
         accessLevels: {
-          "View Data": {
-            groupName: "Data Expenditure access",
-            groupUID: "M9Uer9SioL7",
+          "Enter Data": {
+            groupName: "Data ER entry",
+            groupUID: "XgctRYBpSiR",
+            impliedRoles: [
+              {
+                name: "Data Entry Aggregate",
+                roleUID: "k7BWFXkG6zt",
+              },
+            ],
             locked: 0,
             preSelected: 0,
             selectWhenUA: 1,
           },
+          "View Data": {
+            groupName: "Data ER access",
+            groupUID: "M9Uer9SioL7",
+            locked: 0,
+            preSelected: 0,
+            selectWhenUA: 0,
+          },
         },
-        sortOrder: 1,
       },
       MER: {
         accessLevels: {
@@ -98,6 +119,37 @@ const configuration = {
           },
         },
         sortOrder: 3,
+      },
+      SaS: {
+        accessLevels: {
+          "Enter Data": {
+            groupName: "Data SaS entry",
+            groupUID: "AZU9Haopetn",
+            impliedRoles: [
+              {
+                name: "Data Entry Tracker",
+                roleUID: "NsYYVxduOTM",
+              },
+            ],
+            locked: 0,
+            preSelected: 0,
+            selectWhenUA: 1,
+          },
+          "View Data": {
+            groupName: "Data SaS access",
+            groupUID: "CwFniyubXbx",,
+            impliedRoles: [
+              {
+                name: "Data Entry Tracker",
+                roleUID: "NsYYVxduOTM",
+              },
+            ]
+            locked: 0,
+            preSelected: 0,
+            selectWhenUA: 0,
+          },
+        },
+        sortOrder: 4,
       },
     },
     canCreate: ["Agency", "Partner"],
@@ -153,10 +205,10 @@ const configuration = {
       },
     ],
     streams: {
-      Expenditure: {
+      ER: {
         accessLevels: {
           "Enter Data": {
-            groupName: "Data Expenditure entry",
+            groupName: "Data ER entry",
             groupUID: "XgctRYBpSiR",
             impliedRoles: [
               {
@@ -169,7 +221,7 @@ const configuration = {
             selectWhenUA: 1,
           },
           "View Data": {
-            groupName: "Data Expenditure access",
+            groupName: "Data ER access",
             groupUID: "M9Uer9SioL7",
             locked: 0,
             preSelected: 0,
@@ -177,42 +229,6 @@ const configuration = {
           },
         },
         sortOrder: 1,
-      },
-      MER: {
-        accessLevels: {
-          "View Data": {
-            groupName: "Data PRIME access",
-            groupUID: "c6hGi8GEZot",
-            locked: 0,
-            preSelected: 0,
-            selectWhenUA: 1,
-          },
-        },
-        sortOrder: 0,
-      },
-      MOH: {
-        accessLevels: {
-          "View Data": {
-            groupName: "Data MOH access",
-            groupUID: "OoiLAfMTyMx",
-            locked: 0,
-            preSelected: 0,
-            selectWhenUA: 1,
-          },
-        },
-        sortOrder: 2,
-      },
-      SIMS: {
-        accessLevels: {
-          "View Data": {
-            groupName: "Data SIMS access",
-            groupUID: "iuD8wUFz95X",
-            locked: 0,
-            preSelected: 0,
-            selectWhenUA: 1,
-          },
-        },
-        sortOrder: 3,
       },
     },
   },
@@ -230,12 +246,21 @@ const configuration = {
         selectWhenUA: 1,
         sortOrder: -1,
       },
+      {
+        hidden: 1,
+        locked: 0,
+        name: "Data Entry Tracker",
+        preSelected: 0,
+        roleUID: "NsYYVxduOTM",
+        selectWhenUA: 1,
+        sortOrder: -1,
+      },
     ],
     streams: {
-      Expenditure: {
+      ER: {
         accessLevels: {
           "View Data": {
-            groupName: "Data Expenditure access",
+            groupName: "Data ER access",
             groupUID: "M9Uer9SioL7",
             locked: 1,
             preSelected: 1,
@@ -284,10 +309,16 @@ const configuration = {
         accessLevels: {
           "View Data": {
             groupName: "Data SaS access",
-            groupUID: "CwFniyubXbx",
-            locked: 1,
-            preSelected: 1,
-            selectWhenUA: 0,
+            groupUID: "CwFniyubXbx",,
+            impliedRoles: [
+              {
+                name: "Data Entry Tracker",
+                roleUID: "NsYYVxduOTM",
+              },
+            ]
+            locked: 0,
+            preSelected: 0,
+            selectWhenUA: 1,
           },
         },
         sortOrder: 4,
@@ -336,6 +367,15 @@ const configuration = {
         sortOrder: -1,
       },
       {
+        hidden: 1,
+        locked: 0,
+        name: "Data Entry Tracker",
+        preSelected: 0,
+        roleUID: "NsYYVxduOTM",
+        selectWhenUA: 1,
+        sortOrder: -1,
+      },
+      {
         hidden: 0,
         locked: 0,
         name: "Deduplication",
@@ -355,18 +395,6 @@ const configuration = {
       },
     ],
     streams: {
-      Expenditure: {
-        accessLevels: {
-          "View Data": {
-            groupName: "Data Expenditure access",
-            groupUID: "M9Uer9SioL7",
-            locked: 0,
-            preSelected: 0,
-            selectWhenUA: 1,
-          },
-        },
-        sortOrder: 1,
-      },
       "MER Country Team": {
         accessLevels: {
           "Enter Data": {
@@ -415,6 +443,24 @@ const configuration = {
           },
         },
         sortOrder: 3,
+      },
+      SaS: {
+        accessLevels: {
+          "View Data": {
+            groupName: "Data SaS access",
+            groupUID: "CwFniyubXbx",
+            impliedRoles: [
+              {
+                name: "Data Entry Tracker",
+                roleUID: "NsYYVxduOTM",
+              },
+            ]
+            locked: 0,
+            preSelected: 0,
+            selectWhenUA: 1,
+          },
+        },
+        sortOrder: 4,
       },
     },
     canCreate: ["Inter-Agency"],
@@ -487,10 +533,10 @@ const configuration = {
       },
     ],
     streams: {
-      Expenditure: {
+      ER: {
         accessLevels: {
           "Enter Data": {
-            groupName: "Data Expenditure entry",
+            groupName: "Data ER entry",
             groupUID: "XgctRYBpSiR",
             impliedRoles: [
               {
@@ -503,7 +549,7 @@ const configuration = {
             selectWhenUA: 1,
           },
           "View Data": {
-            groupName: "Data Expenditure access",
+            groupName: "Data ER access",
             groupUID: "M9Uer9SioL7",
             locked: 0,
             preSelected: 0,
@@ -579,10 +625,10 @@ const configuration = {
       },
     ],
     streams: {
-      Expenditure: {
+      ER: {
         accessLevels: {
           "Enter Data": {
-            groupName: "Data Expenditure entry",
+            groupName: "Data ER entry",
             groupUID: "XgctRYBpSiR",
             impliedRoles: [
               {
@@ -595,7 +641,7 @@ const configuration = {
             selectWhenUA: 1,
           },
           "View Data": {
-            groupName: "Data Expenditure access",
+            groupName: "Data ER access",
             groupUID: "M9Uer9SioL7",
             locked: 0,
             preSelected: 0,
