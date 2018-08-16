@@ -337,11 +337,28 @@ class Edit extends Component {
         this.getPartnersInOrg(ous.id).then(partners => {
           userGroups.forEach(ug => {
             let found = partners.filter(p => {
-              return (
-                p.mechUserGroup.name === ug.name ||
-                p.userAdminUserGroup.name === ug.name ||
+              if (
+                p.mechUserGroup &&
+                p.mechUserGroup.name &&
+                p.mechUserGroup.name === ug.name
+              ) {
+                return true;
+              }
+              if (
+                p.userAdminUserGroup &&
+                p.userAdminUserGroup.name &&
+                p.userAdminUserGroup.name === ug.name
+              ) {
+                return true;
+              }
+              if (
+                p.userUserGroup &&
+                p.userUserGroup.name &&
                 p.userUserGroup.name === ug.name
-              );
+              ) {
+                return true;
+              }
+              return false;
             });
             if (found[0]) {
               this.setState({ org: found[0].name });
@@ -351,11 +368,28 @@ class Edit extends Component {
         this.getAgenciesInOrg(ous.id).then(agencies => {
           userGroups.forEach(ug => {
             let found = agencies.filter(a => {
-              return (
-                a.mechUserGroup.name === ug.name ||
-                a.userAdminUserGroup.name === ug.name ||
+              if (
+                a.mechUserGroup &&
+                a.mechUserGroup.name &&
+                a.mechUserGroup.name === ug.name
+              ) {
+                return true;
+              }
+              if (
+                a.userAdminUserGroup &&
+                a.userAdminUserGroup.name &&
+                a.userAdminUserGroup.name === ug.name
+              ) {
+                return true;
+              }
+              if (
+                a.userUserGroup &&
+                a.userUserGroup.name &&
                 a.userUserGroup.name === ug.name
-              );
+              ) {
+                return true;
+              }
+              return false;
             });
             if (found[0]) {
               this.setState({ org: found[0].name });
@@ -464,6 +498,12 @@ class Edit extends Component {
         delete actions[action.roleUID];
       }
     });
+    // make sure to add the UA role as necessary
+    if (isUserAdmin) {
+      actions["KagqnetfxMr"] = true;
+    } else {
+      delete actions["KagqnetfxMr"];
+    }
     return actions;
   };
 
@@ -753,7 +793,6 @@ class Edit extends Component {
 
     // Am I awesome and can do anything?
     const myOUs = (core.me.organisationUnits || []).map(ou => ou.id);
-    const isSuperUser = core.me && core.me.hasAllAuthority && core.me.hasAllAuthority();
     const isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) >= 0;
 
     const streams = [];
@@ -922,7 +961,7 @@ class Edit extends Component {
               <Checkbox
                 checked={this.state.userManager || false}
                 onChange={this.handleCheckUserManager}
-                disabled={!this.state.userType || (isGlobalUser && !isSuperUser)}
+                disabled={!this.state.userType}
                 value="checkedA"
               />
             }
