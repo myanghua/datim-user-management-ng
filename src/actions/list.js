@@ -3,17 +3,11 @@ import filterCategories from "../Components/filter/filterCategories";
 import { tabs } from "../Components/filter/tabCategories";
 import { apiPatchUserDisabledState, apiFetchUser, apiFetchUsers } from "../api/users";
 import { getUserType } from "../models/user";
+import { arrayToIdMap } from "../utils";
 
 const filterString = (category, value) => {
   const filterParam = filterCategories[category].param;
   return value ? `${filterParam}${value}` : null;
-};
-
-const arrayToIdMap = array => {
-  return array.reduce((obj, item) => {
-    obj[item.id] = item;
-    return obj;
-  }, {});
 };
 
 export const getUserListing = () => (dispatch, getState) => {
