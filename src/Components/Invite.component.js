@@ -509,6 +509,29 @@ class Invite extends Component {
     this.setState({ actions: actions });
   };
 
+  // verify that the user has the specified "hidden" roles before they can invite
+  userMissingHiddenRoles() {
+    const { core } = this.props;
+    const me = core.me;
+    let hasRoles = true;
+    if (me && me.userCredentials && this.state.actions) {
+      const myRoles = me.userCredentials.userRoles;
+      const roles = Object.keys(this.state.actions) || [];
+      roles.forEach(r => {
+        const f = myRoles.filter(m => m.id === r);
+        if (f.length === 0) {
+          // get the name of it
+          const role = core.config[this.state.userType].actions.filter(
+            a => a.roleUID === r
+          );
+          console.error("Missing role:", role[0].name, role[0].roleUID);
+          hasRoles = false;
+        }
+      });
+    }
+    return hasRoles;
+  }
+
   // the big todo for inviting someone
   handleInviteUser = () => {
     const { d2, core, showProcessing, hideProcessing } = this.props;
@@ -824,6 +847,22 @@ class Invite extends Component {
       }
     } else {
       //BAD CORE CONFIG @TODO:: redirect with warning
+    }
+
+    if (!this.userMissingHiddenRoles()) {
+      return (
+        <div className="wrapper">
+          <MainMenu />
+
+          <h2 className="title">Invite</h2>
+          <h3 className="subTitle">User Management: Error</h3>
+          <p>You do not have the necessary roles to do that.</p>
+          <p>
+            You are missing at least one user role from your profile. Please examine your
+            browser console for more inforamtion.
+          </p>
+        </div>
+      );
     }
 
     let typeMenus = [];
