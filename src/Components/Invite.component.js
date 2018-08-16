@@ -777,11 +777,14 @@ class Invite extends Component {
         countries = core.countries.filter(c => myOUs.indexOf(c.id) >= 0);
       }
     }
-    if (countries.length === 1) {
+    if (countries.length === 1 && countries[0].name !== "Global") {
       country = countries[0].id;
       if (this.state.country !== country) {
         // if the country has changed, reload the usergroup cache
-        this.loadOuUserGroups(core.countries.filter(f => f.id === country)[0].name);
+        const c = core.countries.filter(f => f.id === country)[0];
+        if (c.name || false) {
+          this.loadOuUserGroups(c.name);
+        }
       }
     }
 
@@ -791,6 +794,8 @@ class Invite extends Component {
       myCountries: countries,
       country: country,
       userType: userType,
+      streams: this.getStreamDefaults(userType, false),
+      actions: this.getActionDefaults(userType, false),
     });
   };
 
@@ -1003,7 +1008,7 @@ class Invite extends Component {
               <Checkbox
                 checked={this.state.userManager || false}
                 onChange={this.handleCheckUserManager}
-                disabled={!this.state.userType || (isGlobalUser && !isSuperUser)}
+                disabled={!this.state.userType}
                 value="checkedA"
               />
             }
