@@ -231,6 +231,7 @@ const configuration = {
         sortOrder: 1,
       },
     },
+    canCreate: ["Agency HQ"],
   },
   Global: {
     ouUID: "ybg3MO3hcf4",
@@ -324,7 +325,7 @@ const configuration = {
         sortOrder: 4,
       },
     },
-    canCreate: ["Global"],
+    canCreate: ["Global", "Agency HQ"],
   },
   "Inter-Agency": {
     userTypePriority: 4,
@@ -347,15 +348,6 @@ const configuration = {
         roleUID: "n777lf1THwQ",
         selectWhenUA: 1,
         sortOrder: 1,
-      },
-      {
-        hidden: 1,
-        locked: 1,
-        name: "View Unapproved Data",
-        preSelected: 1,
-        roleUID: "R74PQmVFl6R",
-        selectWhenUA: 1,
-        sortOrder: 3,
       },
       {
         hidden: 1,
@@ -463,7 +455,7 @@ const configuration = {
         sortOrder: 4,
       },
     },
-    canCreate: ["Inter-Agency"],
+    canCreate: ["Inter-Agency", "Partner"],
   },
   MOH: {
     userTypePriority: 8,

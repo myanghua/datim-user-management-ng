@@ -376,9 +376,8 @@ class Invite extends Component {
       this.setState({ [event.target.name]: event.target.value });
       //   this.setState({ country: value, streams: [], actions: [] });
       if (event.target.value === core.config.Global.ouUID) {
-        this.handleChangeType(event, 0, "Global");
         this.setState({
-          userType: "Global",
+          userType: false,
           agency: false,
           partner: false,
           streams: this.getStreamDefaults("Global", this.state.userManager),
@@ -508,6 +507,35 @@ class Invite extends Component {
     }
     this.setState({ actions: actions });
   };
+
+  // verify that the user has the specified "hidden" roles before they can invite
+  userHasAllHiddenRoles() {
+    const { core } = this.props;
+    const me = core.me;
+
+    const isSuperUser = core.me && core.me.hasAllAuthority && core.me.hasAllAuthority();
+    if (isSuperUser) {
+      return true;
+    }
+
+    let hasRoles = true;
+    if (me && me.userCredentials && this.state.actions) {
+      const myRoles = me.userCredentials.userRoles;
+      const roles = Object.keys(this.state.actions) || [];
+      roles.forEach(r => {
+        const f = myRoles.filter(m => m.id === r);
+        if (f.length === 0) {
+          // get the name of it
+          const role = core.config[this.state.userType].actions.filter(
+            a => a.roleUID === r
+          );
+          console.error("Missing role:", role[0].name, role[0].roleUID);
+          hasRoles = false;
+        }
+      });
+    }
+    return hasRoles;
+  }
 
   // the big todo for inviting someone
   handleInviteUser = () => {
@@ -775,7 +803,6 @@ class Invite extends Component {
         // global users can only invite global users
         countries = [{ id: core.config.Global.ouUID, name: "Global" }];
         country = core.config.Global.ouUID;
-        userType = "Global";
       } else {
         // display only their country
         countries = core.countries.filter(c => myOUs.indexOf(c.id) >= 0);
@@ -798,6 +825,7 @@ class Invite extends Component {
       myCountries: countries,
       country: country,
       userType: userType,
+      email: "",
       streams: this.getStreamDefaults(userType, false),
       actions: this.getActionDefaults(userType, false),
     });
@@ -826,22 +854,49 @@ class Invite extends Component {
       //BAD CORE CONFIG @TODO:: redirect with warning
     }
 
+    if (!this.userHasAllHiddenRoles()) {
+      return (
+        <div className="wrapper">
+          <MainMenu />
+
+          <h2 className="title">Invite</h2>
+          <h3 className="subTitle">User Management: Error</h3>
+          <p>You do not have the necessary roles to do that.</p>
+          <p>
+            You are missing at least one user role from your profile. Please examine your
+            browser error console for more inforamtion.
+          </p>
+        </div>
+      );
+    }
+
     let typeMenus = [];
     uts.forEach(userType => {
       // don't show "Partner DoD" as an option here
       if (core.config[userType].isDoD) {
         return;
       }
+      let disabled = false;
+      // pick a country first
+      if (!this.state.country) {
+        return;
+      }
+      // global only has 2 options
+      if (
+        this.state.country === core.config.Global.ouUID &&
+        (userType !== "Global" && userType !== "Agency HQ")
+      ) {
+        return;
+      }
+      // no one else can do global level operations
+      if (
+        (userType === "Global" || userType === "Agency HQ") &&
+        this.state.country !== core.config.Global.ouUID
+      ) {
+        return;
+      }
       typeMenus.push(
-        <MenuItem
-          key={userType}
-          value={userType}
-          disabled={
-            this.state.country === core.config.Global.ouUID ||
-            (userType === "Global" && this.state.country !== core.config.Global.ouUID) ||
-            !this.state.country
-          }
-        >
+        <MenuItem key={userType} value={userType} disabled={disabled}>
           {userType}
         </MenuItem>
       );
@@ -921,7 +976,12 @@ class Invite extends Component {
 
     let disableInvite = true;
     // data integrity checks
-    if (this.state.country && this.state.userType && this.state.email) {
+    if (
+      this.state.country &&
+      this.state.userType &&
+      this.state.email &&
+      Object.keys(this.state.streams).length > 0
+    ) {
       switch (this.state.userType) {
         case "Agency":
           if (this.state.agency) {
