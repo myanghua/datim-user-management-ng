@@ -463,7 +463,7 @@ const configuration = {
         sortOrder: 4,
       },
     },
-    canCreate: ["Inter-Agency"],
+    canCreate: ["Inter-Agency", "Partner"],
   },
   MOH: {
     userTypePriority: 8,
