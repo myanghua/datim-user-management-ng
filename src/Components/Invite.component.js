@@ -921,7 +921,12 @@ class Invite extends Component {
 
     let disableInvite = true;
     // data integrity checks
-    if (this.state.country && this.state.userType && this.state.email) {
+    if (
+      this.state.country &&
+      this.state.userType &&
+      this.state.email &&
+      Object.keys(this.state.streams).length > 0
+    ) {
       switch (this.state.userType) {
         case "Agency":
           if (this.state.agency) {
