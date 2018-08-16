@@ -919,6 +919,25 @@ class Invite extends Component {
       });
     }
 
+    let disableInvite = true;
+    // data integrity checks
+    if (this.state.country && this.state.userType && this.state.email) {
+      switch (this.state.userType) {
+        case "Agency":
+          if (this.state.agency) {
+            disableInvite = false;
+          }
+          break;
+        case "Partner":
+          if (this.state.partner) {
+            disableInvite = false;
+          }
+          break;
+        default:
+          disableInvite = false;
+      }
+    }
+
     return (
       <div className="wrapper">
         <MainMenu />
@@ -1039,7 +1058,7 @@ class Invite extends Component {
           variant="contained"
           color="primary"
           style={{ display: "block", padding: "0 18em", margin: "1em" }}
-          disabled={!this.state.country || !this.state.userType || !this.state.email}
+          disabled={disableInvite}
           onClick={this.handleInviteUser}
         >
           Invite
