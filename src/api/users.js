@@ -14,10 +14,7 @@ export const apiPatchUserDisabledState = (id, disabled) => {
 
 export const apiFetchUser = id => {
   return getInstance()
-    .then(d2 => {
-      const url = `/users/${id}`;
-      return d2.Api.getApi().get(url);
-    })
+    .then(d2 => d2.models.users.get(id))
     .catch(onError);
 };
 

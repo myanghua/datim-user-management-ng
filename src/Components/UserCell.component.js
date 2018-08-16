@@ -67,7 +67,9 @@ class UserCell extends React.Component {
       errors.push("User does not conform to a known type");
     }
 
-    const unmanagableGroups = user.userGroups.toArray().filter(ug => {
+    const ugArray = user.userGroups.toArray();
+
+    const unmanagableGroups = ugArray.filter(ug => {
       return !ug || !ug.access || !ug.access.manage;
     });
 
@@ -75,7 +77,7 @@ class UserCell extends React.Component {
     if (
       !currentUserIsSuperUser &&
       unmanagableGroups.length &&
-      unmanagableGroups.length === user.userGroups.length
+      unmanagableGroups.length === ugArray.length
     ) {
       unmanagableGroups.forEach(ug => {
         errors.push('User is a member of the "' + ug.name + '" group, which you are not');
