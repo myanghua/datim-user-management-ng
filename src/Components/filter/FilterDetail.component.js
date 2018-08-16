@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
-import TextField from "@material-ui/core/TextField";
+import Input from "@material-ui/core/Input";
 import filterCategories from "./filterCategories";
 import {
   getUserGroups,
@@ -36,12 +36,12 @@ class FilterDetail extends Component {
 
     if (!category.model) {
       return (
-        <TextField
-          label="value"
-          placeholder="Search text"
+        <Input
+          placeholder="Value"
           value={this.state.value}
           onChange={this.onChangeTextInput}
-          margin="normal"
+          margin="none"
+          style={{ minWidth: "300px" }}
         />
       );
     }
@@ -86,9 +86,9 @@ class FilterDetail extends Component {
     return (
       <Select
         value={this.state.value}
-        autoWidth={true}
         onChange={this.onChangeSelectInput}
         placeholder="Select a value"
+        style={{ minWidth: "300px" }}
       >
         {optionComponents}
       </Select>

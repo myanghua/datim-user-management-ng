@@ -116,20 +116,25 @@ class List extends Component {
                     />
                   </TableCell>
                   <TableCell
+                    padding="none"
                     style={{
-                      width: "2em",
-                      color: "white",
-                      textAlign: "center",
-                      paddingLeft: 0,
-                      fontSize: "bigger",
-                      fontWeight: "lighter",
+                      margin: "auto",
                       backgroundColor:
                         user.userCredentials.disabled === true
                           ? styles.disabledColor
                           : styles.activeColor,
                     }}
                   >
-                    <div className="rotate90">
+                    <div
+                      className="rotate90"
+                      style={{
+                        width: ".5em",
+                        color: "white",
+                        fontSize: "bigger",
+                        paddingLeft: "10px",
+                        fontWeight: "lighter",
+                      }}
+                    >
                       {user.userCredentials.disabled === true ? "Disabled" : "Active"}
                     </div>
                   </TableCell>

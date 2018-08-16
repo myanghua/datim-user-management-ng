@@ -65,13 +65,13 @@ class Filter extends Component {
     });
 
     return (
-      <div className="filter-item">
+      <div className="filter-item" style={{ display: "flex" }}>
         <Select
           className="filter-category"
           placeholder="Select a filter category"
           value={this.state.category}
           onChange={this.onChangeCategory}
-          style={{ marginRight: 40 }}
+          style={{ marginRight: 40, minWidth: "200px" }}
         >
           {options}
         </Select>
