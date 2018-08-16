@@ -551,7 +551,8 @@ class Invite extends Component {
 
     // complex user groups
     // @TODO:: ideally this would come from the config, but there are too many edge cases
-    const countryName = core.countries.filter(f => f.id === this.state.country)[0].name;
+    const countryName = this.state.myCountries.filter(f => f.id === this.state.country)[0]
+      .name;
     let filteredOuGroups = [];
     switch (this.state.userType) {
       case "Agency":
@@ -614,7 +615,10 @@ class Invite extends Component {
     // filter further to just the "all mechanisms" and "users"
     filteredOuGroups
       .filter(
-        f => f.name.indexOf(" all mechanisms") >= 0 || f.name.indexOf(" users") >= 0
+        f =>
+          f.name.indexOf(" all mechanisms") >= 0 ||
+          f.name.indexOf(" users") >= 0 ||
+          f.name.indexOf(" Users") >= 0
       )
       .forEach(g => {
         user.userGroups.push({ id: g.id });
