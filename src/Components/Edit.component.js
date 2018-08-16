@@ -458,14 +458,18 @@ class Edit extends Component {
       const view = access["View Data"] || false;
       const enter = access["Enter Data"] || false;
       if (view) {
-        if (isUserAdmin && view.selectWhenUA === 1) {
+        if (view.locked === 1) {
+          streams[view.groupUID] = view.groupName;
+        } else if (isUserAdmin && view.selectWhenUA === 1) {
           streams[view.groupUID] = view.groupName;
         } else if (!isUserAdmin && view.selectWhenUA === 1 && streams[view.groupUID]) {
           delete streams[view.groupUID];
         }
       }
       if (enter) {
-        if (isUserAdmin && enter.selectWhenUA === 1) {
+        if (enter.locked === 1) {
+          streams[enter.groupUID] = enter.groupName;
+        } else if (isUserAdmin && enter.selectWhenUA === 1) {
           streams[enter.groupUID] = enter.groupName;
         } else if (!isUserAdmin && enter.selectWhenUA === 1 && streams[enter.groupUID]) {
           delete streams[enter.groupUID];

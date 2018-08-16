@@ -485,7 +485,7 @@ const configuration = {
           "View Data": {
             groupName: "Data MOH access",
             groupUID: "OoiLAfMTyMx",
-            locked: 0,
+            locked: 1,
             preSelected: 1,
             selectWhenUA: 1,
           },
