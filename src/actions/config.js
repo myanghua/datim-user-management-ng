@@ -231,6 +231,7 @@ const configuration = {
         sortOrder: 1,
       },
     },
+    canCreate: ["Agency HQ"],
   },
   Global: {
     ouUID: "ybg3MO3hcf4",
@@ -324,7 +325,7 @@ const configuration = {
         sortOrder: 4,
       },
     },
-    canCreate: ["Global"],
+    canCreate: ["Global", "Agency HQ"],
   },
   "Inter-Agency": {
     userTypePriority: 4,
