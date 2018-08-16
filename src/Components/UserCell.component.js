@@ -8,7 +8,8 @@ import CheckIcon from "@material-ui/icons/Check";
 import EmailIcon from "@material-ui/icons/Email";
 import PersonIcon from "@material-ui/icons/Person";
 import IconButton from "@material-ui/core/IconButton";
-import { UNKNOWN_USER_TYPE } from "../models/user";
+import { getUserType, isGlobalUser, UNKNOWN_USER_TYPE } from "../models/user";
+import { arrayToIdMap } from "../utils";
 
 // import AppTheme from "../colortheme";
 // import actions from "../actions";
@@ -33,15 +34,67 @@ class UserCell extends React.Component {
     this.props.onClickEdit();
   };
 
+  userEditable = () => {
+    let errors = [];
+
+    // user in list
+    const user = this.props.user;
+    const userType = getUserType(user);
+
+    // current user
+    const currentUserIsSuperUser =
+      this.props.me && this.props.me.hasAllAuthority && this.props.me.hasAllAuthority();
+    const currentUserIsGlobalUser = isGlobalUser(this.props.me);
+    const currentUserType = getUserType(this.props.me);
+
+    //Global current user cannot edit users of other types
+    if (currentUserIsGlobalUser && !currentUserIsSuperUser && userType !== "Global") {
+      errors.push('"Global" user cannot edit this "' + userType + '" user');
+    }
+
+    //MOH current user cannot edit non MOH users
+    if (currentUserType === "MOH" && !currentUserIsSuperUser && userType !== "MOH") {
+      errors.push('"MOH" user cannot edit this "' + userType + '" user');
+    }
+
+    //Cannot edit yourself
+    if (user.id === this.props.me.id) {
+      errors.push("Cannot edit yourself");
+    }
+
+    //User does not conform to a known type
+    if (user.type === UNKNOWN_USER_TYPE) {
+      errors.push("User does not conform to a known type");
+    }
+
+    const unmanagableGroups = user.userGroups.toArray().filter(ug => {
+      return !ug || !ug.access || !ug.access.manage;
+    });
+
+    // Cannot manage ANY group
+    if (
+      !currentUserIsSuperUser &&
+      unmanagableGroups.length &&
+      unmanagableGroups.length === user.userGroups.length
+    ) {
+      unmanagableGroups.forEach(ug => {
+        errors.push('User is a member of the "' + ug.name + '" group, which you are not');
+      });
+    }
+
+    return !errors.length;
+  };
+
   render() {
+    if (!this.props.me.hasOwnProperty("id")) {
+      return <div />;
+    }
     const user = this.props.user;
     const bgcolor =
       user.userCredentials.disabled === true ? styles.activeColor : styles.disabledColor;
 
-    const userEditable = user.id !== this.props.me.id && user.type !== UNKNOWN_USER_TYPE;
+    const userEditable = this.userEditable();
 
-    //construct the react-router-dom link
-    const link = "/edit/" + user.id;
     return (
       <div style={{ position: "relative" }}>
         <h4>
@@ -63,7 +116,7 @@ class UserCell extends React.Component {
               aria-label="Edit user"
               component={Link}
               onClick={this.handleClickEdit}
-              to={link}
+              to={"/edit/" + user.id}
             >
               <EditIcon />
             </IconButton>

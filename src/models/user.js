@@ -3,7 +3,9 @@ import config from "../actions/config";
 export const UNKNOWN_USER_TYPE = "Unknown type";
 
 export const getUserType = rawUser => {
-  const ug = rawUser.userGroups.toArray();
+  const ug = Array.isArray(rawUser.userGroups)
+    ? rawUser.userGroups
+    : rawUser.userGroups.toArray();
 
   const type = Object.keys(config).reduce((acc, type) => {
     if (ug.find(g => RegExp(config[type].groupFilter).test(g.name))) {
@@ -13,6 +15,14 @@ export const getUserType = rawUser => {
   }, [])[0]; //hack, returning the first one - replace with usertype pri
 
   return type ? type : UNKNOWN_USER_TYPE;
+};
+
+export const isGlobalUser = rawUser => {
+  return (
+    rawUser.organisationUnits &&
+    rawUser.organisationUnits.length &&
+    rawUser.organisationUnits[0].name === "Global"
+  );
 };
 
 export const getUserCountry = rawUser => {
