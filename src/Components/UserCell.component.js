@@ -8,6 +8,7 @@ import CheckIcon from "@material-ui/icons/Check";
 import EmailIcon from "@material-ui/icons/Email";
 import PersonIcon from "@material-ui/icons/Person";
 import IconButton from "@material-ui/core/IconButton";
+import Tooltip from "@material-ui/core/Tooltip";
 import { getUserType, isGlobalUser, UNKNOWN_USER_TYPE } from "../models/user";
 import { arrayToIdMap } from "../utils";
 
@@ -113,22 +114,29 @@ class UserCell extends React.Component {
 
         {userEditable && (
           <div style={{ position: "absolute", top: 0, right: 0 }}>
-            <IconButton
-              style={{ height: 32, width: 32 }}
-              aria-label="Edit user"
-              component={Link}
-              onClick={this.handleClickEdit}
-              to={"/edit/" + user.id}
+            <Tooltip title="Edit User" placement="bottom-end">
+              <IconButton
+                style={{ height: 32, width: 32 }}
+                aria-label="Edit user"
+                component={Link}
+                onClick={this.handleClickEdit}
+                to={"/edit/" + user.id}
+              >
+                <EditIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip
+              title={user.userCredentials.disabled === true ? "Enable" : "Disable"}
+              placement="bottom-start"
             >
-              <EditIcon />
-            </IconButton>
-            <IconButton
-              style={{ color: bgcolor, height: 32, width: 32 }}
-              onClick={this.handleClickDisable}
-              aria-label="Change user enabled state"
-            >
-              {user.userCredentials.disabled === true ? <CheckIcon /> : <CancelIcon />}
-            </IconButton>
+              <IconButton
+                style={{ color: bgcolor, height: 32, width: 32 }}
+                onClick={this.handleClickDisable}
+                aria-label="Change user enabled state"
+              >
+                {user.userCredentials.disabled === true ? <CheckIcon /> : <CancelIcon />}
+              </IconButton>
+            </Tooltip>
           </div>
         )}
       </div>
