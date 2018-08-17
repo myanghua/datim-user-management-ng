@@ -68,7 +68,7 @@ class List extends Component {
   render() {
     let { users, selectedUser, pager, tab } = this.props;
 
-    if (!pager.page) {
+    if (!pager || !pager.page || !users) {
       return <div />;
     }
 

@@ -2,7 +2,7 @@ import * as actions from "../constants/ActionTypes";
 import filterCategories from "../Components/filter/filterCategories";
 import { tabs } from "../Components/filter/tabCategories";
 import { apiPatchUserDisabledState, apiFetchUser, apiFetchUsers } from "../api/users";
-import { getUserType } from "../models/user";
+import { getUserType, bindUserGroupData } from "../models/user";
 import { arrayToIdMap } from "../utils";
 
 const filterString = (category, value) => {
@@ -41,17 +41,23 @@ export const getUserListing = () => (dispatch, getState) => {
 
   apiFetchUsers(params)
     .then(u => {
-      const users = u.toArray().map(user => {
-        const type = getUserType(user);
-        return Object.assign({}, user, { type });
-      });
-      dispatch({
-        type: actions.SET_USERS,
-        data: arrayToIdMap(users),
-      });
       dispatch({
         type: actions.SET_PAGER,
         data: u.pager,
+      });
+
+      const usersWithType = u.toArray().map(user => {
+        const type = getUserType(user);
+        return Object.assign({}, user, { type });
+      });
+
+      return Promise.resolve(usersWithType);
+    })
+    .then(users => bindUserGroupData(users, state.core.me))
+    .then(users => {
+      dispatch({
+        type: actions.SET_USERS,
+        data: arrayToIdMap(users),
       });
       dispatch({
         type: actions.HIDE_PROCESSING,

@@ -1,4 +1,6 @@
 import config from "../actions/config";
+import { apiFetchUserGroups } from "../api/userGroups";
+import { arrayToIdMap } from "../utils";
 
 export const UNKNOWN_USER_TYPE = "Unknown type";
 
@@ -47,6 +49,89 @@ export const getUserOrganization = rawUser => {
       .trim();
   }
   return "";
+};
+
+const fetchUserGroups = async (groupIds, managedUserGroups) => {
+  const groups = await apiFetchUserGroups(groupIds);
+  const userGroupData = (groups || {}).userGroups || [];
+  userGroupData.forEach(g => {
+    managedUserGroups[g.id] = (g.managedByGroups || []).map(g => g.id);
+  });
+
+  let missingUserGroupIds = userGroupData.reduce((acc, ug) => {
+    const missingIds = (ug.managedByGroups || [])
+      .map(g => g.id)
+      .filter(managedByGroup => !managedUserGroups[managedByGroup.id]);
+
+    return acc.concat(missingIds);
+  }, []);
+
+  missingUserGroupIds = [...new Set(missingUserGroupIds)];
+
+  return (
+    missingUserGroupIds.length && fetchUserGroups(missingUserGroupIds, managedUserGroups)
+  );
+};
+
+export const bindUserGroupData = async (users, currentUser) => {
+  const userGroupAccessCache = {};
+  const userGroups = users.reduce((userGroups, user) => {
+    ((user || {}).userGroups || []).forEach(ug => {
+      var cachedUserGroupAccess = userGroupAccessCache[ug.id];
+      if (cachedUserGroupAccess) {
+        Object.assign(ug, cachedUserGroupAccess);
+      } else {
+        userGroups[ug.id] = userGroups[ug.id] || [];
+        userGroups[ug.id].push(ug);
+      }
+    });
+    return userGroups;
+  }, {});
+
+  var userGroupIds = Object.keys(userGroups);
+  if (!userGroupIds.length) {
+    return users;
+  }
+
+  const managedUserGroups = {};
+  await fetchUserGroups(userGroupIds, managedUserGroups);
+
+  setUserGroupAccessToUserGroups();
+
+  function setUserGroupAccessToUserGroups() {
+    const currentUserGroups = arrayToIdMap(currentUser.userGroups);
+
+    userGroupIds.forEach(gId => {
+      const userGroupAccess = {
+        access: {
+          manage: !!currentUserGroups[gId],
+        },
+      };
+
+      if (!userGroupAccess.access.manage) {
+        const allUserGroupIds = getAllUserGroupIds(gId);
+        userGroupAccess.access.manage = allUserGroupIds.some(
+          id => !!currentUserGroups[id]
+        );
+      }
+
+      userGroupAccessCache[gId] = userGroupAccess;
+
+      userGroups[gId].forEach(g => {
+        Object.assign(g, userGroupAccess);
+      });
+    });
+  }
+
+  function getAllUserGroupIds(id) {
+    const allUserGroupIds = (managedUserGroups[id] || []).reduce((acc, gId) => {
+      return acc.concat(getAllUserGroupIds(gId));
+    }, []);
+
+    return [...new Set(allUserGroupIds)];
+  }
+
+  return users;
 };
 
 const getUserActions = rawUser => {

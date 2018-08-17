@@ -9,10 +9,6 @@ import EmailIcon from "@material-ui/icons/Email";
 import PersonIcon from "@material-ui/icons/Person";
 import IconButton from "@material-ui/core/IconButton";
 import { getUserType, isGlobalUser, UNKNOWN_USER_TYPE } from "../models/user";
-import { arrayToIdMap } from "../utils";
-
-// import AppTheme from "../colortheme";
-// import actions from "../actions";
 
 const styles = {
   activeColor: "#00C853",
@@ -68,15 +64,14 @@ class UserCell extends React.Component {
     }
 
     const ugArray = user.userGroups.toArray();
-
-    const unmanagableGroups = ugArray.filter(ug => {
-      return !ug || !ug.access || !ug.access.manage;
-    });
+    const unmanagableGroups = ugArray.filter(
+      ug => !ug || !ug.access || !ug.access.manage
+    );
 
     // Cannot manage ANY group
     if (
       !currentUserIsSuperUser &&
-      unmanagableGroups.length &&
+      unmanagableGroups.length !== 0 &&
       unmanagableGroups.length === ugArray.length
     ) {
       unmanagableGroups.forEach(ug => {

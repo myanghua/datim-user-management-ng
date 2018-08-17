@@ -5,9 +5,10 @@ import List from "../Components/List.component";
 import * as listActions from "../actions/list";
 
 const mapStateToProps = state => {
-  const { list } = state;
+  const { list, core } = state;
 
   return {
+    me: core.me,
     users: list.users,
     pager: list.pager,
     selectedUser: list.selectedUser,
