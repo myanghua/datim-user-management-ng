@@ -9,6 +9,7 @@ import EmailIcon from "@material-ui/icons/Email";
 import PersonIcon from "@material-ui/icons/Person";
 import IconButton from "@material-ui/core/IconButton";
 import { getUserType, isGlobalUser, UNKNOWN_USER_TYPE } from "../models/user";
+import { arrayToIdMap } from "../utils";
 
 const styles = {
   activeColor: "#00C853",
@@ -76,6 +77,24 @@ class UserCell extends React.Component {
     ) {
       unmanagableGroups.forEach(ug => {
         errors.push('User is a member of the "' + ug.name + '" group, which you are not');
+      });
+    }
+
+    // DOn't have all the user's roles
+    if (
+      !currentUserIsSuperUser &&
+      user.userCredentials &&
+      user.userCredentials.userRoles
+    ) {
+      const currentUser = this.props.me;
+      const currentUserRoles =
+        (currentUser.userCredentials && currentUser.userCredentials.userRoles) || [];
+      const currentUserRolesMap = arrayToIdMap(currentUserRoles);
+
+      user.userCredentials.userRoles.forEach(userRole => {
+        if (!currentUserRolesMap[userRole.id]) {
+          errors.push('User has the role "' + userRole.name + '" which you do not');
+        }
       });
     }
 
