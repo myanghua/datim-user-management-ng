@@ -72,23 +72,26 @@ class App extends Component {
 
   render() {
     const d2 = this.props.d2;
+    const me = this.props.me;
     return (
       <JssProvider>
         <div className="app-wrapper">
           <AccessDenied />
           <HeaderBar d2={d2} />
           <Processing />
-          <Router>
-            <Switch>
-              <Route exact path="/" render={props => <List d2={d2} />} />
-              <Route exact path="/invite" render={props => <Invite d2={d2} />} />
-              <Route
-                exact
-                path="/edit/:id"
-                render={props => <Edit d2={d2} {...props} />}
-              />
-            </Switch>
-          </Router>
+          {me.id && (
+            <Router>
+              <Switch>
+                <Route exact path="/" render={props => <List d2={d2} />} />
+                <Route exact path="/invite" render={props => <Invite d2={d2} />} />
+                <Route
+                  exact
+                  path="/edit/:id"
+                  render={props => <Edit d2={d2} {...props} />}
+                />
+              </Switch>
+            </Router>
+          )}
           <Snackbar
             className="snackbar"
             message={this.state.snackbar || ""}
@@ -111,7 +114,9 @@ App.propTypes = {
   d2: PropTypes.object.isRequired,
 };
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  me: state.core.me,
+});
 const mapDispatchToProps = dispatch => bindActionCreators(coreActions, dispatch);
 
 export default connect(

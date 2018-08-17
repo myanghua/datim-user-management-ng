@@ -12,9 +12,6 @@ import Tooltip from "@material-ui/core/Tooltip";
 import { getUserType, isGlobalUser, UNKNOWN_USER_TYPE } from "../models/user";
 import { arrayToIdMap } from "../utils";
 
-// import AppTheme from "../colortheme";
-// import actions from "../actions";
-
 const styles = {
   activeColor: "#00C853",
   disabledColor: "#E53935",
@@ -69,19 +66,36 @@ class UserCell extends React.Component {
     }
 
     const ugArray = user.userGroups.toArray();
-
-    const unmanagableGroups = ugArray.filter(ug => {
-      return !ug || !ug.access || !ug.access.manage;
-    });
+    const unmanagableGroups = ugArray.filter(
+      ug => !ug || !ug.access || !ug.access.manage
+    );
 
     // Cannot manage ANY group
     if (
       !currentUserIsSuperUser &&
-      unmanagableGroups.length &&
+      unmanagableGroups.length !== 0 &&
       unmanagableGroups.length === ugArray.length
     ) {
       unmanagableGroups.forEach(ug => {
         errors.push('User is a member of the "' + ug.name + '" group, which you are not');
+      });
+    }
+
+    // DOn't have all the user's roles
+    if (
+      !currentUserIsSuperUser &&
+      user.userCredentials &&
+      user.userCredentials.userRoles
+    ) {
+      const currentUser = this.props.me;
+      const currentUserRoles =
+        (currentUser.userCredentials && currentUser.userCredentials.userRoles) || [];
+      const currentUserRolesMap = arrayToIdMap(currentUserRoles);
+
+      user.userCredentials.userRoles.forEach(userRole => {
+        if (!currentUserRolesMap[userRole.id]) {
+          errors.push('User has the role "' + userRole.name + '" which you do not');
+        }
       });
     }
 
