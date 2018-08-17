@@ -14,6 +14,9 @@ import UserCell from "./UserCell.component";
 import UserDetails from "./UserDetails.component";
 import FilterManager from "./filter/FilterManager.component";
 import Pager from "./Pager.component";
+import Button from "@material-ui/core/Button";
+import SaveAlt from "@material-ui/icons/SaveAlt";
+import Tooltip from "@material-ui/core/Tooltip";
 import { tabs } from "./filter/tabCategories";
 
 const styles = {
@@ -88,6 +91,19 @@ class List extends Component {
         <FilterManager />
 
         <Paper className={`card listing ${showDetailsClass}`}>
+          <Tooltip title="Download as CSV" placement="left">
+            <Button
+              style={{ float: "right", marginRight: "2em", marginTop: "1em" }}
+              color="primary"
+              size="small"
+              variant="outlined"
+              onClick={this.handleDownload}
+            >
+              <SaveAlt />
+              Save
+            </Button>
+          </Tooltip>
+
           <Tabs
             value={tab}
             indicatorColor="primary"
