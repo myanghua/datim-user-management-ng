@@ -67,6 +67,10 @@ class List extends Component {
     this.props.setUserDisabledState(user.id, !user.userCredentials.disabled);
   };
 
+  handleDownload = () => {
+    console.log("DL");
+  };
+
   // DISPLAY THE INFO
   render() {
     let { users, selectedUser, pager, tab } = this.props;
