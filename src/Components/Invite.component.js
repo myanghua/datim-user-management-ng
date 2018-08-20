@@ -354,7 +354,7 @@ class Invite extends Component {
   // get userGroups that reference the current country (as a preload)
   loadOuUserGroups = country => {
     const { d2 } = this.props;
-    d2.models.userGroups
+    return d2.models.userGroups
       .list({
         filter: "name:ilike:OU " + country,
         fields: "id,name",
@@ -366,6 +366,7 @@ class Invite extends Component {
           oug.push({ id: l.id, name: l.name });
         });
         this.setState({ countryUserGroups: oug });
+        return oug;
       });
   };
 
@@ -615,12 +616,15 @@ class Invite extends Component {
             user.userGroups.push({ id: g.id });
           });
         if (this.state.userManager) {
+          // // Add in IA/MOH useradmin streams
           this.state.countryUserGroups
             .filter(
               f =>
                 f.name === "OU " + countryName + " MOH User administrators" ||
+                f.name === "OU " + countryName + " MOH user administrators" ||
                 f.name === "OU " + countryName + " MOH Users" ||
-                f.name === "OU " + countryName + " User Administrators"
+                f.name === "OU " + countryName + " User Administrators" ||
+                f.name === "OU " + countryName + " User administrators"
             )
             .forEach(g => {
               user.userGroups.push({ id: g.id });
