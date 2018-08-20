@@ -49,6 +49,10 @@ class Edit extends Component {
         streams: {},
         baseActions: {},
         baseStreams: {},
+        agencies: [],
+        partners: [],
+        interAgency: [],
+        moh: [],
       };
     }
 
@@ -262,18 +266,6 @@ class Edit extends Component {
       });
   }
 
-  // @TODO:: build, original is convoluted because IA is spread over 3 user group patterns
-  // @TODO:: move somewhere else
-  getInteragencyGroups(ouUID) {
-    // userUserGroup
-    // "name:ilike:OU ${organisationUnit.name} Country team"
-    // userAdminUserGroup
-    // "name:ilike:OU ${organisationUnit.name} user administrators"
-    // mechUserGroup
-    // "name:ilike:OU ${organisationUnit.name} all mechanisms"
-    return false;
-  }
-
   // find out who this person is
   getUserDetails = uid => {
     const { d2, core, showProcessing, hideProcessing, getUserLocale, match } = this.props;
@@ -335,6 +327,7 @@ class Edit extends Component {
         // original app assumed user would have only one OU (at the country level)
         // might be in partners, agencies, or interagency, start with partners
         this.getPartnersInOrg(ous.id).then(partners => {
+          this.setState({ partners: partners });
           userGroups.forEach(ug => {
             let found = partners.filter(p => {
               if (
@@ -366,6 +359,7 @@ class Edit extends Component {
           });
         });
         this.getAgenciesInOrg(ous.id).then(agencies => {
+          this.setState({ agencies: agencies });
           userGroups.forEach(ug => {
             let found = agencies.filter(a => {
               if (
@@ -396,8 +390,23 @@ class Edit extends Component {
             }
           });
         });
-        // @TODO:: interagency lookup
-        // this.getInteragencyGroups(ous.id)...
+        if (userType === "Inter-Agency" || userType === "MOH") {
+          let availableGroups = core.me.userGroups.filter(
+            f =>
+              f.name === "OU " + country + " MOH User administrators" ||
+              f.name === "OU " + country + " MOH user administrators" ||
+              f.name === "OU " + country + " MOH Users"
+          );
+          this.setState({ moh: availableGroups });
+        }
+        if (userType === "Inter-Agency") {
+          let availableGroups = core.me.userGroups.filter(
+            f =>
+              f.name === "OU " + country + " User Administrators" ||
+              f.name === "OU " + country + " User administrators"
+          );
+          this.setState({ interAgency: availableGroups });
+        }
 
         // get the data stream (groups)
         let streams = {};
@@ -476,6 +485,32 @@ class Edit extends Component {
         }
       }
     });
+    // add / remove Inter-Agency items
+    if (this.state.interAgency) {
+      this.state.interAgency.forEach(group => {
+        console.log(group, isUserAdmin);
+        if (group.name.indexOf("dministrator")) {
+          if (isUserAdmin) {
+            streams[group.id] = group.name;
+          } else {
+            delete streams[group.id];
+          }
+        }
+      });
+    }
+    // add / remove MOH items
+    if (this.state.moh) {
+      this.state.moh.forEach(group => {
+        console.log(group, isUserAdmin);
+        if (group.name.indexOf("dministrator")) {
+          if (isUserAdmin) {
+            streams[group.id] = group.name;
+          } else {
+            delete streams[group.id];
+          }
+        }
+      });
+    }
     return streams;
   };
 
@@ -496,6 +531,11 @@ class Edit extends Component {
     // placeholder for the results
     let actions = this.state.actions;
     cfgActions.forEach(action => {
+      // make sure preselected+locked roles are always there
+      if (action.preSelected === 1 && action.locked === 1) {
+        actions[action.roleUID] = true;
+        return;
+      }
       if (isUserAdmin && action.selectWhenUA === 1) {
         actions[action.roleUID] = true;
       } else if (!isUserAdmin && action.selectWhenUA === 1 && actions[action.roleUID]) {
@@ -599,7 +639,7 @@ class Edit extends Component {
         });
       }
       if (v && streams[v.groupUID] && v.impliedRoles) {
-        lvls["Enter Data"].impliedRoles.forEach(r => {
+        lvls["View Data"].impliedRoles.forEach(r => {
           actions[r.roleUID] = r.name;
         });
       }
@@ -670,7 +710,7 @@ class Edit extends Component {
       const ouMap = ous.map(o => {
         return { id: o.id };
       });
-      // restore OUs
+      // restore dat view OUs
       const dvous = tsu.dataViewOrganisationUnits.toArray();
       const dvouMap = dvous.map(o => {
         return { id: o.id };
@@ -690,6 +730,8 @@ class Edit extends Component {
         displayName: tsu.displayName,
         externalAccess: tsu.externalAccess || false,
         surname: tsu.surname,
+        email: tsu.email,
+        phoneNumber: tsu.phoneNumber,
         employer: tsu.employer || "",
         firstName: tsu.firstName,
         favorite: tsu.favorite || false,
