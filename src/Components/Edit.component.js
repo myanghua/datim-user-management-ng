@@ -408,9 +408,9 @@ class Edit extends Component {
           );
           this.setState({
             mohUserGroups: {
-              user: users,
+              user: users[0] || false,
               mech: false,
-              admin: admin,
+              admin: admin[0] || false,
             },
           });
         }
