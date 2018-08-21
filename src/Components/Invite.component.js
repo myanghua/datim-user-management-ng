@@ -409,9 +409,6 @@ class Invite extends Component {
           case "Partner":
             this.getPartnersInOrg(this.state.country);
             break;
-          case "Partner DoD":
-            // @TODO
-            break;
           case "Global":
           case "Inter-Agency":
           case "MOH":
@@ -541,7 +538,18 @@ class Invite extends Component {
   // the big todo for inviting someone
   handleInviteUser = () => {
     const { d2, core, showProcessing, hideProcessing } = this.props;
-    const cfg = core.config[this.state.userType];
+
+    // check for DoD, might need different config
+    let userType = this.state.userType;
+    if (userType === "Partner") {
+      const partner = this.state.partners.filter(f => f.id === this.state.partner);
+      if (partner.length === 0) {
+        console.error("Invalid partner selection");
+      } else if (partner[0].normalEntry === false) {
+        userType = "Partner DoD";
+      }
+    }
+    const cfg = core.config[userType];
     // start the Processing spinner
     showProcessing();
 
@@ -560,6 +568,11 @@ class Invite extends Component {
 
     // basic streams / groups
     Object.keys(this.state.streams).forEach(stream => {
+      if (!cfg.streams[stream]) {
+        // @TODO:: major error here
+        console.error("MISSING STREAM", stream, this.state.userType);
+        return;
+      }
       const s = cfg.streams[stream].accessLevels[this.state.streams[stream]];
       if (this.state.streams[stream] === "Enter Data") {
         user.userGroups.push({ id: s.groupUID });
