@@ -51,8 +51,8 @@ class Edit extends Component {
         baseStreams: {},
         agencies: [],
         partners: [],
-        interAgency: [],
-        moh: [],
+        orgUserGroups: {},
+        mohUserGroups: {},
       };
     }
 
@@ -354,7 +354,14 @@ class Edit extends Component {
               return false;
             });
             if (found[0]) {
-              this.setState({ org: found[0].name });
+              this.setState({
+                org: found[0].name,
+                orgUserGroups: {
+                  user: found[0].userUserGroup,
+                  mech: found[0].mechUserGroup,
+                  admin: found[0].userAdminUserGroup,
+                },
+              });
             }
           });
         });
@@ -391,21 +398,21 @@ class Edit extends Component {
           });
         });
         if (userType === "Inter-Agency" || userType === "MOH") {
-          let availableGroups = core.me.userGroups.filter(
+          let users = core.me.userGroups.filter(
+            f => f.name === "OU " + country + " MOH Users"
+          );
+          let admin = core.me.userGroups.filter(
             f =>
               f.name === "OU " + country + " MOH User administrators" ||
-              f.name === "OU " + country + " MOH user administrators" ||
-              f.name === "OU " + country + " MOH Users"
+              f.name === "OU " + country + " MOH user administrators"
           );
-          this.setState({ moh: availableGroups });
-        }
-        if (userType === "Inter-Agency") {
-          let availableGroups = core.me.userGroups.filter(
-            f =>
-              f.name === "OU " + country + " User Administrators" ||
-              f.name === "OU " + country + " User administrators"
-          );
-          this.setState({ interAgency: availableGroups });
+          this.setState({
+            mohUserGroups: {
+              user: users,
+              mech: false,
+              admin: admin,
+            },
+          });
         }
 
         // get the data stream (groups)
@@ -486,30 +493,24 @@ class Edit extends Component {
       }
     });
     // add / remove Inter-Agency items
-    if (this.state.interAgency) {
-      this.state.interAgency.forEach(group => {
-        console.log(group, isUserAdmin);
-        if (group.name.indexOf("dministrator")) {
-          if (isUserAdmin) {
-            streams[group.id] = group.name;
-          } else {
-            delete streams[group.id];
-          }
-        }
-      });
+    if (this.state.orgUserGroups) {
+      const oug = this.state.orgUserGroups;
+      if (isUserAdmin && oug.admin) {
+        streams[oug.admin.id] = oug.admin.name;
+      } else if (oug.admin && streams[oug.admin.id]) {
+        delete streams[oug.admin.id];
+      }
     }
     // add / remove MOH items
-    if (this.state.moh) {
-      this.state.moh.forEach(group => {
-        console.log(group, isUserAdmin);
-        if (group.name.indexOf("dministrator")) {
-          if (isUserAdmin) {
-            streams[group.id] = group.name;
-          } else {
-            delete streams[group.id];
-          }
-        }
-      });
+    if (this.state.mohUserGroups) {
+      const mug = this.state.mohUserGroups;
+      console.log("MUG", mug);
+      if (isUserAdmin && mug.admin) {
+        console.log("MUG", mug);
+        streams[mug.admin.id] = mug.admin.name;
+      } else if (mug.admin && streams[mug.admin.id]) {
+        delete streams[mug.admin.id];
+      }
     }
     return streams;
   };
