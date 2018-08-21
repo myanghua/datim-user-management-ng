@@ -504,9 +504,7 @@ class Edit extends Component {
     // add / remove MOH items
     if (this.state.mohUserGroups) {
       const mug = this.state.mohUserGroups;
-      console.log("MUG", mug);
       if (isUserAdmin && mug.admin) {
-        console.log("MUG", mug);
         streams[mug.admin.id] = mug.admin.name;
       } else if (mug.admin && streams[mug.admin.id]) {
         delete streams[mug.admin.id];
