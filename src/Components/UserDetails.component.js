@@ -1,26 +1,34 @@
 import React, { Component } from "react";
 import CancelIcon from "@material-ui/icons/Cancel";
 import IconButton from "@material-ui/core/IconButton";
+import CheckIcon from "@material-ui/icons/Check";
+import ClearIcon from "@material-ui/icons/Clear";
+import BlockIcon from "@material-ui/icons/Block";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
 import getUser, { UNKNOWN_USER_TYPE } from "../models/user";
+import { green, red } from "../colors";
 
 import "./UserDetails.component.css";
 
-// const styles = {
-//   activeColor: "#00C853",
-//   disabledColor: "#E53935",
-//   icon: {
-//     color: "#369",
-//     marginRight: 2,
-//   },
-// };
-
 const Streams = ({ streams }) => {
+  const getAccessIcon = val => {
+    if (val === undefined) {
+      return <BlockIcon color="disabled" style={{ height: "16px" }} />;
+    } else if (val === false) {
+      return <ClearIcon style={{ color: red, height: "16px" }} />;
+    }
+    return <CheckIcon style={{ color: green, height: "16px" }} />;
+  };
+
   const rows = streams.map((s, i) => {
-    const view = s.accesses["View Data"] ? s.accesses["View Data"] : "-";
-    const enter = s.accesses["Enter Data"] ? s.accesses["Enter Data"] : "-";
+    const view = getAccessIcon(s.accesses["View Data"]);
+    const enter = getAccessIcon(s.accesses["Enter Data"]);
     return (
       <tr key={`${s.name}-${i}`}>
-        <td>{s.name}</td>
+        <td style={{ textAlign: "left" }}>{s.name}</td>
         <td>{view}</td>
         <td>{enter}</td>
       </tr>
@@ -28,7 +36,7 @@ const Streams = ({ streams }) => {
   });
 
   return (
-    <table>
+    <table style={{ width: "100%" }}>
       <thead>
         <tr>
           <th />
@@ -43,10 +51,15 @@ const Streams = ({ streams }) => {
 
 const Actions = ({ actions }) => {
   const actionItems = actions.map((action, i) => (
-    <li key={`useraction-${i}`}>{action}</li>
+    <ListItem style={{ padding: 0 }}>
+      <ListItemIcon>
+        <CheckIcon style={{ color: green, height: "16px" }} />
+      </ListItemIcon>
+      <ListItemText>{action}</ListItemText>
+    </ListItem>
   ));
 
-  return <ul>{actionItems}</ul>;
+  return <List dense={false}>{actionItems}</List>;
 };
 
 class UserDetails extends Component {
@@ -56,34 +69,38 @@ class UserDetails extends Component {
 
     return (
       <div style={{ position: "relative" }}>
-        <h3>{user.displayName}</h3>
+        <div>
+          <span style={{ fontSize: "1.5em" }}>{user.displayName}</span>
+        </div>
         <IconButton
-          style={{ position: "absolute", top: "-18px", right: 0 }}
+          style={{ position: "absolute", top: "-20px", right: "-16px" }}
           onClick={this.props.onCloseDetails}
           aria-label="Close user details"
         >
           <CancelIcon />
         </IconButton>
         <p>
-          <strong>User Type:</strong>
+          <strong>User Type: </strong>
           <span>{userType}</span>
         </p>
-        {["Agency", "Partner", "Partner DoD"].indexOf(user.type) !== -1 && (
+        {["Agency", "Partner", "Partner DoD"].indexOf(user.type) !== -1 && ( //TODO - put in config
           <p>
-            <strong>Organization:</strong> {user.employer}
+            <strong>Organization: </strong>
+            {user.employer}
           </p>
         )}
         <p>
-          <strong>Country:</strong> {user.country}
+          <strong>Country: </strong>
+          {user.country}
         </p>
-        <h4>Data streams</h4>
+        <h3>Data streams</h3>
         <Streams streams={user.dataStreams} />
-        {user.actions.length ? (
+        {user.actions.length && (
           <div>
-            <h4>Actions</h4>
+            <h3>Actions</h3>
             <Actions actions={user.actions} />
           </div>
-        ) : null}
+        )}
       </div>
     );
   }

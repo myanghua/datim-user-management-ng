@@ -154,7 +154,7 @@ const getStreamAccesses = (groups, stream) => {
 
     return {
       ...acc,
-      [currKey]: found ? "Y" : "N",
+      [currKey]: found ? true : false,
     };
   }, {});
 };

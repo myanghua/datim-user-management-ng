@@ -11,10 +11,11 @@ import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
 import { getUserType, isGlobalUser, UNKNOWN_USER_TYPE } from "../models/user";
 import { arrayToIdMap } from "../utils";
+import { green, red } from "../colors";
 
 const styles = {
-  activeColor: "#00C853",
-  disabledColor: "#E53935",
+  activeColor: green,
+  disabledColor: red,
   icon: {
     color: "#369",
     marginRight: 2,
