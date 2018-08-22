@@ -46,10 +46,12 @@ class Invite extends Component {
       country: false,
       email: "",
       locale: "en",
-      agencies: [],
-      partners: [],
       agency: false,
+      agencies: [],
       partner: false,
+      partners: [],
+      globalAgency: false,
+      globalAgencies: [],
       streams: {},
       actions: {},
       myStreams: [],
@@ -65,6 +67,7 @@ class Invite extends Component {
     this.handleChangeLocale = this.handleChangeLocale.bind(this);
     this.handleChangeAgency = this.handleChangeAgency.bind(this);
     this.handleChangePartner = this.handleChangePartner.bind(this);
+    this.handleChangeGlobalAgency = this.handleChangeGlobalAgency.bind(this);
     this.handleCheckUserManager = this.handleCheckUserManager.bind(this);
     this.handleChangeStream = this.handleChangeStream.bind(this);
     this.handleChangeActions = this.handleChangeActions.bind(this);
@@ -177,14 +180,14 @@ class Invite extends Component {
   // for some reason "Partners" are both userGroups and categoryOptionGroups
   // warning: this is mostly voodoo ported from the previous app
   getPartnersInOrg(ouUID) {
-    const { core, d2 } = this.props;
+    const { core, d2, showProcessing, hideProcessing } = this.props;
     const countryName = core.countries.filter(r => r.id === ouUID)[0].name;
     const params = {
       paging: false,
       fields: "id,name,code",
       filter: "name:ilike:" + countryName + " Partner",
     };
-
+    showProcessing();
     d2.models.userGroups
       .list(params)
       .then(res => {
@@ -230,22 +233,25 @@ class Invite extends Component {
           p.normalEntry = p.dodEntry === false; // no DoD information
         });
         this.setState({ partners: filtered });
+        hideProcessing();
       })
       .catch(e => {
         actions.showSnackbarMessage("Error fetching partner organizations");
         console.error(e);
+        hideProcessing();
       });
   }
 
   // get a list of relevant Agencies for this OU/Country
   getAgenciesInOrg(ouUID) {
-    const { core, d2 } = this.props;
+    const { core, d2, showProcessing, hideProcessing } = this.props;
     const countryName = core.countries.filter(r => r.id === ouUID)[0].name;
     const params = {
       paging: false,
       fields: "id,name,code",
       filter: "name:ilike:" + countryName + " Agency",
     };
+    showProcessing();
     d2.models.userGroups
       .list(params)
       .then(res => {
@@ -286,9 +292,54 @@ class Invite extends Component {
             return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
           });
         this.setState({ agencies: filtered });
+        hideProcessing();
       })
       .catch(e => {
         actions.showSnackbarMessage("Error fetching agencies");
+        console.error(e);
+        hideProcessing();
+      });
+  }
+
+  // get a list of relevant Agencies for this OU/Country
+  getGlobalAgencies() {
+    const { d2, showProcessing, hideProcessing } = this.props;
+    const params = {
+      paging: false,
+      fields: "id,name",
+      filter: "name:ilike:Global Agency",
+    };
+    if (this.state.globalAgencies && this.state.globalAgencies.length > 0) {
+      return;
+    }
+    showProcessing();
+    d2.models.userGroups
+      .list(params)
+      .then(res => {
+        let getAgencyCode = userGroup => {
+          return (/Agency .+?(?= all| user)/i.exec(userGroup.name) || "")
+            .toString()
+            .replace("Agency ", "");
+        };
+        // figure out the user group type based on the naming convention
+        let getType = userGroup => {
+          return /all mechanisms$/i.test(userGroup.name)
+            ? "mechUserGroup"
+            : /user administrators$/i.test(userGroup.name)
+              ? "userAdminUserGroup"
+              : "userUserGroup";
+        };
+
+        // take the userGroups that have a name like our OU, group and index them by their partner_code
+        const merged = res.toArray().reduce((obj, ug) => {
+          return this.extendObj(obj, ug.toJSON(), getAgencyCode(ug), getType(ug));
+        }, {});
+        hideProcessing();
+        this.setState({ globalAgencies: merged });
+      })
+      .catch(e => {
+        actions.showSnackbarMessage("Error fetching Global Agencies");
+        hideProcessing();
         console.error(e);
       });
   }
@@ -409,6 +460,9 @@ class Invite extends Component {
           case "Partner":
             this.getPartnersInOrg(this.state.country);
             break;
+          case "Agency HQ":
+            this.getGlobalAgencies();
+            break;
           case "Global":
           case "Inter-Agency":
           case "MOH":
@@ -454,6 +508,15 @@ class Invite extends Component {
       this.setState({
         partner: event.target.value,
         streams: this.getStreamDefaults(userType, this.state.userManager),
+      });
+    }
+  };
+
+  handleChangeGlobalAgency = event => {
+    if (event.target.value !== this.state.globalAgency) {
+      this.setState({
+        globalAgency: event.target.value,
+        streams: this.getStreamDefaults("Agency HQ", this.state.userManager),
       });
     }
   };
@@ -652,6 +715,23 @@ class Invite extends Component {
         // Global User Administrators
         if (this.state.userManager) {
           user.userGroups.push({ id: "ghYxzrKHldx" });
+        }
+        break;
+      case "Agency HQ":
+        const globalAgency = this.state.globalAgencies[this.state.globalAgency] || false;
+        if (!globalAgency) {
+          console.error("Invalid Agency HQ selected:", this.state.globalAgency);
+          actions.showSnackbarMessage(
+            "Invalid Agency HQ selected: " + this.state.globalAgency
+          );
+        }
+        // Global all mechanisms: TOOIJWRzJ3g
+        user.userGroups.push({ id: globalAgency.mechUserGroup.id });
+        // Global Users: gh9tn4QBbKZ
+        user.userGroups.push({ id: globalAgency.userUserGroup.id });
+        // Global User Administrators
+        if (this.state.userManager) {
+          user.userGroups.push({ id: globalAgency.userAdminUserGroup.id });
         }
         break;
       default:
@@ -924,21 +1004,27 @@ class Invite extends Component {
     });
 
     // Build the select menus
-    const countryMenus = this.state.myCountries.map(v => (
+    const countryMenus = (this.state.myCountries || []).map(v => (
       <MenuItem key={v.id} value={v.id}>
         {v.name}
       </MenuItem>
     ));
 
-    const agencyMenus = this.state.agencies.map(v => (
+    const agencyMenus = (this.state.agencies || []).map(v => (
       <MenuItem key={v.id} value={v.id}>
         {v.name}
       </MenuItem>
     ));
 
-    const partnerMenus = this.state.partners.map(v => (
+    const partnerMenus = (this.state.partners || []).map(v => (
       <MenuItem key={v.id} value={v.id}>
         {v.name}
+      </MenuItem>
+    ));
+
+    const agencyHqMenus = (Object.keys(this.state.globalAgencies) || []).map(v => (
+      <MenuItem key={v} value={v}>
+        {v}
       </MenuItem>
     ));
 
@@ -1086,6 +1172,23 @@ class Invite extends Component {
                 }}
               >
                 {agencyMenus}
+              </Select>
+              <FormHelperText>Select an agency</FormHelperText>
+            </FormControl>
+          ) : null}
+
+          {this.state.userType === "Agency HQ" ? (
+            <FormControl required style={{ width: "100%", marginTop: "1em" }}>
+              <InputLabel htmlFor="agencyhq">Agency</InputLabel>
+              <Select
+                value={this.state.globalAgency || ""}
+                onChange={this.handleChangeGlobalAgency}
+                inputProps={{
+                  name: "agencyhq",
+                  id: "agencyhq",
+                }}
+              >
+                {agencyHqMenus}
               </Select>
               <FormHelperText>Select an agency</FormHelperText>
             </FormControl>
