@@ -803,11 +803,15 @@ class Invite extends Component {
       });
     });
 
-    const myTypes = this.getMyTypes(myStreams);
     // Find the countries they have access to and auto-select if only one
     let countries = [];
     let country = false;
     let userType = false;
+    // pre-select type if only one
+    const myTypes = this.getMyTypes(myStreams);
+    if (myTypes.length === 1) {
+      userType = myTypes[0];
+    }
     // determine what countries they can see
     if (core.countries) {
       if (isSuperUser) {
