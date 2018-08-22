@@ -16,8 +16,8 @@ import FilterManager from "./filter/FilterManager.component";
 import Pager from "./Pager.component";
 import Button from "@material-ui/core/Button";
 import SaveAlt from "@material-ui/icons/SaveAlt";
-import Tooltip from "@material-ui/core/Tooltip";
 import { tabs } from "./filter/tabCategories";
+import { downloadAsCSV } from "../api/csvExport";
 
 const styles = {
   activeColor: "#00C853",
@@ -31,6 +31,7 @@ const styles = {
 class List extends Component {
   state = {
     detailsOffsetTop: 0,
+    downloading: false,
   };
   constructor(props) {
     super(props);
@@ -67,11 +68,12 @@ class List extends Component {
     this.props.setUserDisabledState(user.id, !user.userCredentials.disabled);
   };
 
-  handleDownload = () => {
-    console.log("DL");
+  handleDownload = async () => {
+    this.setState({ downloading: true });
+    await downloadAsCSV(this.props.filters, this.props.tab);
+    this.setState({ downloading: false });
   };
 
-  // DISPLAY THE INFO
   render() {
     let { users, selectedUser, pager, tab } = this.props;
 
@@ -95,7 +97,19 @@ class List extends Component {
         <FilterManager />
 
         <Paper className={`card listing ${showDetailsClass}`}>
-          <Tooltip title="Download as CSV" placement="left">
+          {this.state.downloading ? (
+            <div
+              style={{
+                color: "grey",
+                float: "right",
+                marginRight: "1.5em",
+                marginTop: "1.5em",
+                fontStyle: "italic",
+              }}
+            >
+              <span>Downloading...</span>
+            </div>
+          ) : (
             <Button
               style={{ float: "right", marginRight: "2em", marginTop: "1em" }}
               color="primary"
@@ -103,10 +117,10 @@ class List extends Component {
               variant="outlined"
               onClick={this.handleDownload}
             >
-              <SaveAlt />
-              Save
+              <SaveAlt style={{ marginRight: "4px" }} />
+              Download CSV
             </Button>
-          </Tooltip>
+          )}
 
           <Tabs
             value={tab}

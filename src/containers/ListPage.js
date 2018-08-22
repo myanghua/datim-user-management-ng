@@ -9,6 +9,7 @@ const mapStateToProps = state => {
 
   return {
     me: core.me,
+    filters: list.filters,
     users: list.users,
     pager: list.pager,
     selectedUser: list.selectedUser,
