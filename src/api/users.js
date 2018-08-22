@@ -18,16 +18,20 @@ export const apiFetchUser = id => {
     .catch(onError);
 };
 
-export const apiFetchUsers = customParams => {
+export const apiFetchUsers = (customParams, customFields = "") => {
   return getInstance()
     .then(d2 => {
       const defaultParams = {
         canManage: true,
         paging: true,
         fields:
-          "id,firstName,surname,displayName,employer,email,organisationUnits[name,displayName,id,level],userCredentials[username,disabled,userRoles[id,name,displayName]],userGroups[name,displayName,id]",
+          "id,firstName,surname,displayName,email,organisationUnits[name,displayName,id,level],userCredentials[username,disabled,userRoles[id,name,displayName]],userGroups[name,displayName,id]",
       };
       const params = Object.assign({}, defaultParams, customParams);
+      if (customFields.length > 0) {
+        params.fields = params.fields + "," + customFields;
+      }
+
       return d2.models.users.list(params);
     })
     .catch(onError);

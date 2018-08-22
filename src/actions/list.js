@@ -1,14 +1,7 @@
 import * as actions from "../constants/ActionTypes";
-import filterCategories from "../Components/filter/filterCategories";
-import { tabs } from "../Components/filter/tabCategories";
 import { apiPatchUserDisabledState, apiFetchUser, apiFetchUsers } from "../api/users";
 import { getUserType, bindUserGroupData } from "../models/user";
-import { arrayToIdMap } from "../utils";
-
-const filterString = (category, value) => {
-  const filterParam = filterCategories[category].param;
-  return value ? `${filterParam}${value}` : null;
-};
+import { arrayToIdMap, buildFilterString } from "../utils";
 
 export const getUserListing = () => (dispatch, getState) => {
   const state = getState();
@@ -24,20 +17,8 @@ export const getUserListing = () => (dispatch, getState) => {
 
   const params = {
     page,
+    filter: buildFilterString(filters, tab),
   };
-
-  let filterStrings = filters
-    .filter(f => f.detail.length > 0)
-    .map(filter => filterString(filter.category, filter.detail));
-
-  const tabFilter = tabs[tab].param;
-  if (tabFilter.length) {
-    filterStrings.push(tabFilter);
-  }
-
-  if (filterStrings.length > 0) {
-    params.filter = filterStrings;
-  }
 
   apiFetchUsers(params)
     .then(u => {
