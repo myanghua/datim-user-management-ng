@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
@@ -8,7 +8,9 @@ import CheckIcon from "@material-ui/icons/Check";
 import EmailIcon from "@material-ui/icons/Email";
 import PersonIcon from "@material-ui/icons/Person";
 import IconButton from "@material-ui/core/IconButton";
+import Button from "@material-ui/core/Button";
 import Tooltip from "@material-ui/core/Tooltip";
+import { withStyles } from "@material-ui/core/styles";
 import { getUserType, isGlobalUser, UNKNOWN_USER_TYPE } from "../models/user";
 import { arrayToIdMap } from "../utils";
 import { green, red } from "../colors";
@@ -20,9 +22,25 @@ const styles = {
     color: "#369",
     marginRight: 2,
   },
+  customWidth: {
+    maxWidth: "500px",
+    fontSize: "13px",
+  },
 };
 
-class UserCell extends React.Component {
+class UserCell extends Component {
+  constructor(props) {
+    super(props);
+    const reasonsNoEdit = this.userEditable();
+    if (reasonsNoEdit.length) {
+      reasonsNoEdit.push("Here is another reason why you cant edit.");
+      reasonsNoEdit.push("And here is yet");
+    }
+    this.state = {
+      reasonsNoEdit,
+    };
+  }
+
   handleClickDisable = e => {
     e.stopPropagation();
     this.props.onClickDisable(this.props.user);
@@ -34,7 +52,7 @@ class UserCell extends React.Component {
   };
 
   userEditable = () => {
-    let errors = [];
+    let reasonsNoEdit = [];
 
     // user in list
     const user = this.props.user;
@@ -48,22 +66,22 @@ class UserCell extends React.Component {
 
     //Global current user cannot edit users of other types
     if (currentUserIsGlobalUser && !currentUserIsSuperUser && userType !== "Global") {
-      errors.push('"Global" user cannot edit this "' + userType + '" user');
+      reasonsNoEdit.push('"Global" user cannot edit this "' + userType + '" user');
     }
 
     //MOH current user cannot edit non MOH users
     if (currentUserType === "MOH" && !currentUserIsSuperUser && userType !== "MOH") {
-      errors.push('"MOH" user cannot edit this "' + userType + '" user');
+      reasonsNoEdit.push('"MOH" user cannot edit this "' + userType + '" user');
     }
 
     //Cannot edit yourself
     if (user.id === this.props.me.id) {
-      errors.push("Cannot edit yourself");
+      reasonsNoEdit.push("Cannot edit yourself");
     }
 
     //User does not conform to a known type
     if (user.type === UNKNOWN_USER_TYPE) {
-      errors.push("User does not conform to a known type");
+      reasonsNoEdit.push("User does not conform to a known type");
     }
 
     const ugArray = user.userGroups.toArray();
@@ -78,7 +96,9 @@ class UserCell extends React.Component {
       unmanagableGroups.length === ugArray.length
     ) {
       unmanagableGroups.forEach(ug => {
-        errors.push('User is a member of the "' + ug.name + '" group, which you are not');
+        reasonsNoEdit.push(
+          'User is a member of the "' + ug.name + '" group, which you are not'
+        );
       });
     }
 
@@ -95,12 +115,14 @@ class UserCell extends React.Component {
 
       user.userCredentials.userRoles.forEach(userRole => {
         if (!currentUserRolesMap[userRole.id]) {
-          errors.push('User has the role "' + userRole.name + '" which you do not');
+          reasonsNoEdit.push(
+            'User has the role "' + userRole.name + '" which you do not'
+          );
         }
       });
     }
 
-    return !errors.length;
+    return reasonsNoEdit;
   };
 
   render() {
@@ -111,7 +133,22 @@ class UserCell extends React.Component {
     const bgcolor =
       user.userCredentials.disabled === true ? styles.activeColor : styles.disabledColor;
 
-    const userEditable = this.userEditable();
+    const ToolTipComponent = () => {
+      const reasons = this.state.reasonsNoEdit.map((r, i) => {
+        return (
+          <li key={`reason-${i}`} style={{ marginLeft: "0px" }}>
+            <span>{r}</span>
+          </li>
+        );
+      });
+
+      return (
+        <Fragment>
+          <p>You cannot edit this user because:</p>
+          <ul>{reasons}</ul>
+        </Fragment>
+      );
+    };
 
     return (
       <div style={{ position: "relative" }}>
@@ -127,33 +164,50 @@ class UserCell extends React.Component {
           {user.userCredentials.username}
         </p>
 
-        {userEditable && (
-          <div style={{ position: "absolute", top: 0, right: 0 }}>
-            <Tooltip title="Edit User" placement="bottom-end">
-              <IconButton
-                style={{ height: 32, width: 32 }}
-                aria-label="Edit user"
-                component={Link}
-                onClick={this.handleClickEdit}
-                to={"/edit/" + user.id}
+        <div style={{ position: "absolute", top: 0, right: 0 }}>
+          {!this.state.reasonsNoEdit.length ? (
+            <Fragment>
+              <Tooltip title="Edit User" placement="bottom-end">
+                <IconButton
+                  style={{ height: 32, width: 32 }}
+                  aria-label="Edit user"
+                  component={Link}
+                  onClick={this.handleClickEdit}
+                  to={"/edit/" + user.id}
+                >
+                  <EditIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip
+                title={user.userCredentials.disabled === true ? "Enable" : "Disable"}
+                placement="bottom-start"
               >
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
+                <IconButton
+                  style={{ color: bgcolor, height: 32, width: 32 }}
+                  onClick={this.handleClickDisable}
+                  aria-label="Change user enabled state"
+                >
+                  {user.userCredentials.disabled === true ? (
+                    <CheckIcon />
+                  ) : (
+                    <CancelIcon />
+                  )}
+                </IconButton>
+              </Tooltip>
+            </Fragment>
+          ) : (
             <Tooltip
-              title={user.userCredentials.disabled === true ? "Enable" : "Disable"}
-              placement="bottom-start"
+              title={<ToolTipComponent />}
+              classes={{ tooltip: this.props.classes.customWidth }}
             >
-              <IconButton
-                style={{ color: bgcolor, height: 32, width: 32 }}
-                onClick={this.handleClickDisable}
-                aria-label="Change user enabled state"
-              >
-                {user.userCredentials.disabled === true ? <CheckIcon /> : <CancelIcon />}
-              </IconButton>
+              <span>
+                <Button variant="outlined" size="small" color="primary" disabled>
+                  Unable to edit
+                </Button>
+              </span>
             </Tooltip>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     );
   }
@@ -165,4 +219,5 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps)(UserCell);
+// export default connect(mapStateToProps)(UserCell);
+export default connect(mapStateToProps)(withStyles(styles)(UserCell));
