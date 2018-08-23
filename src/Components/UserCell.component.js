@@ -31,13 +31,8 @@ const styles = {
 class UserCell extends Component {
   constructor(props) {
     super(props);
-    const reasonsNoEdit = this.userEditable();
-    if (reasonsNoEdit.length) {
-      reasonsNoEdit.push("Here is another reason why you cant edit.");
-      reasonsNoEdit.push("And here is yet");
-    }
     this.state = {
-      reasonsNoEdit,
+      reasonsNoEdit: this.userEditable(),
     };
   }
 
