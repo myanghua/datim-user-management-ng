@@ -84,7 +84,7 @@ class UserDetails extends Component {
           <span>{userType}</span>
         </p>
         {["Agency", "Partner", "Partner DoD"].indexOf(user.type) !== -1 && ( //TODO - put in config
-          <p>
+          <p style={{ lineHeight: "1em" }}>
             <strong>Organization: </strong>
             {user.employer}
           </p>
