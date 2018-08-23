@@ -1,5 +1,5 @@
 import config from "../actions/config";
-import { apiFetchUserGroups } from "../api/userGroups";
+import { apiFetchUserGroups } from "../services/userGroups";
 import { arrayToIdMap } from "../utils";
 
 export const UNKNOWN_USER_TYPE = "Unknown type";

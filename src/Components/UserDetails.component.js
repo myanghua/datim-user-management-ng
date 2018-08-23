@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import CancelIcon from "@material-ui/icons/Cancel";
 import IconButton from "@material-ui/core/IconButton";
 import CheckIcon from "@material-ui/icons/Check";
@@ -93,13 +93,17 @@ class UserDetails extends Component {
           <strong>Country: </strong>
           {user.country}
         </p>
-        <h3>Data streams</h3>
-        <Streams streams={user.dataStreams} />
-        {user.actions.length && (
-          <div>
+        {user.dataStreams.length > 0 && (
+          <Fragment>
+            <h3>Data streams</h3>
+            <Streams streams={user.dataStreams} />
+          </Fragment>
+        )}
+        {user.actions.length > 0 && (
+          <Fragment>
             <h3>Actions</h3>
             <Actions actions={user.actions} />
-          </div>
+          </Fragment>
         )}
       </div>
     );

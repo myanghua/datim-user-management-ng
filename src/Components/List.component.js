@@ -17,7 +17,7 @@ import Pager from "./Pager.component";
 import Button from "@material-ui/core/Button";
 import SaveAlt from "@material-ui/icons/SaveAlt";
 import { tabs } from "./filter/tabCategories";
-import { downloadAsCSV } from "../api/csvExport";
+import { downloadAsCSV } from "../services/csvExport";
 
 const styles = {
   activeColor: "#00C853",

@@ -1,5 +1,9 @@
 import * as actions from "../constants/ActionTypes";
-import { apiPatchUserDisabledState, apiFetchUser, apiFetchUsers } from "../api/users";
+import {
+  apiPatchUserDisabledState,
+  apiFetchUser,
+  apiFetchUsers,
+} from "../services/users";
 import { getUserType, bindUserGroupData } from "../models/user";
 import { arrayToIdMap, buildFilterString } from "../utils";
 

@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-
 import EditIcon from "@material-ui/icons/EditSharp";
 import CancelIcon from "@material-ui/icons/Cancel";
 import CheckIcon from "@material-ui/icons/Check";
@@ -11,9 +10,8 @@ import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
 import Tooltip from "@material-ui/core/Tooltip";
 import { withStyles } from "@material-ui/core/styles";
-import { getUserType, isGlobalUser, UNKNOWN_USER_TYPE } from "../models/user";
-import { arrayToIdMap } from "../utils";
 import { green, red } from "../colors";
+import { reasonsNotEditable } from "../services/userEditable";
 
 const styles = {
   activeColor: green,
@@ -28,11 +26,28 @@ const styles = {
   },
 };
 
+const ToolTipForNotEditable = ({ reasonsNoEdit }) => {
+  const reasons = reasonsNoEdit.map((r, i) => {
+    return (
+      <li key={`reason-${i}`}>
+        <span>{r}</span>
+      </li>
+    );
+  });
+
+  return (
+    <Fragment>
+      <p>You cannot edit this user because:</p>
+      <ul>{reasons}</ul>
+    </Fragment>
+  );
+};
+
 class UserCell extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      reasonsNoEdit: this.userEditable(),
+      reasonsNoEdit: reasonsNotEditable(props.user, props.me),
     };
   }
 
@@ -46,80 +61,6 @@ class UserCell extends Component {
     this.props.onClickEdit();
   };
 
-  userEditable = () => {
-    let reasonsNoEdit = [];
-
-    // user in list
-    const user = this.props.user;
-    const userType = getUserType(user);
-
-    // current user
-    const currentUserIsSuperUser =
-      this.props.me && this.props.me.hasAllAuthority && this.props.me.hasAllAuthority();
-    const currentUserIsGlobalUser = isGlobalUser(this.props.me);
-    const currentUserType = getUserType(this.props.me);
-
-    //Global current user cannot edit users of other types
-    if (currentUserIsGlobalUser && !currentUserIsSuperUser && userType !== "Global") {
-      reasonsNoEdit.push('"Global" user cannot edit this "' + userType + '" user');
-    }
-
-    //MOH current user cannot edit non MOH users
-    if (currentUserType === "MOH" && !currentUserIsSuperUser && userType !== "MOH") {
-      reasonsNoEdit.push('"MOH" user cannot edit this "' + userType + '" user');
-    }
-
-    //Cannot edit yourself
-    if (user.id === this.props.me.id) {
-      reasonsNoEdit.push("Cannot edit yourself");
-    }
-
-    //User does not conform to a known type
-    if (user.type === UNKNOWN_USER_TYPE) {
-      reasonsNoEdit.push("User does not conform to a known type");
-    }
-
-    const ugArray = user.userGroups.toArray();
-    const unmanagableGroups = ugArray.filter(
-      ug => !ug || !ug.access || !ug.access.manage
-    );
-
-    // Cannot manage ANY group
-    if (
-      !currentUserIsSuperUser &&
-      unmanagableGroups.length !== 0 &&
-      unmanagableGroups.length === ugArray.length
-    ) {
-      unmanagableGroups.forEach(ug => {
-        reasonsNoEdit.push(
-          'User is a member of the "' + ug.name + '" group, which you are not'
-        );
-      });
-    }
-
-    // DOn't have all the user's roles
-    if (
-      !currentUserIsSuperUser &&
-      user.userCredentials &&
-      user.userCredentials.userRoles
-    ) {
-      const currentUser = this.props.me;
-      const currentUserRoles =
-        (currentUser.userCredentials && currentUser.userCredentials.userRoles) || [];
-      const currentUserRolesMap = arrayToIdMap(currentUserRoles);
-
-      user.userCredentials.userRoles.forEach(userRole => {
-        if (!currentUserRolesMap[userRole.id]) {
-          reasonsNoEdit.push(
-            'User has the role "' + userRole.name + '" which you do not'
-          );
-        }
-      });
-    }
-
-    return reasonsNoEdit;
-  };
-
   render() {
     if (!this.props.me.hasOwnProperty("id")) {
       return <div />;
@@ -127,23 +68,6 @@ class UserCell extends Component {
     const user = this.props.user;
     const bgcolor =
       user.userCredentials.disabled === true ? styles.activeColor : styles.disabledColor;
-
-    const ToolTipComponent = () => {
-      const reasons = this.state.reasonsNoEdit.map((r, i) => {
-        return (
-          <li key={`reason-${i}`} style={{ marginLeft: "0px" }}>
-            <span>{r}</span>
-          </li>
-        );
-      });
-
-      return (
-        <Fragment>
-          <p>You cannot edit this user because:</p>
-          <ul>{reasons}</ul>
-        </Fragment>
-      );
-    };
 
     return (
       <div style={{ position: "relative" }}>
@@ -192,7 +116,7 @@ class UserCell extends Component {
             </Fragment>
           ) : (
             <Tooltip
-              title={<ToolTipComponent />}
+              title={<ToolTipForNotEditable reasonsNoEdit={this.state.reasonsNoEdit} />}
               classes={{ tooltip: this.props.classes.customWidth }}
             >
               <span>
@@ -208,11 +132,8 @@ class UserCell extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  return {
-    me: state.core.me,
-  };
-};
+const mapStateToProps = state => ({
+  me: state.core.me,
+});
 
-// export default connect(mapStateToProps)(UserCell);
 export default connect(mapStateToProps)(withStyles(styles)(UserCell));
