@@ -8,7 +8,8 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import getUser, { UNKNOWN_USER_TYPE } from "../models/user";
+import getUser from "../models/user";
+import { userTypes as types } from "../actions/config";
 import { green, red } from "../colors";
 
 import "./UserDetails.component.css";
@@ -65,7 +66,7 @@ const Actions = ({ actions }) => {
 class UserDetails extends Component {
   render() {
     const user = getUser(this.props.user);
-    const userType = user.type || UNKNOWN_USER_TYPE;
+    const userType = user.type || types.Unknown;
 
     return (
       <div style={{ position: "relative" }}>
@@ -83,7 +84,7 @@ class UserDetails extends Component {
           <strong>User Type: </strong>
           <span>{userType}</span>
         </p>
-        {["Agency", "Partner", "Partner DoD"].indexOf(user.type) !== -1 && ( //TODO - put in config
+        {[types.Agency, types.Partner, types.PartnerDoD].indexOf(user.type) !== -1 && (
           <p style={{ lineHeight: "1em" }}>
             <strong>Organization: </strong>
             {user.employer}

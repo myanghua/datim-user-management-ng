@@ -1,8 +1,6 @@
-import config from "../actions/config";
+import config, { userTypes as types } from "../actions/config";
 import { apiFetchUserGroups } from "../services/userGroups";
 import { arrayToIdMap } from "../utils";
-
-export const UNKNOWN_USER_TYPE = "Unknown type";
 
 export const getUserType = rawUser => {
   const ug = Array.isArray(rawUser.userGroups)
@@ -16,7 +14,7 @@ export const getUserType = rawUser => {
     return acc;
   }, [])[0]; //hack, returning the first one - replace with usertype pri
 
-  return type ? type : UNKNOWN_USER_TYPE;
+  return type ? type : types.Unknown;
 };
 
 export const isGlobalUser = rawUser => {
@@ -176,13 +174,13 @@ const getDataStreams = rawUser => {
   return [];
 };
 
-const getUser = (rawUser, agencies, partners) => {
+const getUser = rawUser => {
   const user = {};
   user.type = rawUser.type;
   user.dataStreams = getDataStreams(rawUser);
   user.actions = getUserActions(rawUser, rawUser.type);
   user.country = getUserCountry(rawUser);
-  if (["Agency", "Partner", "Partner DoD"].indexOf(rawUser.type) !== -1) {
+  if ([types.Agency, types.Partner, types.PartnerDoD].indexOf(rawUser.type) !== -1) {
     user.employer = getUserOrganization(rawUser, rawUser.type);
   }
   user.displayName = rawUser.displayName;

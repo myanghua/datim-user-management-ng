@@ -1,18 +1,19 @@
-import { getUserType, isGlobalUser, UNKNOWN_USER_TYPE } from "../models/user";
+import { getUserType, isGlobalUser } from "../models/user";
 import { arrayToIdMap } from "../utils";
+import { userTypes } from "../actions/config";
 
 export const reasonsNotEditable = (user = {}, me = {}) => {
   let reasonsNoEdit = [];
   const iAmSuperuser = me.hasAllAuthority && me.hasAllAuthority();
 
   //Global current user cannot edit users of other types
-  if (isGlobalUser(me) && !iAmSuperuser && user.type !== "Global") {
-    reasonsNoEdit.push(`"Global" user cannot edit this "${user.type}" user`);
+  if (isGlobalUser(me) && !iAmSuperuser && user.type !== userTypes.Global) {
+    reasonsNoEdit.push(`"${userTypes.Global}" user cannot edit this "${user.type}" user`);
   }
 
   //MOH current user cannot edit non MOH users
-  if (getUserType(me) === "MOH" && !iAmSuperuser && user.type !== "MOH") {
-    reasonsNoEdit.push(`"MOH" user cannot edit this "${user.type}" user`);
+  if (getUserType(me) === userTypes.MOH && !iAmSuperuser && user.type !== userTypes.MOH) {
+    reasonsNoEdit.push(`"${userTypes.MOH}" user cannot edit this "${user.type}" user`);
   }
 
   //Cannot edit yourself
@@ -21,7 +22,7 @@ export const reasonsNotEditable = (user = {}, me = {}) => {
   }
 
   //User does not conform to a known type
-  if (user.type === UNKNOWN_USER_TYPE) {
+  if (user.type === userTypes.Unknown) {
     reasonsNoEdit.push("User does not conform to a known type");
   }
 
