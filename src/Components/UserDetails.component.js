@@ -51,7 +51,7 @@ const Streams = ({ streams }) => {
 
 const Actions = ({ actions }) => {
   const actionItems = actions.map((action, i) => (
-    <ListItem style={{ padding: 0 }}>
+    <ListItem key={`${action}-${i}`} style={{ padding: 0 }}>
       <ListItemIcon>
         <CheckIcon style={{ color: green, height: "16px" }} />
       </ListItemIcon>
