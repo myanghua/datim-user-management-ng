@@ -1,5 +1,16 @@
+export const userTypes = Object.freeze({
+  MOH: "MOH",
+  Agency: "Agency",
+  Global: "Global",
+  PartnerDoD: "Partner DoD",
+  Partner: "Partner",
+  InterAgency: "Inter-Agency",
+  AgencyHQ: "Agency HQ",
+  Unknown: "Unknown user type",
+});
+
 const configuration = {
-  Agency: {
+  [userTypes.Agency]: {
     userTypePriority: 5,
     groupFilter: "^OU .+? Agency ",
     groupSpecifics: [" users$", " user administrators$", " all mechanisms$"],
@@ -154,7 +165,7 @@ const configuration = {
     },
     canCreate: ["Agency", "Partner"],
   },
-  "Agency HQ": {
+  [userTypes.AgencyHQ]: {
     userTypePriority: 2,
     groupFilter: "^Global Agency ",
     actions: [
@@ -233,7 +244,7 @@ const configuration = {
     },
     canCreate: ["Agency HQ"],
   },
-  Global: {
+  [userTypes.Global]: {
     ouUID: "ybg3MO3hcf4",
     userTypePriority: 1,
     groupFilter: "^Global Users",
@@ -327,7 +338,7 @@ const configuration = {
     },
     canCreate: ["Global", "Agency HQ"],
   },
-  "Inter-Agency": {
+  [userTypes.InterAgency]: {
     userTypePriority: 4,
     groupFilter: "^OU .+? Country team$",
     actions: [
@@ -457,7 +468,7 @@ const configuration = {
     },
     canCreate: ["Inter-Agency", "Partner"],
   },
-  MOH: {
+  [userTypes.MOH]: {
     userTypePriority: 8,
     groupFilter: "^Data MOH access$",
     actions: [
@@ -487,7 +498,7 @@ const configuration = {
     },
     canCreate: ["MOH"],
   },
-  Partner: {
+  [userTypes.Partner]: {
     userTypePriority: 7,
     groupFilter: "^OU .+? Partner ",
     groupSpecifics: [
@@ -578,7 +589,7 @@ const configuration = {
     },
     canCreate: ["Partner"],
   },
-  "Partner DoD": {
+  [userTypes.PartnerDoD]: {
     userTypePriority: 6,
     groupFilter: " DoD ",
     groupSpecifics: [

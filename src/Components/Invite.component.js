@@ -19,9 +19,8 @@ import MainMenu from "../containers/MainMenu.js";
 import DataStream from "./DataStream.component";
 import DataAction from "./DataAction.component";
 import SelectLocale from "./SelectLocale.component";
-
-// import AppTheme from "../colortheme";
 import actions from "../actions";
+import { userTypes } from "../actions/config";
 
 class Invite extends Component {
   //   props: Props;
@@ -116,7 +115,7 @@ class Invite extends Component {
 
     // Find out if they have access to any streams (groups)
     const userGroups = core.me.userGroups || [];
-    const userTypesArr = Object.keys(core.config).map(function(key) {
+    const userTypesArr = Object.keys(core.config).map(key => {
       let obj = core.config[key];
       obj.name = key;
       return obj;
@@ -454,18 +453,18 @@ class Invite extends Component {
     if (event.target.value !== this.state.userType) {
       if (this.state.country !== false) {
         switch (event.target.value) {
-          case "Agency":
+          case userTypes.Agency:
             this.getAgenciesInOrg(this.state.country);
             break;
-          case "Partner":
+          case userTypes.Partner:
             this.getPartnersInOrg(this.state.country);
             break;
-          case "Agency HQ":
+          case userTypes.AgencyHQ:
             this.getGlobalAgencies();
             break;
-          case "Global":
-          case "Inter-Agency":
-          case "MOH":
+          case userTypes.Global:
+          case userTypes.InterAgency:
+          case userTypes.MOH:
           default:
             break;
         }
@@ -495,13 +494,13 @@ class Invite extends Component {
   handleChangePartner = event => {
     if (event.target.value !== this.state.partner) {
       // check if we need to add DoD objects to view
-      let userType = "Partner";
+      let userType = userTypes.Partner;
       if (event.target.value !== false) {
         const partner = this.state.partners.filter(f => f.id === event.target.value);
         if (partner.length === 0) {
           console.error("Invalid partner selection");
         } else if (partner[0].normalEntry === false) {
-          userType = "Partner DoD";
+          userType = userTypes.PartnerDoD;
         }
       }
 
@@ -530,12 +529,12 @@ class Invite extends Component {
     let userType = this.state.userType;
 
     // check if we need to add DoD objects to view
-    if (userType === "Partner") {
+    if (userType === userTypes.Partner) {
       const partner = this.state.partners.filter(f => f.id === this.state.partner);
       if (partner.length === 0) {
         console.error("Invalid partner selection");
       } else if (partner[0].normalEntry === false) {
-        userType = "Partner DoD";
+        userType = userTypes.PartnerDoD;
       }
     }
 
@@ -604,12 +603,12 @@ class Invite extends Component {
 
     // check for DoD, might need different config
     let userType = this.state.userType;
-    if (userType === "Partner") {
+    if (userType === userTypes.Partner) {
       const partner = this.state.partners.filter(f => f.id === this.state.partner);
       if (partner.length === 0) {
         console.error("Invalid partner selection");
       } else if (partner[0].normalEntry === false) {
-        userType = "Partner DoD";
+        userType = userTypes.PartnerDoD;
       }
     }
     const cfg = core.config[userType];
@@ -660,14 +659,14 @@ class Invite extends Component {
       .name;
     let filteredOuGroups = [];
     switch (this.state.userType) {
-      case "Agency":
+      case userTypes.Agency:
         const agencyName = this.state.agencies.filter(f => f.id === this.state.agency)[0]
           .name;
         filteredOuGroups = this.state.countryUserGroups.filter(
           f => f.name.indexOf(" Agency " + agencyName) >= 0
         );
         break;
-      case "Partner":
+      case userTypes.Partner:
         const partnerName = this.state.partners.filter(
           f => f.id === this.state.partner
         )[0].name;
@@ -675,12 +674,12 @@ class Invite extends Component {
           f => f.name.indexOf(partnerName) >= 0
         );
         break;
-      case "MOH":
+      case userTypes.MOH:
         filteredOuGroups = this.state.countryUserGroups.filter(
           f => f.name.indexOf("OU " + countryName + " MOH User") >= 0
         );
         break;
-      case "Inter-Agency":
+      case userTypes.InterAgency:
         // all IA logic goes here since it doesn't follow the other conventions
         this.state.countryUserGroups
           .filter(
@@ -707,7 +706,7 @@ class Invite extends Component {
             });
         }
         break;
-      case "Global":
+      case userTypes.Global:
         // Global all mechanisms: TOOIJWRzJ3g
         user.userGroups.push({ id: "TOOIJWRzJ3g" });
         // Global Users: gh9tn4QBbKZ
@@ -717,7 +716,7 @@ class Invite extends Component {
           user.userGroups.push({ id: "ghYxzrKHldx" });
         }
         break;
-      case "Agency HQ":
+      case userTypes.AgencyHQ:
         const globalAgency = this.state.globalAgencies[this.state.globalAgency] || false;
         if (!globalAgency) {
           console.error("Invalid Agency HQ selected:", this.state.globalAgency);
@@ -778,7 +777,7 @@ class Invite extends Component {
     }
 
     // additional dimension constraints aka "Funding Mechanism" category
-    if (this.state.userType !== "Inter-Agency") {
+    if (this.state.userType !== userTypes.InterAgency) {
       user.userCredentials.catDimensionConstraints = [{ id: "SH885jaRe0o" }];
     }
 
@@ -985,13 +984,13 @@ class Invite extends Component {
       // global only has 2 options
       if (
         this.state.country === core.config.Global.ouUID &&
-        (userType !== "Global" && userType !== "Agency HQ")
+        (userType !== userTypes.Global && userType !== userTypes.AgencyHQ)
       ) {
         return;
       }
       // no one else can do global level operations
       if (
-        (userType === "Global" || userType === "Agency HQ") &&
+        (userType === userTypes.Global || userType === userTypes.AgencyHQ) &&
         this.state.country !== core.config.Global.ouUID
       ) {
         return;
@@ -1035,7 +1034,7 @@ class Invite extends Component {
       let cfg = core.config[this.state.userType];
 
       // Check for DoD awareness
-      if (this.state.userType === "Partner" && this.state.partner) {
+      if (this.state.userType === userTypes.Partner && this.state.partner) {
         // does the selected partner have DoD info
         const partner =
           this.state.partners.filter(p => {
@@ -1043,7 +1042,7 @@ class Invite extends Component {
           })[0] || {};
 
         if (partner.hasOwnProperty("normalEntry") && partner.normalEntry !== true) {
-          cfg = core.config["Partner DoD"];
+          cfg = core.config[userTypes.PartnerDoD];
         }
       }
 
@@ -1090,12 +1089,12 @@ class Invite extends Component {
       Object.keys(this.state.streams).length > 0
     ) {
       switch (this.state.userType) {
-        case "Agency":
+        case userTypes.Agency:
           if (this.state.agency) {
             disableInvite = false;
           }
           break;
-        case "Partner":
+        case userTypes.Partner:
           if (this.state.partner) {
             disableInvite = false;
           }
@@ -1143,7 +1142,7 @@ class Invite extends Component {
             <FormHelperText>Select a user type</FormHelperText>
           </FormControl>
 
-          {this.state.userType === "Partner" ? (
+          {this.state.userType === userTypes.Partner ? (
             <FormControl required style={{ width: "100%", marginTop: "1em" }}>
               <InputLabel htmlFor="partner">Partner</InputLabel>
               <Select
@@ -1160,7 +1159,7 @@ class Invite extends Component {
             </FormControl>
           ) : null}
 
-          {this.state.userType === "Agency" ? (
+          {this.state.userType === userTypes.Agency ? (
             <FormControl required style={{ width: "100%", marginTop: "1em" }}>
               <InputLabel htmlFor="agency">Agency</InputLabel>
               <Select
@@ -1177,7 +1176,7 @@ class Invite extends Component {
             </FormControl>
           ) : null}
 
-          {this.state.userType === "Agency HQ" ? (
+          {this.state.userType === userTypes.AgencyHQ ? (
             <FormControl required style={{ width: "100%", marginTop: "1em" }}>
               <InputLabel htmlFor="agencyhq">Agency</InputLabel>
               <Select

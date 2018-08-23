@@ -1,5 +1,6 @@
 import { reasonsNotEditable } from "../userEditable";
 import * as userModel from "../../models/user";
+import { userTypes as types } from "../../actions/config";
 
 describe("reasonsNotEditable", () => {
   let user = {};
@@ -41,7 +42,7 @@ describe("reasonsNotEditable", () => {
     };
 
     userModel.isGlobalUser = () => false;
-    userModel.getUserType = () => "Partner";
+    userModel.getUserType = () => types.Partner;
   });
 
   afterEach(() => {
@@ -50,7 +51,7 @@ describe("reasonsNotEditable", () => {
     userGroups = [];
   });
 
-  describe("when not superuser", () => {
+  describe("when current user is not a superuser", () => {
     beforeEach(() => {
       me.hasAllAuthority = () => false;
     });
@@ -84,9 +85,9 @@ describe("reasonsNotEditable", () => {
     });
 
     it('returns reason "Global user cannot edit"', () => {
-      userModel.getUserType = () => "Global";
+      userModel.getUserType = () => types.Global;
       userModel.isGlobalUser = () => true;
-      user.type = "Agency";
+      user.type = types.Agency;
 
       const reasons = reasonsNotEditable(user, me);
       expect(reasons).toHaveLength(1);
@@ -94,8 +95,8 @@ describe("reasonsNotEditable", () => {
     });
 
     it('returns reason "MOH user cannot edit"', () => {
-      userModel.getUserType = () => "MOH";
-      user.type = "Agency";
+      userModel.getUserType = () => types.MOH;
+      user.type = types.Agency;
 
       const reasons = reasonsNotEditable(user, me);
       expect(reasons).toHaveLength(1);
@@ -108,8 +109,8 @@ describe("reasonsNotEditable", () => {
   });
 
   it('returns reason "User does not conform to a known type"', () => {
-    user.type = userModel.UNKNOWN_USER_TYPE;
-    userModel.getUserType = () => "Global";
+    user.type = types.Unknown;
+    userModel.getUserType = () => types.Global;
 
     const reasons = reasonsNotEditable(user, me);
     expect(reasons).toHaveLength(1);
@@ -118,7 +119,7 @@ describe("reasonsNotEditable", () => {
 
   it('returns reason "Cannot edit yourself"', () => {
     me.id = "abc123";
-    userModel.getUserType = () => "Global";
+    userModel.getUserType = () => types.Global;
 
     const reasons = reasonsNotEditable(user, me);
     expect(reasons).toHaveLength(1);
