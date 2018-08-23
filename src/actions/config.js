@@ -1,4 +1,4 @@
-export const userTypes = {
+export const userTypes = Object.freeze({
   MOH: "MOH",
   Agency: "Agency",
   Global: "Global",
@@ -7,7 +7,7 @@ export const userTypes = {
   InterAgency: "Inter-Agency",
   AgencyHQ: "Agency HQ",
   Unknown: "Unknown user type",
-};
+});
 
 const configuration = {
   [userTypes.Agency]: {

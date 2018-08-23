@@ -21,8 +21,8 @@ import MainMenu from "../containers/MainMenu.js";
 import SelectLocale from "./SelectLocale.component";
 import DataStream from "./DataStream.component";
 import DataAction from "./DataAction.component";
-// import AppTheme from "../colortheme";
 import actions from "../actions";
+import { userTypes } from "../actions/config";
 
 class Edit extends Component {
   contextTypes: {
@@ -304,8 +304,8 @@ class Edit extends Component {
         const ous = user.organisationUnits.toArray()[0];
         let countries = core.countries;
         // Don't forget to add in the Global "country"
-        if (core.countries[0].id !== core.config.Global.ouUID) {
-          countries.unshift({ id: core.config.Global.ouUID, name: "Global" });
+        if (core.countries[0].id !== core.config[userTypes.Global].ouUID) {
+          countries.unshift({ id: core.config[userTypes.Global].ouUID, name: "Global" });
         }
         const country = countries.filter(c => ous.id === c.id)[0].name;
 
@@ -397,7 +397,7 @@ class Edit extends Component {
             }
           });
         });
-        if (userType === "Inter-Agency" || userType === "MOH") {
+        if (userType === userTypes.InterAgency || userType === userTypes.MOH) {
           let users = core.me.userGroups.filter(
             f => f.name === "OU " + country + " MOH Users"
           );
@@ -838,14 +838,13 @@ class Edit extends Component {
 
     // Am I awesome and can do anything?
     const myOUs = (core.me.organisationUnits || []).map(ou => ou.id);
-    const isGlobalUser = myOUs.indexOf(core.config.Global.ouUID) >= 0;
 
     const streams = [];
     const actions = [];
 
     let cfg = core.config[this.state.userType] || false;
     // Check for DoD awareness
-    if (this.state.userType === "Partner" && this.state.partner) {
+    if (this.state.userType === userTypes.Partner && this.state.partner) {
       // does the selected partner have DoD info
       const partner =
         this.state.partners.filter(p => {
@@ -853,7 +852,7 @@ class Edit extends Component {
         })[0] || {};
 
       if (partner.hasOwnProperty("normalEntry") && partner.normalEntry !== true) {
-        cfg = core.config["Partner DoD"];
+        cfg = core.config[userTypes.PartnerDoD];
       }
     }
     if (cfg) {
@@ -962,13 +961,13 @@ class Edit extends Component {
             <Grid item xs={9}>
               {this.state.userType}
             </Grid>
-            {this.state.userType === "Global" ? null : (
+            {this.state.userType === userTypes.Global ? null : (
               <Grid item xs={3}>
                 <GroupIcon color="secondary" style={{ verticalAlign: "middle" }} />
                 Organisation:
               </Grid>
             )}
-            {this.state.userType === "Global" ? null : (
+            {this.state.userType === userTypes.Global ? null : (
               <Grid item xs={9}>
                 {this.state.org}
               </Grid>
@@ -1013,7 +1012,7 @@ class Edit extends Component {
             label="User Manager"
           />
         </Paper>
-        {this.state.userType === "Global" ? null : (
+        {this.state.userType === userTypes.Global ? null : (
           <div>
             <Paper className="card streams">
               <h3>Data Streams</h3>
