@@ -26,7 +26,7 @@ const filterCategories = {
   orgunit: {
     id: "orgunit",
     param: "organisationUnits.name:ilike:",
-    displayName: "Organisation Unit",
+    displayName: "Operating Unit",
     model: "orgunit",
   },
   userrole: {
