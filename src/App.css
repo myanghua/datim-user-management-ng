@@ -122,8 +122,9 @@ p {
 }
 
 .card.details {
+  top: 230px;
   width: 30%;
-  position: absolute;
+  position: fixed;
   right: 0;
 }
 

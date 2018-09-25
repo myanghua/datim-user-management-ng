@@ -30,7 +30,6 @@ const styles = {
 
 class List extends Component {
   state = {
-    detailsOffsetTop: 0,
     downloading: false,
   };
   constructor(props) {
@@ -48,11 +47,6 @@ class List extends Component {
       return;
     }
 
-    const detailsOffsetTop =
-      document.querySelector(`.row-${userId}`).offsetTop +
-      document.querySelector(".user-list-table").offsetTop;
-
-    this.setState({ detailsOffsetTop });
     this.props.setSelectedUser(this.props.users[userId]);
   };
 
@@ -184,7 +178,7 @@ class List extends Component {
         </Paper>
 
         {!selectedUser ? null : (
-          <Paper className="card details" style={{ top: this.state.detailsOffsetTop }}>
+          <Paper className="card details">
             <UserDetails
               user={selectedUser}
               onCloseDetails={this.props.clearSelectedUser}
