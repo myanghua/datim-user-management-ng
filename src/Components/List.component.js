@@ -80,6 +80,7 @@ class List extends Component {
     });
 
     const showDetailsClass = selectedUser && "show-user-details";
+    const highlight = (this.props.selectedUser || {}).id || "-";
 
     return (
       <div className="wrapper">
@@ -135,6 +136,7 @@ class List extends Component {
                   onClick={event => this.toggleUserSelect(event, user.id)}
                   key={index}
                   className={`listingRow row-${user.id}`}
+                  selected={highlight === user.id}
                 >
                   <TableCell>
                     <UserCell
