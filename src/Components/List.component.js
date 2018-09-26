@@ -184,6 +184,7 @@ class List extends Component {
             <UserDetails
               user={selectedUser}
               onCloseDetails={this.props.clearSelectedUser}
+              onClickEdit={this.handleUserEdit}
             />
           </Paper>
         )}

@@ -1,6 +1,10 @@
 import React, { Component, Fragment } from "react";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import EditIcon from "@material-ui/icons/EditSharp";
 import CancelIcon from "@material-ui/icons/Cancel";
 import IconButton from "@material-ui/core/IconButton";
+import Button from "@material-ui/core/Button";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
 import BlockIcon from "@material-ui/icons/Block";
@@ -8,9 +12,11 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
+import Tooltip from "@material-ui/core/Tooltip";
 import getUser from "../models/user";
 import { userTypes as types } from "../actions/config";
 import { green, red } from "../colors";
+import { reasonsNotEditable } from "../services/userEditable";
 
 import "./UserDetails.component.css";
 
@@ -64,9 +70,15 @@ const Actions = ({ actions }) => {
 };
 
 class UserDetails extends Component {
+  handleClickEdit = e => {
+    e.stopPropagation();
+    this.props.onClickEdit();
+  };
+
   render() {
     const user = getUser(this.props.user);
     const userType = user.type || types.Unknown;
+    const editable = reasonsNotEditable(this.props.user, this.props.me).length === 0;
 
     return (
       <div style={{ position: "relative" }}>
@@ -94,6 +106,10 @@ class UserDetails extends Component {
           <strong>Country: </strong>
           {user.country}
         </p>
+        <p>
+          <strong>Status: </strong>
+          {this.props.user.userCredentials.disabled === true ? "Disabled" : "Active"}
+        </p>
         {user.dataStreams.length > 0 && (
           <Fragment>
             <h3>Data streams</h3>
@@ -106,9 +122,31 @@ class UserDetails extends Component {
             <Actions actions={user.actions} />
           </Fragment>
         )}
+
+        {editable === true && (
+          <div style={{ marginTop: "1.5em" }}>
+            <Tooltip title="Edit User" placement="bottom">
+              <Button
+                variant="extendedFab"
+                aria-label="Edit User"
+                color="primary"
+                component={Link}
+                onClick={this.handleClickEdit}
+                to={"/edit/" + this.props.user.id}
+              >
+                <EditIcon style={{ marginRight: ".3em" }} />
+                Edit
+              </Button>
+            </Tooltip>
+          </div>
+        )}
       </div>
     );
   }
 }
 
-export default UserDetails;
+const mapStateToProps = state => ({
+  me: state.core.me,
+});
+
+export default connect(mapStateToProps)(UserDetails);
