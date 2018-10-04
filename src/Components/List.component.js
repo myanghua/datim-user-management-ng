@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
+import { withTheme } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -18,15 +19,6 @@ import Button from "@material-ui/core/Button";
 import SaveAlt from "@material-ui/icons/SaveAlt";
 import { tabs } from "./filter/tabCategories";
 import { downloadAsCSV } from "../services/csvExport";
-
-const styles = {
-  activeColor: "#00C853",
-  disabledColor: "#E53935",
-  icon: {
-    color: "#369",
-    marginRight: 2,
-  },
-};
 
 class List extends Component {
   state = {
@@ -69,7 +61,7 @@ class List extends Component {
   };
 
   render() {
-    let { users, selectedUser, pager, tab } = this.props;
+    let { users, selectedUser, pager, tab, theme } = this.props;
 
     if (!pager || !pager.page || !users) {
       return <div />;
@@ -81,6 +73,18 @@ class List extends Component {
 
     const showDetailsClass = selectedUser && "show-user-details";
     const highlight = (this.props.selectedUser || {}).id || "-";
+
+    const styles = {
+      text: theme.palette.text.main,
+      activeColor: theme.palette.primary.main,
+      contrastText: theme.palette.primary.contrastText,
+      disabledColor: "#999999",
+      disabledText: theme.palette.text.disabled,
+      icon: {
+        color: "#369",
+        marginRight: 2,
+      },
+    };
 
     return (
       <div className="wrapper">
@@ -138,7 +142,14 @@ class List extends Component {
                   className={`listingRow row-${user.id}`}
                   selected={highlight === user.id}
                 >
-                  <TableCell>
+                  <TableCell
+                    style={{
+                      color:
+                        user.userCredentials.disabled === true
+                          ? styles.disabledText
+                          : styles.text,
+                    }}
+                  >
                     <UserCell
                       user={user}
                       onClickEdit={this.handleUserEdit}
@@ -156,12 +167,10 @@ class List extends Component {
                     }}
                   >
                     <div
-                      className="rotate90"
+                      className={`statusIndicator rotate90`}
                       style={{
-                        width: ".5em",
                         color: "white",
                         fontSize: "bigger",
-                        paddingLeft: "10px",
                         fontWeight: "lighter",
                       }}
                     >
@@ -200,4 +209,4 @@ List.propTypes = {
   setTab: PropTypes.func.isRequired,
 };
 
-export default List;
+export default withTheme()(List);
