@@ -1122,9 +1122,12 @@ class Invite extends Component {
 
         <Paper className="card filters">
           <FormControl required style={{ width: "100%", marginTop: "1em" }}>
-            <InputLabel htmlFor="country">Country</InputLabel>
+            <InputLabel htmlFor="country" error={!this.state.country}>
+              Country
+            </InputLabel>
             <Select
               value={this.state.country || ""}
+              error={!this.state.country}
               onChange={this.handleChangeCountry}
               inputProps={{
                 name: "country",
@@ -1137,9 +1140,12 @@ class Invite extends Component {
           </FormControl>
 
           <FormControl required style={{ width: "100%", marginTop: "1em" }}>
-            <InputLabel htmlFor="userType">User Type</InputLabel>
+            <InputLabel htmlFor="userType" error={!this.state.userType}>
+              User Type
+            </InputLabel>
             <Select
               value={this.state.userType || ""}
+              error={!this.state.userType}
               onChange={this.handleChangeType}
               inputProps={{
                 name: "userType",
@@ -1207,6 +1213,7 @@ class Invite extends Component {
               id="email"
               label="E-mail address"
               placeholder="user@organisation.tld"
+              error={this.state.validEmail === false}
               type="email"
               required={true}
               onChange={this.handleChangeEmail}
