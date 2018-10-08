@@ -59,6 +59,7 @@ class Invite extends Component {
       userManager: false,
       accessDenied: false,
       countryUserGroups: [],
+      validEmail: false,
     };
     this.handleChangeType = this.handleChangeType.bind(this);
     this.handleChangeCountry = this.handleChangeCountry.bind(this);
@@ -521,7 +522,14 @@ class Invite extends Component {
   };
 
   handleChangeEmail = event => {
-    this.setState({ email: event.target.value });
+    //validate the email address
+    this.setState({ email: event.target.value, validEmail: false });
+    if (event.target.value) {
+      const at_pos = event.target.value.indexOf("@");
+      if (at_pos > 1 && event.target.value.indexOf(".", at_pos) > at_pos + 2) {
+        this.setState({ validEmail: true });
+      }
+    }
   };
 
   // the User Manager checkbox
@@ -1086,6 +1094,7 @@ class Invite extends Component {
       this.state.country &&
       this.state.userType &&
       this.state.email &&
+      this.state.validEmail &&
       Object.keys(this.state.streams).length > 0
     ) {
       switch (this.state.userType) {
@@ -1198,6 +1207,8 @@ class Invite extends Component {
               id="email"
               label="E-mail address"
               placeholder="user@organisation.tld"
+              type="email"
+              required={true}
               onChange={this.handleChangeEmail}
             />
           </FormControl>
