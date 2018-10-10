@@ -25,7 +25,7 @@ $ yarn -v
 
 Clone the repository from github with the following command
 ```bash
-git clone git@bitbucket.org:Awnage/datim-user-management-ng.git
+git clone git@bitbucket.org:pepfar-datim/datim-user-management-ng.git
 ```
 
 Install the node dependencies
