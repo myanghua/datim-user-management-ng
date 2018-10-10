@@ -6,19 +6,20 @@ React based user management for PEPFAR/DATIM
 # Building
 
 ## Prerequisites
-Make sure you have at least the following versions of `node`, `npm` and `yarn`:
+Make sure you have at least the following versions of [`node/npm`](https://nodejs.org/en/), [`yarn`](https://yarnpkg.com) and [`prettier`](https://prettier.io/docs/en/install.html):
 
 ```sh
 $ node -v
 v8.10.0
-```
-```
+
 $ npm -v
 5.6.0
-```
-```
+
 $ yarn -v
 1.5.1
+
+$ yarn -v prettier
+1.9.4
 ```
 
 ## Getting started
@@ -82,6 +83,13 @@ npm run-script dist
 ```
 - Rename the file `build/user-management.zip` with versioning, e.g. `user-management_29_0_1.zip`
 - Then load the zip file to your DHIS2 instance.
+
+# Helpful Tools
+React Developer Tools [Chrome Plugin](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) Very helpful for inspecting the UI
+
+Redux DevTools [Chrome Plugin](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
+Very helpful for inspecting the state
+
 
 # Contributing
 
