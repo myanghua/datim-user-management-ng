@@ -25,12 +25,12 @@ $ yarn -v prettier
 ## Getting started
 
 Clone the repository from github with the following command
-```bash
+```sh
 git clone git@bitbucket.org:pepfar-datim/datim-user-management-ng.git
 ```
 
 Install the node dependencies
-```bash
+```sh
 yarn
 ```
 
@@ -53,13 +53,13 @@ To set up your DHIS2 instance to work with the development service you will need
 This should enable you to run the following node commands:
 
 To run the development server
-```bash
+```sh
 yarn start
 ```
 
 or
 
-```bash
+```sh
 DHIS2_HOME=./ && npm start
 ```
 
@@ -83,22 +83,54 @@ npm run-script dist
 ```
 - Rename the file `build/user-management.zip` with versioning, e.g. `user-management_29_0_1.zip`
 - Then load the zip file to your DHIS2 instance.
+- *NOTE:* If you already have the app installed, make sure to remove it first to prevent caching issues.
+
+# Crossing the Streams
+
+If it becomes necessary to modify the list of streams (groups) available to users, you will need to edit `src/actions/config.js`.
+Locate the `const configuration` section and then select the userType that will need the new stream.
+Streams are built after the following pattern:
+
+```js
+NEWSTREAM: {    // The displayed name of the stream. User "Double Quotes" if the name contains a space      
+  accessLevels: {     // Only 2 properties are valid here: "View Data" and "Enter Data"
+                      // "Enter Data" will automatically include the rights of "View Data"
+                      // By default the "No Access" button will be displayed
+    "View Data": {
+      groupName: "New Stream access",     // DHIS2 name of the group
+      groupUID: "gRoUp123456",          // User group UID
+      impliedRoles: [                   // Array of required user roles, can be omitted otherwise
+        {
+          name: "Data Entry Aggregate",
+          roleUID: "rOLe1234567",
+        },
+      ],
+      locked: 0,                        // 0 = selectable, 1 = mandatory
+      preSelected: 0,                   // If you want to helpfully pick the role for them
+      selectWhenUA: 1,                  // Should a "User Manager" automatically get this group
+    },
+  },
+  sortOrder: 2,                         // Display order on the page
+},
+```
+Insert that into the `streams` section of whichever usertypes need it.
+
 
 # Helpful Tools
-React Developer Tools [Chrome Plugin](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) Very helpful for inspecting the UI
 
-Redux DevTools [Chrome Plugin](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
+* React Developer Tools [Chrome Plugin](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en) Very helpful for inspecting the UI
+* Redux DevTools [Chrome Plugin](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
 Very helpful for inspecting the state
 
 
 # Contributing
 
-```bash
+```sh
 git checkout master
 git pull origin master
 git branch my-branch
 git checkout my-branch
-<do your changes>
+   <do your changes>
 npm test
 git add <your files>
 git commit -m "descriptive and atomic commit message"
