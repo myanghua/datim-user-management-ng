@@ -21,16 +21,16 @@ export class FilterManager extends Component {
     newFields: {},
   };
 
-  initState = () => {
-    const newField = Object.assign({}, defaultFilterField, {
-      id: generateId(),
-    });
-    const newFields = { [newField.id]: newField };
-    this.setState({ newFields });
-  };
+  constructor(props) {
+    super(props);
 
-  componentDidMount() {
-    this.initState();
+    if (!Object.values(this.props.filters).length) {
+      const newField = Object.assign({}, defaultFilterField, {
+        id: generateId(),
+      });
+      const newFields = { [newField.id]: newField };
+      this.state.newFields = newFields;
+    }
   }
 
   addFilterField = () => {
@@ -44,7 +44,12 @@ export class FilterManager extends Component {
   };
 
   clearFilterFields = () => {
-    this.initState();
+    const newField = Object.assign({}, defaultFilterField, {
+      id: generateId(),
+    });
+    const newFields = { [newField.id]: newField };
+    this.setState({ newFields });
+
     this.props.removeFilters();
   };
 
