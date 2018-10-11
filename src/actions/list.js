@@ -132,7 +132,10 @@ export const setUserDisabledState = (userId, disabled) => async dispatch => {
   try {
     await apiPatchUserDisabledState(userId, disabled);
     const user = await apiFetchUser(userId);
-    return onSuccess(user);
+    const type = getUserType(user);
+    const userWithType = Object.assign({}, user, { type });
+
+    return onSuccess(userWithType);
   } catch (error) {
     console.log("Error changing enabled state of user", error);
   }
