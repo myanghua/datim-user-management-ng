@@ -191,7 +191,7 @@ class List extends Component {
         {!selectedUser ? null : (
           <Paper className="card details">
             <UserDetails
-              user={selectedUser}
+              user={users[selectedUser.id]}
               onCloseDetails={this.props.clearSelectedUser}
               onClickEdit={this.handleUserEdit}
             />
