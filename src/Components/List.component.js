@@ -188,7 +188,7 @@ class List extends Component {
           </Table>
         </Paper>
 
-        {selectedUserId && (
+        {users[selectedUserId] && (
           <Paper className="card details">
             <UserDetails
               user={users[selectedUserId]}

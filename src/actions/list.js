@@ -40,10 +40,15 @@ export const getUserListing = () => (dispatch, getState) => {
     })
     .then(users => bindUserGroupData(users, state.core.me))
     .then(users => {
+      const userMap = arrayToIdMap(users);
       dispatch({
         type: actions.SET_USERS,
-        data: arrayToIdMap(users),
+        data: userMap,
       });
+
+      if (!userMap[state.list.selectedUserId]) {
+        dispatch({ type: actions.CLEAR_SELECTED_USER });
+      }
       dispatch({
         type: actions.HIDE_PROCESSING,
         status: false,
