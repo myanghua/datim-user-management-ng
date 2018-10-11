@@ -12,7 +12,7 @@ const mapStateToProps = state => {
     filters: list.filters,
     users: list.users,
     pager: list.pager,
-    selectedUser: list.selectedUser,
+    selectedUserId: list.selectedUserId,
     tab: list.tab,
     currentPage: list.currentPage,
   };

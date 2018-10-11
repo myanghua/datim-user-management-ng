@@ -112,9 +112,9 @@ export const setCurrentPage = data => dispatch => {
   }
 };
 
-export function setSelectedUser(user) {
+export function setSelectedUser(userId) {
   return dispatch => {
-    dispatch({ type: actions.SET_SELECTED_USER, data: user });
+    dispatch({ type: actions.SET_SELECTED_USER, data: userId });
   };
 }
 
