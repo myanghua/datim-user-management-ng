@@ -131,7 +131,7 @@ const configuration = {
         },
         sortOrder: 3,
       },
-      SaS: {
+      SaSR: {
         accessLevels: {
           "Enter Data": {
             groupName: "Data SaS entry",
@@ -317,7 +317,7 @@ const configuration = {
         },
         sortOrder: 3,
       },
-      SaS: {
+      SaSR: {
         accessLevels: {
           "View Data": {
             groupName: "Data SaS access",
@@ -447,7 +447,7 @@ const configuration = {
         },
         sortOrder: 3,
       },
-      SaS: {
+      SaSR: {
         accessLevels: {
           "View Data": {
             groupName: "Data SaS access",
