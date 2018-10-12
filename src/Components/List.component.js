@@ -34,12 +34,12 @@ class List extends Component {
   };
 
   toggleUserSelect = (e, userId) => {
-    if (this.props.selectedUser && this.props.selectedUser.id === userId) {
+    if (this.props.selectedUserid === userId) {
       this.props.clearSelectedUser();
       return;
     }
 
-    this.props.setSelectedUser(this.props.users[userId]);
+    this.props.setSelectedUser(userId);
   };
 
   handleUserEdit = () => {
@@ -61,7 +61,7 @@ class List extends Component {
   };
 
   render() {
-    let { users, selectedUser, pager, tab, theme } = this.props;
+    let { users, selectedUserId, pager, tab, theme } = this.props;
 
     if (!pager || !pager.page || !users) {
       return <div />;
@@ -71,8 +71,8 @@ class List extends Component {
       return <Tab key={t.id} label={t.displayName} value={t.id} />;
     });
 
-    const showDetailsClass = selectedUser && "show-user-details";
-    const highlight = (this.props.selectedUser || {}).id || "-";
+    const showDetailsClass = selectedUserId && "show-user-details";
+    const highlight = selectedUserId || "-";
 
     const styles = {
       text: theme.palette.text.main,
@@ -188,10 +188,10 @@ class List extends Component {
           </Table>
         </Paper>
 
-        {!selectedUser ? null : (
+        {users[selectedUserId] && (
           <Paper className="card details">
             <UserDetails
-              user={selectedUser}
+              user={users[selectedUserId]}
               onCloseDetails={this.props.clearSelectedUser}
               onClickEdit={this.handleUserEdit}
             />

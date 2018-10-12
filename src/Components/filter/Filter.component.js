@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import debounce from "lodash.debounce";
 import Select from "@material-ui/core/Select";
@@ -17,10 +18,13 @@ class Filter extends Component {
     detail: "",
   };
 
-  componentDidMount() {
+  constructor(props) {
+    super(props);
     const { id, category, detail } = this.props.filter;
 
-    this.setState({ id, category, detail });
+    this.state.id = id;
+    this.state.category = category;
+    this.state.detail = detail;
     this.onFilterChanged = debounce(this.onFilterChanged, 500);
   }
 
@@ -77,6 +81,7 @@ class Filter extends Component {
         </Select>
         <FilterDetail
           className="filter-detail"
+          value={this.state.detail}
           onChange={this.onChangeFilterDetail}
           id={this.state.category}
         />
@@ -93,6 +98,15 @@ class Filter extends Component {
     );
   }
 }
+
+Filter.propTypes = {
+  filter: PropTypes.object.isRequired,
+  onRemove: PropTypes.func,
+};
+
+Filter.defaultProps = {
+  onRemove: null,
+};
 
 export default connect(
   null,

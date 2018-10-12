@@ -40,10 +40,15 @@ export const getUserListing = () => (dispatch, getState) => {
     })
     .then(users => bindUserGroupData(users, state.core.me))
     .then(users => {
+      const userMap = arrayToIdMap(users);
       dispatch({
         type: actions.SET_USERS,
-        data: arrayToIdMap(users),
+        data: userMap,
       });
+
+      if (!userMap[state.list.selectedUserId]) {
+        dispatch({ type: actions.CLEAR_SELECTED_USER });
+      }
       dispatch({
         type: actions.HIDE_PROCESSING,
         status: false,
@@ -112,9 +117,9 @@ export const setCurrentPage = data => dispatch => {
   }
 };
 
-export function setSelectedUser(user) {
+export function setSelectedUser(userId) {
   return dispatch => {
-    dispatch({ type: actions.SET_SELECTED_USER, data: user });
+    dispatch({ type: actions.SET_SELECTED_USER, data: userId });
   };
 }
 
@@ -132,7 +137,10 @@ export const setUserDisabledState = (userId, disabled) => async dispatch => {
   try {
     await apiPatchUserDisabledState(userId, disabled);
     const user = await apiFetchUser(userId);
-    return onSuccess(user);
+    const type = getUserType(user);
+    const userWithType = Object.assign({}, user, { type });
+
+    return onSuccess(userWithType);
   } catch (error) {
     console.log("Error changing enabled state of user", error);
   }

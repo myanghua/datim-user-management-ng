@@ -4,7 +4,7 @@ import * as actions from "../constants/ActionTypes";
 const initialState = {
   users: {},
   pager: {},
-  selectedUser: false,
+  selectedUserId: "",
   filters: {},
   tab: "all",
   currentPage: 0,
@@ -20,12 +20,12 @@ export const listReducers = (state = initialState, action) => {
     case actions.SET_SELECTED_USER:
       return {
         ...state,
-        selectedUser: action.data,
+        selectedUserId: action.data,
       };
     case actions.CLEAR_SELECTED_USER:
       return {
         ...state,
-        selectedUser: initialState.selectedUser,
+        selectedUserId: initialState.selectedUserId,
       };
     case actions.SET_USER:
       const user = action.data;

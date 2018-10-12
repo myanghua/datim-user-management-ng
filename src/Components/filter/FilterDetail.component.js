@@ -16,6 +16,12 @@ class FilterDetail extends Component {
     value: "",
   };
 
+  constructor(props) {
+    super(props);
+
+    this.state.value = this.props.value;
+  }
+
   valueChanged = value => {
     this.setState({ value });
     this.props.onChange(value);
