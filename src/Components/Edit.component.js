@@ -53,6 +53,7 @@ class Edit extends Component {
         partners: [],
         orgUserGroups: {},
         mohUserGroups: {},
+        chip: false,
       };
     }
 
