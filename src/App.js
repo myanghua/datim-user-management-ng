@@ -63,7 +63,7 @@ class App extends Component {
   }
 
   closeSnackbar() {
-    this.setState({ snackbar: undefined });
+    actions.showSnackbarMessage(undefined);
   }
 
   showSnackbar(message) {
@@ -94,10 +94,10 @@ class App extends Component {
           )}
           <Snackbar
             className="snackbar"
-            message={this.state.snackbar || ""}
+            message={this.state.snackbar || undefined}
             autoHideDuration={2500}
-            onRequestClose={this.closeSnackbar}
             open={!!this.state.snackbar}
+            onClose={this.closeSnackbar}
           />
         </div>
       </JssProvider>

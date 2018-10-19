@@ -13,6 +13,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Checkbox from "@material-ui/core/Checkbox";
 import GridList from "@material-ui/core/GridList";
 import GridListTile from "@material-ui/core/GridListTile";
+import Chip from "@material-ui/core/Chip";
 
 import MainMenu from "../containers/MainMenu.js";
 // import AccessDenied from "./AccessDenied.component";
@@ -60,6 +61,8 @@ class Invite extends Component {
       accessDenied: false,
       countryUserGroups: [],
       validEmail: false,
+      chip: false,
+      error: false,
     };
     this.handleChangeType = this.handleChangeType.bind(this);
     this.handleChangeCountry = this.handleChangeCountry.bind(this);
@@ -425,7 +428,7 @@ class Invite extends Component {
     // did it actually change?
     if (event.target.value !== this.state.country) {
       const { core } = this.props;
-      this.setState({ [event.target.name]: event.target.value });
+      this.setState({ [event.target.name]: event.target.value, chip: false });
       //   this.setState({ country: value, streams: [], actions: [] });
       if (event.target.value === core.config.Global.ouUID) {
         this.setState({
@@ -434,6 +437,7 @@ class Invite extends Component {
           partner: false,
           streams: this.getStreamDefaults("Global", this.state.userManager),
           actions: this.getActionDefaults("Global", this.state.userManager),
+          chip: false,
         });
       } else {
         this.loadOuUserGroups(
@@ -445,6 +449,7 @@ class Invite extends Component {
           partner: false,
           streams: {},
           actions: {},
+          chip: false,
         });
       }
     }
@@ -476,19 +481,20 @@ class Invite extends Component {
         partner: false,
         streams: this.getStreamDefaults(event.target.value, this.state.userManager),
         actions: this.getActionDefaults(event.target.value, this.state.userManager),
+        chip: false,
       });
     }
   };
 
   handleChangeLocale = event => {
     if (event.target.value !== this.state.locale) {
-      this.setState({ locale: event.target.value });
+      this.setState({ locale: event.target.value, chip: false });
     }
   };
 
   handleChangeAgency = event => {
     if (event.target.value !== this.state.agency) {
-      this.setState({ agency: event.target.value });
+      this.setState({ agency: event.target.value, chip: false });
     }
   };
 
@@ -508,6 +514,7 @@ class Invite extends Component {
       this.setState({
         partner: event.target.value,
         streams: this.getStreamDefaults(userType, this.state.userManager),
+        chip: false,
       });
     }
   };
@@ -517,6 +524,7 @@ class Invite extends Component {
       this.setState({
         globalAgency: event.target.value,
         streams: this.getStreamDefaults("Agency HQ", this.state.userManager),
+        chip: false,
       });
     }
   };
@@ -527,7 +535,7 @@ class Invite extends Component {
     if (event.target.value) {
       const at_pos = event.target.value.indexOf("@");
       if (at_pos > 1 && event.target.value.indexOf(".", at_pos) > at_pos + 2) {
-        this.setState({ validEmail: true });
+        this.setState({ validEmail: true, chip: false });
       }
     }
   };
@@ -833,8 +841,10 @@ class Invite extends Component {
               })
                 .then(response => {
                   if (response.ok && response.ok === true) {
+                    this.setState({ chip: "Invite Sent" });
                     actions.showSnackbarMessage("Invitation successfully sent");
                   } else {
+                    this.setState({ chip: "Invite Sent" });
                     actions.showSnackbarMessage(
                       "Invitation sent but there was an error setting their locale"
                     );
@@ -842,6 +852,7 @@ class Invite extends Component {
                   }
                 })
                 .catch(e => {
+                  this.setState({ chip: "Invite Sent" });
                   actions.showSnackbarMessage(
                     "Invitation sent but there was an error setting their locale"
                   );
@@ -936,6 +947,7 @@ class Invite extends Component {
       email: "",
       streams: this.getStreamDefaults(userType, false),
       actions: this.getActionDefaults(userType, false),
+      chip: false,
     });
   };
 
@@ -1121,6 +1133,22 @@ class Invite extends Component {
         <h3 className="subTitle">User Management</h3>
 
         <Paper className="card filters">
+          {this.state.chip ? (
+            <Chip
+              label={this.state.chip}
+              color="primary"
+              style={{
+                float: "right",
+                marginRight: "3em",
+                backgroundColor: this.state.error
+                  ? "#ab003c"
+                  : this.state.chip
+                    ? "#4caf50"
+                    : "#e0e0e0",
+              }}
+            />
+          ) : null}
+
           <FormControl required style={{ width: "100%", marginTop: "1em" }}>
             <InputLabel htmlFor="country" error={!this.state.country}>
               Country
