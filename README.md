@@ -31,6 +31,7 @@ git clone git@bitbucket.org:pepfar-datim/datim-user-management-ng.git
 
 Install the node dependencies
 ```sh
+npm install
 yarn
 ```
 
